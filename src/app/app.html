@@ -1,0 +1,1194 @@
+<!-- ================= PUBLIC INTERFACE (NOT LOGGED IN) ================= -->
+@if (!prestifyService.currentUser()) {
+  <div class="public-layout">
+    <!-- Public Navbar -->
+    <nav class="public-navbar">
+      <a href="javascript:void(0)" class="public-navbar-logo" (click)="setTab('landing')">
+        <span class="material-symbols-outlined logo-icon">swap_horizontal_circle</span>
+        <span class="logo-text">Prestify</span>
+        <span class="logo-dot">.</span>
+      </a>
+
+      <div class="public-navbar-actions">
+        <button class="nav-link" (click)="setTab('catalog')">Explorar Objetos</button>
+        <button class="btn btn-primary btn-nav-auth" (click)="openAuthModal('login')">Iniciar Sesión</button>
+        <button class="btn btn-primary btn-nav-auth" (click)="openAuthModal('register')">Registrarse</button>
+        <button class="btn btn-icon" (click)="toggleTheme()" title="Cambiar Tema">
+          @if (theme() === 'dark') {
+            <span class="material-symbols-outlined">light_mode</span>
+          } @else {
+            <span class="material-symbols-outlined">dark_mode</span>
+          }
+        </button>
+      </div>
+    </nav>
+
+    <!-- Public Tab 1: HOME LANDING -->
+    @if (currentTab() === 'landing') {
+      <div class="landing-container animate-fade-up">
+        <!-- Hero Section -->
+        <section class="hero-section">
+          <div class="hero-text">
+            <span class="hero-tagline">Plataforma Vecinal de Economía Circular</span>
+            <h1 class="hero-title">Comparte recursos en tu comunidad</h1>
+            <p class="hero-subtitle">
+              Gestiona el préstamo y venta directa de herramientas, insumos de salud, equipamiento de camping y textiles entre vecinos, instituciones y empresas de tu localidad.
+            </p>
+            <div class="hero-actions-row">
+              <button class="btn btn-primary" (click)="openAuthModal('register')">
+                Unirse a la Red
+              </button>
+              <button class="btn btn-secondary" (click)="setTab('catalog')">
+                <span class="material-symbols-outlined">explore</span>
+                Explorar Catálogo
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-image-wrapper">
+            <div class="hero-illustration-card">
+              <div class="hero-illustration-header">
+                <h4 style="margin:0;">¿Qué compartimos?</h4>
+                <span class="hero-illustration-badge" style="background-color: rgba(99,102,241,0.1); color: var(--primary);">Préstamos / Ventas</span>
+              </div>
+              <div class="hero-illustration-row">
+                <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.5rem;">handyman</span>
+                <div>
+                  <h5 style="margin:0; font-size: 0.85rem;">Herramientas Eléctricas y Escaleras</h5>
+                  <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Uso ocasional y doméstico</p>
+                </div>
+              </div>
+              <div class="hero-illustration-row">
+                <span class="material-symbols-outlined" style="color: var(--success); font-size: 1.5rem;">medical_services</span>
+                <div>
+                  <h5 style="margin:0; font-size: 0.85rem;">Insumos de Salud y Ortopedia</h5>
+                  <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Muletas, andadores y más</p>
+                </div>
+              </div>
+              <div class="hero-illustration-row">
+                <span class="material-symbols-outlined" style="color: var(--secondary); font-size: 1.5rem;">checkroom</span>
+                <div>
+                  <h5 style="margin:0; font-size: 0.85rem;">Indumentaria Específica y Textil</h5>
+                  <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Parkas térmicas, botas de seguridad</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Leaflet Geolocation Map -->
+        <section class="map-section animate-fade-up">
+          <h2 class="features-section-title">Mapa Geográfico de Artículos Cercanos</h2>
+          <p class="features-section-subtitle">Visualiza la ubicación aproximada de los objetos y puntos de retiro registrados por vecinos y empresas de tu zona.</p>
+          <div class="card-glass" style="padding: 0.5rem; overflow: hidden; border-radius: var(--radius-lg);">
+            <div id="map-container" style="height: 400px; width: 100%; border-radius: calc(var(--radius-lg) - 0.5rem); z-index: 1;"></div>
+          </div>
+        </section>
+
+        <!-- Features Grid Section -->
+        <section class="features-section">
+          <h2 class="features-section-title">¿Cómo funciona Prestify?</h2>
+          <p class="features-section-subtitle">Conectamos vecinos, organizaciones y comercios para optimizar el ciclo de vida de los recursos.</p>
+
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon-box">
+                <span class="material-symbols-outlined">swap_horiz</span>
+              </div>
+              <h3>Catálogo Multimodal</h3>
+              <p>Elige si deseas prestar un artículo de forma gratuita, cobrar un pago presencial de mantenimiento, o venderlo definitivamente.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon-box success">
+                <span class="material-symbols-outlined">assignment_turned_in</span>
+              </div>
+              <h3>Checklists de Estado</h3>
+              <p>Es obligatorio revisar las condiciones de los objetos al entregar y recibir, asegurando la calidad y el buen funcionamiento.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon-box accent">
+                <span class="material-symbols-outlined">stars</span>
+              </div>
+              <h3>Validación y Reputación</h3>
+              <p>Califica a los usuarios tras cada devolución. Mantén una red segura y confiable con perfiles verificados.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    }
+
+    <!-- Public Tab 2: CATALOG -->
+    @if (currentTab() === 'catalog') {
+      <div class="container animate-fade-up">
+        <div class="public-catalog-header">
+          <h2>Catálogo de la Comunidad</h2>
+          <p>Herramientas, insumos de salud, camping e indumentaria disponibles en tu localidad.</p>
+        </div>
+
+        <!-- Map in explore tab -->
+        <div class="card-glass" style="padding: 0.5rem; overflow: hidden; border-radius: var(--radius-lg); margin-bottom: 2.5rem;">
+          <div id="map-container" style="height: 350px; width: 100%; border-radius: calc(var(--radius-lg) - 0.5rem); z-index: 1;"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-row">
+          <div class="category-tabs">
+            @for (cat of ['Todos', 'Herramientas', 'Salud', 'Deportes', 'Indumentaria', 'Electrónica', 'Juegos', 'Otros']; track cat) {
+              <button 
+                class="category-tab" 
+                [class.active]="selectedCategory() === cat"
+                (click)="selectCategory(cat)">
+                {{ cat }}
+              </button>
+            }
+          </div>
+          <!-- Live Search -->
+          <div class="search-bar-container">
+            <span class="material-symbols-outlined search-icon">search</span>
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Buscar objetos..." 
+              [(ngModel)]="searchQuery" />
+          </div>
+        </div>
+
+        <!-- Catalog Grid -->
+        @if (filteredItems().length > 0) {
+          <div class="items-grid">
+            @for (item of filteredItems(); track item.id) {
+              <article class="item-card animate-fade-up">
+                <div class="item-card-image-container">
+                  <img [src]="item.photoUrl" alt="{{ item.title }}" class="item-card-image" />
+                  <span class="item-category-floating">{{ item.category }}</span>
+                  
+                  <span class="badge item-badge-floating" 
+                        [class.badge-disponible]="item.status === 'disponible'"
+                        [class.badge-prestado]="item.status === 'prestado'">
+                    {{ item.status === 'disponible' ? 'Disponible' : 'Prestado' }}
+                  </span>
+                </div>
+
+                <div class="item-card-content">
+                  <h3 class="item-card-title">{{ item.title }}</h3>
+                  <p class="item-card-description">{{ item.description }}</p>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.25rem;">
+                    <div style="display:flex; flex-direction:column;">
+                      <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Modo</span>
+                      <strong style="color:var(--text-main); font-size:0.9rem;">
+                        {{ item.mode === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                      </strong>
+                    </div>
+                    <div style="text-align:right;">
+                      <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Costo</span>
+                      <strong style="color:var(--primary); font-size:1.1rem;">
+                        {{ item.price > 0 ? '$' + item.price : 'Gratis' }}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div class="item-card-meta-list">
+                    <div class="item-card-meta-item">
+                      <span class="material-symbols-outlined">person</span>
+                      <span>Ofrecido por: <strong>{{ item.owner }}</strong></span>
+                    </div>
+                    <div class="item-card-meta-item">
+                      <span class="material-symbols-outlined">stars</span>
+                      <span>Conservación: <strong>{{ item.condition }}</strong></span>
+                    </div>
+                  </div>
+
+                  <div class="item-card-actions">
+                    <button class="btn btn-primary" (click)="openChecklistModal(item.mode === 'prestamo' ? 'borrow' : 'buy', item)">
+                      <span class="material-symbols-outlined">assignment_turned_in</span>
+                      {{ item.mode === 'prestamo' ? 'Solicitar Préstamo' : 'Adquirir / Comprar' }}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <span class="material-symbols-outlined empty-state-icon">search_off</span>
+            <h3>No se encontraron objetos</h3>
+            <p>Prueba con otra palabra clave o categoría.</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- ================= PRIVATE AUTHENTICATED PANEL ================= -->
+@if (prestifyService.currentUser()) {
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="logo-container">
+        <span class="material-symbols-outlined logo-icon">swap_horizontal_circle</span>
+        <span class="logo-text">Prestify</span>
+        <span class="logo-dot">.</span>
+      </div>
+
+      <ul class="nav-links">
+        <li class="nav-item">
+          <button 
+            class="nav-link" 
+            [class.active]="currentTab() === 'dashboard'" 
+            (click)="setTab('dashboard')">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Mi Panel</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button 
+            class="nav-link" 
+            [class.active]="currentTab() === 'catalog'" 
+            (click)="setTab('catalog')">
+            <span class="material-symbols-outlined">grid_view</span>
+            <span>Explorar Objetos</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button 
+            class="nav-link" 
+            [class.active]="currentTab() === 'history'" 
+            (click)="setTab('history')">
+            <span class="material-symbols-outlined">history</span>
+            <span>Historial Transacciones</span>
+          </button>
+        </li>
+      </ul>
+
+      <!-- User Profile Card -->
+      <div class="sidebar-footer">
+        <div style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size:1.1rem; box-shadow: var(--shadow-sm);">
+            {{ prestifyService.currentUser()?.name?.charAt(0) }}
+          </div>
+          <div style="flex-grow:1; min-width: 0;">
+            <p style="margin:0; font-size:0.875rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              {{ prestifyService.currentUser()?.name }}
+            </p>
+            <span class="badge profile-banner-role" style="font-size:0.6rem; padding: 0.1rem 0.5rem; letter-spacing:0; text-transform:capitalize; margin-top:2px;">
+              {{ prestifyService.currentUser()?.type }}
+            </span>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:4px; margin-bottom: 1.25rem; font-size:0.8rem; font-weight:700;">
+          <span class="material-symbols-outlined" style="color:var(--warning); font-size:1.1rem;">star</span>
+          <span>Reputación: <strong>{{ prestifyService.currentUser()?.reputation }} / 5</strong></span>
+          <span style="color:var(--text-muted); font-weight:400;">({{ prestifyService.currentUser()?.reputationCount }} calif.)</span>
+        </div>
+
+        <button class="theme-toggle-btn" (click)="toggleTheme()" style="margin-bottom: 0.5rem;">
+          <div class="theme-toggle-info">
+            @if (theme() === 'dark') {
+              <span class="material-symbols-outlined">light_mode</span>
+              <span>Tema Claro</span>
+            } @else {
+              <span class="material-symbols-outlined">dark_mode</span>
+              <span>Tema Oscuro</span>
+            }
+          </div>
+        </button>
+
+        <button class="theme-toggle-btn" (click)="handleLogout()" style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.2);">
+          <div class="theme-toggle-info">
+            <span class="material-symbols-outlined">logout</span>
+            <span>Cerrar Sesión</span>
+          </div>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="content-header">
+        <div class="header-title-section">
+          @if (currentTab() === 'dashboard') {
+            <h1>Panel de Control</h1>
+            <p>Bienvenido de nuevo, {{ prestifyService.currentUser()?.name }}.</p>
+          } @else if (currentTab() === 'catalog') {
+            <h1>Explorar Artículos</h1>
+            <p>Busca e intercambia artículos de uso ocasional y herramientas.</p>
+          } @else {
+            <h1>Historial de Transacciones</h1>
+            <p>Registro y seguimiento de préstamos y ventas.</p>
+          }
+        </div>
+
+        <div class="header-actions">
+          @if (currentTab() === 'catalog') {
+            <div class="search-bar-container">
+              <span class="material-symbols-outlined search-icon">search</span>
+              <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Buscar objetos..." 
+                [(ngModel)]="searchQuery" />
+            </div>
+          }
+          <button class="btn btn-primary" (click)="openAddModal()">
+            <span class="material-symbols-outlined">add</span>
+            Publicar Bien (ABM)
+          </button>
+        </div>
+      </header>
+
+      <!-- AUTHENTICATED TAB 1: DASHBOARD -->
+      @if (currentTab() === 'dashboard') {
+        <div class="animate-fade-up">
+
+          <!-- ADMIN INTERFACE VIEW -->
+          @if (prestifyService.currentUser()?.role === 'admin') {
+            <div class="profile-banner">
+              <div class="profile-banner-info">
+                <h2>Panel de Administración - Economía Circular</h2>
+                <p>Monitoreo logístico de préstamos, pagos pendientes y estado de los bienes.</p>
+              </div>
+              <span class="profile-banner-role">ADMIN</span>
+            </div>
+
+            <!-- Stats -->
+            <section class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-icon-wrapper blue">
+                  <span class="material-symbols-outlined">group</span>
+                </div>
+                <div class="metric-details">
+                  <h3>Cuentas Registradas</h3>
+                  <p class="metric-value">{{ prestifyService.totalRegisteredUsers() }}</p>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon-wrapper green">
+                  <span class="material-symbols-outlined">inventory_2</span>
+                </div>
+                <div class="metric-details">
+                  <h3>Bienes Totales</h3>
+                  <p class="metric-value">{{ prestifyService.totalItems() }}</p>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon-wrapper yellow">
+                  <span class="material-symbols-outlined">schedule</span>
+                </div>
+                <div class="metric-details">
+                  <h3>Préstamos Activos</h3>
+                  <p class="metric-value">{{ prestifyService.activeLoansCount() }}</p>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon-wrapper pink">
+                  <span class="material-symbols-outlined">payments</span>
+                </div>
+                <div class="metric-details">
+                  <h3>Transacciones Totales</h3>
+                  <p class="metric-value">{{ prestifyService.transactions().length }}</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Table of Administrative Loans & Sales Logs -->
+            <section style="margin-bottom: 3rem;">
+              <h2 class="section-title" style="margin-bottom: 1rem;">
+                Control Administrativo de Transacciones
+              </h2>
+
+              @if (prestifyService.transactions().length > 0) {
+                <div class="history-table-container">
+                  <table class="history-table">
+                    <thead>
+                      <tr>
+                        <th>Artículo</th>
+                        <th>Tipo</th>
+                        <th>Propietario / Dueño</th>
+                        <th>Solicitante / Adquirente</th>
+                        <th>Estado de Uso</th>
+                        <th>Costo</th>
+                        <th>Pago Presencial</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (tx of prestifyService.transactions(); track tx.id) {
+                        <tr>
+                          <td><strong>{{ tx.itemTitle }}</strong></td>
+                          <td>
+                            <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
+                              {{ tx.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                            </span>
+                          </td>
+                          <td>{{ tx.owner }}</td>
+                          <td>{{ tx.borrowerOrBuyer }}</td>
+                          <td>
+                            <!-- Active vs Overdue Alerts -->
+                            @if (tx.type === 'prestamo') {
+                              <span class="badge" 
+                                    [class.badge-disponible]="tx.status === 'Activo' || tx.status === 'Devuelto'"
+                                    [style.color]="tx.status === 'Caducado' ? 'var(--danger)' : ''"
+                                    [style.backgroundColor]="tx.status === 'Caducado' ? 'rgba(239,68,68,0.1)' : ''">
+                                {{ tx.status === 'Caducado' ? 'Caducado (Alerta)' : tx.status }}
+                              </span>
+                            } @else {
+                              <span class="badge badge-disponible">
+                                {{ tx.status }}
+                              </span>
+                            }
+                          </td>
+                          <td style="font-weight: 700;">{{ tx.price > 0 ? '$' + tx.price : 'Gratis' }}</td>
+                          <td>
+                            @if (tx.price > 0) {
+                              @if (tx.type === 'prestamo') {
+                                <!-- Paid loan status -->
+                                <span class="badge" [style.color]="tx.status === 'Devuelto' ? 'var(--success)' : 'var(--warning)'">
+                                  {{ tx.status === 'Devuelto' ? 'Cobrado' : 'Pendiente Retorno' }}
+                                </span>
+                              } @else {
+                                <!-- Sale transaction status -->
+                                <span class="badge" [class.badge-disponible]="tx.status === 'Vendido'" [class.badge-prestado]="tx.status === 'Pago Pendiente'">
+                                  {{ tx.status === 'Vendido' ? 'Cobrado' : 'Pago Pendiente' }}
+                                </span>
+                              }
+                            } @else {
+                              <span style="color:var(--text-muted); font-size:0.8rem;">Gratuito</span>
+                            }
+                          </td>
+                          <td>
+                            @if (tx.price > 0 && tx.status === 'Pago Pendiente') {
+                              <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;" (click)="handleConfirmPayment(tx.id)">
+                                Confirmar Pago
+                              </button>
+                            } @else {
+                              <span style="color:var(--text-muted); font-size: 0.75rem;">Verificado</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <div class="empty-state">
+                  <h3>Sin transacciones activas</h3>
+                  <p>No se han registrado operaciones en el sistema todavía.</p>
+                </div>
+              }
+            </section>
+          }
+
+          <!-- REGULAR USER INTERFACE VIEW -->
+          @else {
+            <div class="profile-banner">
+              <div class="profile-banner-info">
+                <h2>Mis Intercambios Activos</h2>
+                <p>Lleva el control de los bienes que has solicitado o prestado.</p>
+              </div>
+              <span class="profile-banner-role">{{ prestifyService.currentUser()?.type }}</span>
+            </div>
+
+            <!-- Stats -->
+            <section class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-icon-wrapper blue">
+                  <span class="material-symbols-outlined">shopping_bag</span>
+                </div>
+                <div class="metric-details">
+                  <h3>Mis Préstamos Activos</h3>
+                  <p class="metric-value">{{ myBorrowedItems().length }}</p>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon-wrapper green">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <div class="metric-details">
+                  <h3>Objetos Disponibles</h3>
+                  <p class="metric-value">{{ prestifyService.availableItemsCount() }}</p>
+                </div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-icon-wrapper yellow">
+                  <span class="material-symbols-outlined">handshake</span>
+                </div>
+                <div class="metric-details">
+                  <h3>Préstamos Activos Red</h3>
+                  <p class="metric-value">{{ prestifyService.activeLoansCount() }}</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Dashboard Split (User) -->
+            <div class="dashboard-split">
+              <!-- Left: Items borrowed by me -->
+              <section class="active-loans-section">
+                <h2 class="section-title">
+                  Artículos que tengo en préstamo
+                  <span class="count">{{ myBorrowedItems().length }}</span>
+                </h2>
+
+                @if (myBorrowedItems().length > 0) {
+                  @for (item of myBorrowedItems(); track item.id) {
+                    <div class="active-loan-card animate-fade-up">
+                      <div class="active-loan-item-info">
+                        <img [src]="item.photoUrl" alt="" class="active-loan-img" />
+                        <div class="active-loan-details">
+                          <h4>{{ item.title }}</h4>
+                          <p>Ofrecido por: <strong>{{ item.owner }}</strong></p>
+                        </div>
+                      </div>
+
+                      <div class="active-loan-meta">
+                        <div class="loan-due-info">
+                          <p class="due-date" [style.color]="item.dueDate && item.dueDate < '2026-05-30' ? 'var(--danger)' : ''">
+                            {{ item.dueDate }}
+                          </p>
+                          <p class="due-label">
+                            {{ item.dueDate && item.dueDate < '2026-05-30' ? 'Vencido (Alerta)' : 'Devolver antes de' }}
+                          </p>
+                        </div>
+                        <button class="btn btn-secondary" (click)="openChecklistModal('return', item)">
+                          <span class="material-symbols-outlined">keyboard_return</span>
+                          Devolver
+                        </button>
+                      </div>
+                    </div>
+                  }
+                } @else {
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined empty-state-icon">shopping_cart_checkout</span>
+                    <h3>No tienes objetos en préstamo</h3>
+                    <p>¿Necesitas alguna herramienta o insumo ortopédico? Explora el catálogo.</p>
+                    <button class="btn btn-primary" (click)="setTab('catalog')">Ver Catálogo</button>
+                  </div>
+                }
+              </section>
+
+              <!-- Right: Rules & Info -->
+              <aside class="quick-guide-column">
+                <div class="quick-guide-card card-glass">
+                  <h3>Economía Circular</h3>
+                  <div style="font-size: 0.85rem; color:var(--text-muted); margin-top:0.75rem; display:flex; flex-direction:column; gap:10px;">
+                    <p>✔ <strong>Préstamo Inteligente:</strong> Ahorra espacio de almacenamiento y dinero.</p>
+                    <p>✔ <strong>Checklist:</strong> Garantiza que el próximo vecino reciba el objeto limpio y funcional.</p>
+                    <p>✔ <strong>Validación:</strong> Mantén una buena reputación para que sigan prestándote cosas.</p>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- AUTHENTICATED TAB 2: EXPLORE CATALOG -->
+      @if (currentTab() === 'catalog') {
+        <div class="animate-fade-up">
+          
+          <!-- Leaflet Map in catalog -->
+          <div class="card-glass" style="padding: 0.5rem; overflow: hidden; border-radius: var(--radius-lg); margin-bottom: 2rem; z-index: 1;">
+            <div id="map-container" style="height: 350px; width: 100%; border-radius: calc(var(--radius-lg) - 0.5rem); z-index: 1;"></div>
+          </div>
+
+          <div class="filters-row">
+            <div class="category-tabs">
+              @for (cat of ['Todos', 'Herramientas', 'Salud', 'Deportes', 'Indumentaria', 'Electrónica', 'Juegos', 'Otros']; track cat) {
+                <button 
+                  class="category-tab" 
+                  [class.active]="selectedCategory() === cat"
+                  (click)="selectCategory(cat)">
+                  {{ cat }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Catalog Grid -->
+          @if (filteredItems().length > 0) {
+            <div class="items-grid">
+              @for (item of filteredItems(); track item.id) {
+                <article class="item-card animate-fade-up">
+                  <div class="item-card-image-container">
+                    <img [src]="item.photoUrl" alt="" class="item-card-image" />
+                    <span class="item-category-floating">{{ item.category }}</span>
+                    
+                    <span class="badge item-badge-floating" 
+                          [class.badge-disponible]="item.status === 'disponible'"
+                          [class.badge-prestado]="item.status === 'prestado'"
+                          [class.badge-secondary]="item.status === 'vendido'">
+                      {{ item.status === 'disponible' ? 'Disponible' : item.status === 'prestado' ? 'Prestado' : 'Vendido' }}
+                    </span>
+                  </div>
+
+                  <div class="item-card-content">
+                    <h3 class="item-card-title">{{ item.title }}</h3>
+                    <p class="item-card-description">{{ item.description }}</p>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.25rem;">
+                      <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Modo</span>
+                        <strong style="color:var(--text-main); font-size:0.9rem;">
+                          {{ item.mode === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                        </strong>
+                      </div>
+                      <div style="text-align:right;">
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Costo</span>
+                        <strong style="color:var(--primary); font-size:1.1rem;">
+                          {{ item.price > 0 ? '$' + item.price : 'Gratis' }}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div class="item-card-meta-list">
+                      <div class="item-card-meta-item">
+                        <span class="material-symbols-outlined">person</span>
+                        <span>Dueño: <strong>{{ item.owner }}</strong></span>
+                      </div>
+                      <div class="item-card-meta-item">
+                        <span class="material-symbols-outlined">stars</span>
+                        <span>Estado: <strong>{{ item.condition }}</strong></span>
+                      </div>
+                      @if (item.status === 'prestado') {
+                        <div class="item-card-meta-item" style="color: var(--warning);">
+                          <span class="material-symbols-outlined">assignment_ind</span>
+                          <span>Prestado a: <strong>{{ item.borrower }}</strong></span>
+                        </div>
+                      }
+                    </div>
+
+                    <div class="item-card-actions">
+                      @if (item.status === 'disponible') {
+                        <button class="btn btn-primary" (click)="openChecklistModal(item.mode === 'prestamo' ? 'borrow' : 'buy', item)">
+                          <span class="material-symbols-outlined">assignment_turned_in</span>
+                          {{ item.mode === 'prestamo' ? 'Pedir Prestado' : 'Comprar / Adquirir' }}
+                        </button>
+                      } @else if (item.status === 'prestado') {
+                        @if (prestifyService.currentUser()?.role === 'admin' || item.borrower === prestifyService.currentUser()?.name) {
+                          <button class="btn btn-secondary" (click)="openChecklistModal('return', item)">
+                            <span class="material-symbols-outlined">keyboard_return</span>
+                            Devolver Objeto
+                          </button>
+                        } @else {
+                          <button class="btn btn-secondary" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            No Disponible
+                          </button>
+                        }
+                      } @else {
+                        <button class="btn btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed;">
+                          Vendido
+                        </button>
+                      }
+
+                      @if (prestifyService.currentUser()?.role === 'admin' || item.owner === prestifyService.currentUser()?.name) {
+                        <button class="btn btn-delete-item" (click)="handleDeleteItem(item.id)" title="Eliminar Articulo">
+                          <span class="material-symbols-outlined">delete</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <span class="material-symbols-outlined empty-state-icon">search_off</span>
+              <h3>No se encontraron objetos</h3>
+              <p>Prueba con otra categoría o término de búsqueda.</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- AUTHENTICATED TAB 3: GENERAL LOG HISTORY -->
+      @if (currentTab() === 'history') {
+        <div class="animate-fade-up">
+          @if (prestifyService.transactions().length > 0) {
+            <div class="history-table-container">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Artículo</th>
+                    <th>Tipo</th>
+                    <th>Dueño</th>
+                    <th>Vecino/Empresa</th>
+                    <th>Inicio</th>
+                    <th>Retorno/Fin</th>
+                    <th>Checklist Entrega</th>
+                    <th>Checklist Devolución</th>
+                    <th>Calificación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (log of prestifyService.transactions(); track log.id) {
+                    <tr>
+                      <td><strong>{{ log.itemTitle }}</strong></td>
+                      <td>
+                        <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
+                          {{ log.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                        </span>
+                      </td>
+                      <td>{{ log.owner }}</td>
+                      <td>{{ log.borrowerOrBuyer }}</td>
+                      <td class="history-date">{{ log.dateStarted }}</td>
+                      <td class="history-date">{{ log.returnDate || log.dateEndedOrDue }}</td>
+                      <td style="font-size:0.75rem; color:var(--text-muted);">
+                        ✔ Completo (4/4)
+                      </td>
+                      <td style="font-size:0.75rem; color:var(--text-muted);">
+                        {{ log.returnChecklist ? '✔ Completo (4/4)' : '-' }}
+                      </td>
+                      <td>
+                        @if (log.ratingGiven) {
+                          <div style="display:flex; align-items:center; gap:2px; color:var(--warning); font-weight:700;">
+                            <span class="material-symbols-outlined" style="font-size:1rem;">star</span>
+                            <span>{{ log.ratingGiven }}</span>
+                          </div>
+                        } @else {
+                          <span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="empty-state">
+              <span class="material-symbols-outlined empty-state-icon">history</span>
+              <h3>Historial vacío</h3>
+              <p>Las transacciones completadas se registrarán aquí automáticamente.</p>
+            </div>
+          }
+        </div>
+      }
+    </main>
+  </div>
+}
+
+<!-- ================= AUTH MODAL ================= -->
+@if (showAuthModal()) {
+  <div class="modal-overlay" (click)="closeAuthModal()">
+    <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 480px;">
+      
+      @if (authMode() !== 'recover') {
+        <div class="auth-mode-selector">
+          <button 
+            type="button" 
+            class="auth-tab-btn" 
+            [class.active]="authMode() === 'login'" 
+            (click)="setAuthMode('login')">
+            Iniciar Sesión
+          </button>
+          <button 
+            type="button" 
+            class="auth-tab-btn" 
+            [class.active]="authMode() === 'register'" 
+            (click)="setAuthMode('register')">
+            Crear Cuenta
+          </button>
+        </div>
+      } @else {
+        <div class="modal-header">
+          <h2>Recuperar Contraseña</h2>
+          <button class="btn btn-icon" (click)="closeAuthModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      }
+
+      <div class="modal-body">
+        
+        <!-- LOGIN FORM -->
+        @if (authMode() === 'login') {
+          <form (ngSubmit)="handleLogin()">
+            <div class="form-group">
+              <label for="loginEmail">Correo Electrónico</label>
+              <input 
+                type="email" 
+                id="loginEmail" 
+                class="form-input" 
+                placeholder="ej. carlos@gmail.com" 
+                [(ngModel)]="loginEmail" 
+                name="email" 
+                required />
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="loginPassword">Contraseña</label>
+                <a href="javascript:void(0)" (click)="setAuthMode('recover')" style="font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 600;">¿La olvidaste?</a>
+              </div>
+              <input 
+                type="password" 
+                id="loginPassword" 
+                class="form-input" 
+                placeholder="Ingresa tu contraseña" 
+                [(ngModel)]="loginPassword" 
+                name="password" 
+                required />
+            </div>
+
+            <div style="background-color: rgba(99, 102, 241, 0.05); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px dashed rgba(99, 102, 241, 0.2); font-size: 0.75rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.4;">
+              <strong>Cuentas Semilla Disponibles:</strong><br>
+              • <strong>Admin / Institución:</strong> contacto@municipio.org / admin123<br>
+              • <strong>Usuario / Vecino:</strong> carlos@gmail.com / user123
+            </div>
+
+            <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
+              <button type="button" class="btn btn-secondary" (click)="closeAuthModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </div>
+          </form>
+        }
+
+        <!-- REGISTER FORM -->
+        @if (authMode() === 'register') {
+          <form (ngSubmit)="handleRegister()">
+            <div class="form-group">
+              <label for="regName">Nombre Completo o Razón Social</label>
+              <input 
+                type="text" 
+                id="regName" 
+                class="form-input" 
+                placeholder="Ej. Ana Belén / Ferretería Central" 
+                [(ngModel)]="registerName" 
+                name="name" 
+                required />
+            </div>
+
+            <div class="form-group">
+              <label for="regEmail">Correo Electrónico</label>
+              <input 
+                type="email" 
+                id="regEmail" 
+                class="form-input" 
+                placeholder="ej. ana@correo.com" 
+                [(ngModel)]="registerEmail" 
+                name="email" 
+                required />
+            </div>
+
+            <div class="form-group">
+              <label for="regPassword">Contraseña</label>
+              <input 
+                type="password" 
+                id="regPassword" 
+                class="form-input" 
+                placeholder="Mínimo 6 caracteres" 
+                [(ngModel)]="registerPassword" 
+                name="password" 
+                required />
+            </div>
+
+            <!-- Profile Type Selector -->
+            <div class="form-group">
+              <label>Perfil de Organización</label>
+              <select class="form-select" [(ngModel)]="registerType" name="type">
+                <option value="vecino">Vecino Individual</option>
+                <option value="institucion">Institución u ONG (Escuela, Cruz Roja, etc.)</option>
+                <option value="empresa">Empresa o Comercio Local</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Rol Inicial</label>
+              <div class="role-selection-group">
+                <label class="role-radio-label" [class.active]="registerRole === 'usuario'">
+                  <input type="radio" name="role" [(ngModel)]="registerRole" value="usuario" />
+                  Usuario Comun
+                </label>
+                <label class="role-radio-label" [class.active]="registerRole === 'admin'">
+                  <input type="radio" name="role" [(ngModel)]="registerRole" value="admin" />
+                  Administrador
+                </label>
+              </div>
+            </div>
+
+            <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
+              <button type="button" class="btn btn-secondary" (click)="closeAuthModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Registrarse</button>
+            </div>
+          </form>
+        }
+
+        <!-- PASSWORD RECOVERY FORM -->
+        @if (authMode() === 'recover') {
+          <form (ngSubmit)="handleRecovery()">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+              Introduce tu correo electrónico registrado. Te enviaremos tu contraseña simulada en un aviso flotante.
+            </p>
+            
+            <div class="form-group">
+              <label for="recoverEmail">Correo Electrónico</label>
+              <input 
+                type="email" 
+                id="recoverEmail" 
+                class="form-input" 
+                placeholder="Ingresa tu correo" 
+                [(ngModel)]="recoveryEmail" 
+                name="email" 
+                required />
+            </div>
+
+            <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
+              <button type="button" class="btn btn-secondary" (click)="setAuthMode('login')">Atrás</button>
+              <button type="submit" class="btn btn-primary">Recuperar Contraseña</button>
+            </div>
+          </form>
+        }
+
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ================= PUBLISH BIEN MODAL (ABM) ================= -->
+@if (showAddModal()) {
+  <div class="modal-overlay" (click)="closeAddModal()">
+    <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Publicar Artículo / Insumo (ABM)</h2>
+        <button class="btn btn-icon" (click)="closeAddModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="handleAddItem()">
+          <div class="form-group">
+            <label for="itemTitle">Nombre del Objeto *</label>
+            <input 
+              type="text" 
+              id="itemTitle" 
+              class="form-input" 
+              placeholder="Ej. Muletas Ortopédicas de Aluminio" 
+              [(ngModel)]="newItemTitle" 
+              name="title" 
+              required />
+          </div>
+
+          <div class="form-group">
+            <label for="itemDesc">Descripción</label>
+            <textarea 
+              id="itemDesc" 
+              class="form-textarea" 
+              placeholder="Ej. Ideales para lesiones ocasionales, plegables..."
+              [(ngModel)]="newItemDesc" 
+              name="description" 
+              rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="itemCategory">Categoría</label>
+            <select id="itemCategory" class="form-select" [(ngModel)]="newItemCategory" name="category">
+              <option value="Herramientas">Herramientas (Escaleras, taladros, etc.)</option>
+              <option value="Salud">Salud / Ortopedia (Muletas, andadores)</option>
+              <option value="Deportes">Deportes / Camping</option>
+              <option value="Indumentaria">Indumentaria / Textiles técnicos</option>
+              <option value="Electrónica">Electrónica</option>
+              <option value="Juegos">Juegos / Entretenimiento</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="itemOwner">Propietario Publicador *</label>
+            <input 
+              type="text" 
+              id="itemOwner" 
+              class="form-input" 
+              [(ngModel)]="newItemOwner" 
+              name="owner" 
+              required />
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>Modalidad Comercial</label>
+              <select class="form-select" [(ngModel)]="newItemMode" name="mode">
+                <option value="prestamo">Ofrecer en Préstamo</option>
+                <option value="venta">Ofrecer en Venta Directa</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Costo / Precio ($)</label>
+              <input 
+                type="number" 
+                class="form-input" 
+                placeholder="0 si es gratis" 
+                [(ngModel)]="newItemPrice" 
+                name="price" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="itemPhoto">URL de la Imagen (Opcional)</label>
+            <input 
+              type="url" 
+              id="itemPhoto" 
+              class="form-input" 
+              placeholder="Dejar en blanco para usar imagen temática" 
+              [(ngModel)]="newItemPhoto" 
+              name="photoUrl" />
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>Latitud (Geolocalización)</label>
+              <input type="number" step="any" class="form-input" [(ngModel)]="newItemLat" name="lat" required />
+            </div>
+            <div class="form-group">
+              <label>Longitud (Geolocalización)</label>
+              <input type="number" step="any" class="form-input" [(ngModel)]="newItemLng" name="lng" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="itemCondition">Estado de conservación inicial</label>
+            <select id="itemCondition" class="form-select" [(ngModel)]="newItemCondition" name="condition">
+              <option value="Nuevo">Nuevo</option>
+              <option value="Como nuevo">Como nuevo</option>
+              <option value="Bueno">Bueno</option>
+              <option value="Aceptable">Aceptable</option>
+            </select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeAddModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Publicar Bien</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ================= MANDATORY CHECKLIST TRANSACTION MODAL ================= -->
+@if (showChecklistModal()) {
+  <div class="modal-overlay" (click)="closeChecklistModal()">
+    <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>
+          @if (checklistAction === 'borrow') { Verificación de Entrega de Préstamo }
+          @else if (checklistAction === 'buy') { Confirmación de Compra Directa }
+          @else { Verificación de Recepción y Retorno }
+        </h2>
+        <button class="btn btn-icon" (click)="closeChecklistModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Checklist details -->
+        <div style="background-color: var(--bg-input); padding:1rem; border-radius: var(--radius-md); margin-bottom:1.5rem; display:flex; gap:1rem; align-items:center;">
+          <img [src]="checklistItem?.photoUrl" alt="" style="width: 50px; height: 50px; object-fit: cover; border-radius: var(--radius-sm);" />
+          <div>
+            <h4 style="margin:0; font-size:1rem;">{{ checklistItem?.title }}</h4>
+            <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Dueño: {{ checklistItem?.owner }}</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="handleChecklistSubmit()">
+          
+          <!-- Borrow Additional fields -->
+          @if (checklistAction === 'borrow') {
+            <div class="form-group">
+              <label for="checkBorrower">¿Quién retira? *</label>
+              <input type="text" id="checkBorrower" class="form-input" [(ngModel)]="borrowerName" name="bName" required />
+            </div>
+
+            <div class="form-group">
+              <label for="checkDue">Fecha de Devolución Estimada *</label>
+              <input type="date" id="checkDue" class="form-input" [(ngModel)]="dueDate" name="bDue" required />
+            </div>
+
+            <div class="form-group">
+              <label for="checkNotes">Notas del Préstamo</label>
+              <input type="text" id="checkNotes" class="form-input" placeholder="Para pintar fachada..." [(ngModel)]="borrowNotes" name="bNotes" />
+            </div>
+          }
+
+          <!-- Mandatory checklist checks -->
+          <div style="margin-bottom: 1.5rem;">
+            <p style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-bottom: 0.75rem; text-transform:uppercase; letter-spacing:0.02em;">
+              Checklist de Estado Obligatorio:
+            </p>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                <input type="checkbox" [(ngModel)]="checkLimpio" name="clean" required style="width:18px; height:18px;" />
+                El objeto se encuentra limpio y desinfectado.
+              </label>
+
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                <input type="checkbox" [(ngModel)]="checkEstructura" name="structure" required style="width:18px; height:18px;" />
+                No presenta daños estructurales, fisuras o partes rotas.
+              </label>
+
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                <input type="checkbox" [(ngModel)]="checkMecanico" name="mech" required style="width:18px; height:18px;" />
+                Se verificó el funcionamiento mecánico y encendido (si aplica).
+              </label>
+
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.9rem;">
+                <input type="checkbox" [(ngModel)]="checkAccesorios" name="acc" required style="width:18px; height:18px;" />
+                Los accesorios, cables y repuestos están completos.
+              </label>
+            </div>
+          </div>
+
+          <!-- Return Rating -->
+          @if (checklistAction === 'return') {
+            <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+              <label>Calificar al Solicitante por el cuidado del bien (Reputación):</label>
+              <select class="form-select" [(ngModel)]="returnRating" name="rating">
+                <option [value]="5">⭐⭐⭐⭐⭐ (Excelente estado de devolución)</option>
+                <option [value]="4">⭐⭐⭐⭐ (Muy buenas condiciones)</option>
+                <option [value]="3">⭐⭐⭐ (Aceptable, detalles menores)</option>
+                <option [value]="2">⭐⭐ (Descuido, requiere limpieza profunda)</option>
+                <option [value]="1">⭐ (Daños severos detectados)</option>
+              </select>
+            </div>
+          }
+
+          <div class="modal-footer" style="padding-top:1.25rem; border-top: 1px solid var(--border-color);">
+            <button type="button" class="btn btn-secondary" (click)="closeChecklistModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!checkLimpio || !checkEstructura || !checkMecanico || !checkAccesorios">
+              Confirmar Transacción
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ================= TOASTS NOTIFICATIONS ================= -->
+<div class="toast-container">
+  @for (toast of toasts(); track toast) {
+    <div class="toast animate-fade-up" 
+         [class.toast-success]="toast.type === 'success'"
+         [class.toast-info]="toast.type === 'info'"
+         [class.toast-warning]="toast.type === 'warning'">
+      @if (toast.type === 'success') {
+        <span class="material-symbols-outlined" style="color: var(--success);">check_circle</span>
+      } @else if (toast.type === 'info') {
+        <span class="material-symbols-outlined" style="color: var(--info);">info</span>
+      } @else {
+        <span class="material-symbols-outlined" style="color: var(--warning);">warning</span>
+      }
+      <span>{{ toast.message }}</span>
+    </div>
+  }
+</div>
