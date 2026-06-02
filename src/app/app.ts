@@ -1,11 +1,12 @@
 import { Component, signal, computed, inject, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { PrestifyService, Item, Transaction, User } from './services/prestify.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, DecimalPipe],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -24,6 +25,9 @@ export class App implements OnInit, AfterViewInit {
   // Unified Auth Modal State
   public readonly showAuthModal = signal<boolean>(false);
   public readonly authMode = signal<'login' | 'register' | 'recover'>('login');
+  
+  // Product Detail View State
+  public readonly selectedItem = signal<Item | null>(null);
   
   // Auth Form Fields
   public loginEmail = '';
@@ -193,22 +197,31 @@ export class App implements OnInit, AfterViewInit {
   }
 
   public selectItemFromMap(itemId: string): void {
-    // Focus search on this item or navigate directly
     const item = this.prestifyService.items().find(i => i.id === itemId);
     if (item) {
-      this.searchQuery.set(item.title);
-      this.showToast(`Filtro aplicado: ${item.title}`, 'info');
-      // If in landing tab, route to catalog to interact
-      if (this.currentTab() === 'landing') {
-        this.currentTab.set('catalog');
-      }
+      this.openItemDetail(item);
+      this.showToast(`Mostrando detalle de: ${item.title}`, 'info');
     }
+  }
+
+  public openItemDetail(item: Item): void {
+    this.selectedItem.set(item);
+    if (this.currentTab() !== 'catalog') {
+      this.currentTab.set('catalog');
+    }
+    // Defer initialization to make sure map element exists if needed
+    this.initMapDeferred();
+  }
+
+  public getOwnerDetails(ownerName: string): User | null {
+    return this.prestifyService.users().find(u => u.name.toLowerCase() === ownerName.toLowerCase()) || null;
   }
 
   public setTab(tab: 'landing' | 'catalog' | 'dashboard' | 'history'): void {
     this.currentTab.set(tab);
     this.searchQuery.set('');
     this.selectedCategory.set('Todos');
+    this.selectedItem.set(null); // Clear active detail view on tab navigation
     
     // Refresh map if landing or catalog
     if (tab === 'landing' || tab === 'catalog') {
