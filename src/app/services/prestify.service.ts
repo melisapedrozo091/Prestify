@@ -110,8 +110,8 @@ const SEED_ITEMS: Item[] = [
   },
   {
     id: '2',
-    title: 'Escalera Telescópica de Aluminio (4.4m)',
-    description: 'Escalera extensible portátil, muy compacta para almacenamiento. Perfecta para arreglos de altura en el hogar.',
+    title: 'Taladro Percutor Inalámbrico Dewalt 20V',
+    description: 'Taladro potente de uso profesional con 2 baterías de litio y maletín de transporte.',
     category: 'Herramientas',
     owner: 'Carlos Perez (Vecino)',
     photoUrl: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=500&auto=format&fit=crop&q=80',
@@ -128,8 +128,8 @@ const SEED_ITEMS: Item[] = [
   },
   {
     id: '3',
-    title: 'Taladro Percutor Inalámbrico Dewalt 20V',
-    description: 'Taladro potente de uso profesional con 2 baterías de litio y juego de brocas para pared y madera.',
+    title: 'Juego de Brocas y Accesorios para Taladro',
+    description: 'Maletín completo con puntas de destornillador y brocas de alta precisión para metal, madera y concreto.',
     category: 'Herramientas',
     owner: 'Ferretería Central',
     photoUrl: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=500&auto=format&fit=crop&q=80',
@@ -174,7 +174,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
   {
     id: 't1',
     itemId: '2',
-    itemTitle: 'Escalera Telescópica de Aluminio (4.4m)',
+    itemTitle: 'Taladro Percutor Inalámbrico Dewalt 20V',
     category: 'Herramientas',
     type: 'prestamo',
     borrowerOrBuyer: 'Ferretería Central',
@@ -245,7 +245,31 @@ export class PrestifyService {
 
       // Load Items
       if (itemsData) {
-        this._items.set(JSON.parse(itemsData));
+        let loadedItems = JSON.parse(itemsData);
+        let migrated = false;
+        loadedItems = loadedItems.map((item: any) => {
+          if (item.id === '2' && item.title === 'Escalera Telescópica de Aluminio (4.4m)') {
+            migrated = true;
+            return {
+              ...item,
+              title: 'Taladro Percutor Inalámbrico Dewalt 20V',
+              description: 'Taladro potente de uso profesional con 2 baterías de litio y maletín de transporte.',
+            };
+          }
+          if (item.id === '3' && item.title === 'Taladro Percutor Inalámbrico Dewalt 20V') {
+            migrated = true;
+            return {
+              ...item,
+              title: 'Juego de Brocas y Accesorios para Taladro',
+              description: 'Maletín completo con puntas de destornillador y brocas de alta precisión para metal, madera y concreto.',
+            };
+          }
+          return item;
+        });
+        this._items.set(loadedItems);
+        if (migrated) {
+          this.saveToStorage(STORAGE_ITEMS_KEY, loadedItems);
+        }
       } else {
         this._items.set(SEED_ITEMS);
         this.saveToStorage(STORAGE_ITEMS_KEY, SEED_ITEMS);
@@ -253,7 +277,22 @@ export class PrestifyService {
 
       // Load Transactions
       if (transactionData) {
-        this._transactions.set(JSON.parse(transactionData));
+        let loadedTxs = JSON.parse(transactionData);
+        let migratedTx = false;
+        loadedTxs = loadedTxs.map((tx: any) => {
+          if (tx.itemId === '2' && tx.itemTitle === 'Escalera Telescópica de Aluminio (4.4m)') {
+            migratedTx = true;
+            return {
+              ...tx,
+              itemTitle: 'Taladro Percutor Inalámbrico Dewalt 20V'
+            };
+          }
+          return tx;
+        });
+        this._transactions.set(loadedTxs);
+        if (migratedTx) {
+          this.saveToStorage(STORAGE_HISTORY_KEY, loadedTxs);
+        }
       } else {
         this._transactions.set(SEED_TRANSACTIONS);
         this.saveToStorage(STORAGE_HISTORY_KEY, SEED_TRANSACTIONS);
