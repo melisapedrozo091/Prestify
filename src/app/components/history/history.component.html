@@ -1,0 +1,59 @@
+<div class="animate-fade-up">
+  @if (prestifyService.transactions().length > 0) {
+  <div class="history-table-container" style="overflow-x: auto;">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Artículo</th>
+          <th>Tipo</th>
+          <th>Dueño</th>
+          <th>Vecino/Empresa</th>
+          <th>Inicio</th>
+          <th>Retorno/Fin</th>
+          <th>Checklist Entrega</th>
+          <th>Checklist Devolución</th>
+          <th>Calificación</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (log of prestifyService.transactions(); track log.id) {
+        <tr>
+          <td><strong>{{ log.itemTitle }}</strong></td>
+          <td>
+            <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
+              {{ log.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
+            </span>
+          </td>
+          <td>{{ log.owner }}</td>
+          <td>{{ log.borrowerOrBuyer }}</td>
+          <td class="history-date">{{ log.dateStarted }}</td>
+          <td class="history-date">{{ log.returnDate || log.dateEndedOrDue }}</td>
+          <td style="font-size:0.75rem; color:var(--text-muted);">
+            ✔ Completo (4/4)
+          </td>
+          <td style="font-size:0.75rem; color:var(--text-muted);">
+            {{ log.returnChecklist ? '✔ Completo (4/4)' : '-' }}
+          </td>
+          <td>
+            @if (log.ratingGiven) {
+            <div style="display:flex; align-items:center; gap:2px; color:var(--warning); font-weight:700;">
+              <span class="material-symbols-outlined" style="font-size:1rem;">star</span>
+              <span>{{ log.ratingGiven }}</span>
+            </div>
+            } @else {
+            <span style="color:var(--text-muted); font-size:0.8rem;">-</span>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } @else {
+  <div class="empty-state">
+    <span class="material-symbols-outlined empty-state-icon">history</span>
+    <h3>Historial vacío</h3>
+    <p>Las transacciones completadas se registrarán aquí automáticamente.</p>
+  </div>
+  }
+</div>

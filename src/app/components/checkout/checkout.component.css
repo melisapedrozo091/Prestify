@@ -1,0 +1,191 @@
+.checkout-item-summary {
+  display: flex;
+  gap: 1rem;
+  background-color: var(--bg-input);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.summary-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.summary-meta {
+  flex-grow: 1;
+}
+
+.summary-category {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.summary-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0.15rem 0;
+  color: var(--text-main);
+}
+
+.badge-sku {
+  background-color: rgba(99,102,241,0.08);
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.badge-owner {
+  background-color: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.payment-methods-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.payment-radio-label {
+  display: block;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.payment-radio-label:hover {
+  background-color: var(--bg-input);
+}
+
+.payment-radio-label.active {
+  border-color: var(--primary);
+  background-color: rgba(99, 102, 241, 0.04);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.payment-radio-label input[type="radio"] {
+  position: absolute;
+  top: 50%;
+  right: 1.25rem;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.pay-radio-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-right: 2rem;
+}
+
+.pay-radio-content .material-symbols-outlined {
+  font-size: 1.75rem;
+  color: var(--primary);
+}
+
+.pay-radio-content div {
+  display: flex;
+  flex-direction: column;
+}
+
+.pay-radio-content strong {
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.pay-radio-content span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.cost-summary-card {
+  background-color: rgba(99, 102, 241, 0.03);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.verification-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.section-sub-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.checklist-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.checkbox-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+.terms-checkbox {
+  background-color: rgba(245, 158, 11, 0.03);
+  border: 1px solid rgba(245, 158, 11, 0.12);
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.header-icon {
+  font-size: 1.5rem;
+  vertical-align: middle;
+  color: var(--primary);
+}

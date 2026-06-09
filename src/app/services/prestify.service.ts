@@ -18,6 +18,7 @@ export interface Item {
   dueDate?: string;
   notes?: string;
   paymentStatus?: 'Gratuito' | 'Pendiente' | 'Pagado';
+  sku?: string;
 }
 
 export interface User {
@@ -42,10 +43,16 @@ export interface Transaction {
   dateEndedOrDue: string;
   returnDate?: string;
   price: number;
-  status: 'Activo' | 'Caducado' | 'Pago Pendiente' | 'Vendido' | 'Devuelto';
+  status: 'Activo' | 'Caducado' | 'Pago Pendiente' | 'Vendido' | 'Devuelto' | 'Pendiente' | 'Rechazado';
   handoverChecklist: string[]; // State verification at handover
   returnChecklist?: string[];   // State verification at return
   ratingGiven?: number;         // Rating given for this transaction
+  ticketNumber: string;
+  sku: string;
+  approvalStatus: 'pendiente' | 'aprobado' | 'rechazado';
+  paymentMethod?: 'efectivo' | 'mercadopago';
+  durationDays?: number;
+  notes?: string;
 }
 
 const STORAGE_ITEMS_KEY = 'prestify_items_circular';
@@ -106,12 +113,13 @@ const SEED_ITEMS: Item[] = [
     mode: 'prestamo',
     price: 0, // Free loan
     lat: -34.605,
-    lng: -58.385
+    lng: -58.385,
+    sku: 'SKU-SALU-4821'
   },
   {
     id: '2',
     title: 'Taladro Percutor Inalámbrico Dewalt 20V',
-    description: 'Taladro potente de uso profesional con 2 baterías de litio y maletín de transporte.',
+    description: 'Taladro potente de uso profesional con 2 baterías de litio and maletín de transporte.',
     category: 'Herramientas',
     owner: 'Carlos Perez (Vecino)',
     photoUrl: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=500&auto=format&fit=crop&q=80',
@@ -124,7 +132,8 @@ const SEED_ITEMS: Item[] = [
     borrower: 'Ferretería Central',
     loanDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 5 days ago
     dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],  // Expired 1 day ago (should trigger Caducado)
-    paymentStatus: 'Pendiente'
+    paymentStatus: 'Pendiente',
+    sku: 'SKU-HERR-8812'
   },
   {
     id: '3',
@@ -138,7 +147,8 @@ const SEED_ITEMS: Item[] = [
     mode: 'venta',
     price: 45000, // Direct sale
     lat: -34.595,
-    lng: -58.395
+    lng: -58.395,
+    sku: 'SKU-HERR-9041'
   },
   {
     id: '4',
@@ -152,7 +162,8 @@ const SEED_ITEMS: Item[] = [
     mode: 'prestamo',
     price: 0,
     lat: -34.602,
-    lng: -58.405
+    lng: -58.405,
+    sku: 'SKU-DEPO-3329'
   },
   {
     id: '5',
@@ -166,7 +177,8 @@ const SEED_ITEMS: Item[] = [
     mode: 'venta',
     price: 25000,
     lat: -34.610,
-    lng: -58.365
+    lng: -58.365,
+    sku: 'SKU-INDU-1125'
   }
 ];
 
@@ -182,8 +194,13 @@ const SEED_TRANSACTIONS: Transaction[] = [
     dateStarted: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     dateEndedOrDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     price: 1500,
-    status: 'Caducado', // Calculated as past due date
-    handoverChecklist: ['Limpio y desinfectado', 'Sin daños estructurales', 'Funcionamiento mecánico verificado']
+    status: 'Caducado',
+    handoverChecklist: ['Limpio y desinfectado', 'Sin daños estructurales', 'Funcionamiento mecánico verificado'],
+    sku: 'SKU-HERR-8812',
+    ticketNumber: 'TK-100293',
+    approvalStatus: 'aprobado',
+    paymentMethod: 'efectivo',
+    durationDays: 4
   },
   {
     id: 't2',
@@ -199,7 +216,11 @@ const SEED_TRANSACTIONS: Transaction[] = [
     price: 25000,
     status: 'Vendido',
     handoverChecklist: ['Limpio y desinfectado', 'Sin roturas ni costuras dañadas'],
-    ratingGiven: 5
+    ratingGiven: 5,
+    sku: 'SKU-INDU-1125',
+    ticketNumber: 'TK-203941',
+    approvalStatus: 'aprobado',
+    paymentMethod: 'mercadopago'
   }
 ];
 
@@ -218,6 +239,82 @@ export class PrestifyService {
   public readonly transactions = computed(() => this._transactions());
   public readonly users = computed(() => this._users());
   public readonly currentUser = computed(() => this._currentUser());
+
+  // Global Auth Modal State managed by Service
+  public readonly showAuthModal = signal<boolean>(false);
+  public readonly authMode = signal<'login' | 'register' | 'recover'>('login');
+
+  public openAuthModal(mode: 'login' | 'register' | 'recover' = 'login'): void {
+    this.authMode.set(mode);
+    this.showAuthModal.set(true);
+  }
+
+  public closeAuthModal(): void {
+    this.showAuthModal.set(false);
+  }
+
+  // Global Add Item Modal State
+  public readonly showAddModal = signal<boolean>(false);
+
+  // Global search query shared between header and Catalog
+  public readonly searchQuery = signal<string>('');
+
+  // Global Toast Notifications State managed by Service
+  public readonly toasts = signal<{ message: string; type: 'success' | 'info' | 'warning' }[]>([]);
+
+  public showToast(message: string, type: 'success' | 'info' | 'warning' = 'success'): void {
+    const toast = { message, type };
+    this.toasts.update(current => [...current, toast]);
+    setTimeout(() => {
+      this.toasts.update(current => current.filter(t => t !== toast));
+    }, 4500);
+  }
+
+  // Global Checklist Modal State
+  public readonly showChecklistModal = signal<boolean>(false);
+  public checklistAction = signal<'borrow' | 'return' | 'buy'>('borrow');
+  public checklistItem = signal<Item | null>(null);
+
+  public openChecklistModal(action: 'borrow' | 'return' | 'buy', item: Item): void {
+    this.checklistAction.set(action);
+    this.checklistItem.set(item);
+    this.showChecklistModal.set(true);
+  }
+
+  public closeChecklistModal(): void {
+    this.showChecklistModal.set(false);
+    this.checklistItem.set(null);
+  }
+
+  // Global Checkout Modal State
+  public readonly showCheckoutModal = signal<boolean>(false);
+  public readonly checkoutItem = signal<Item | null>(null);
+  public readonly checkoutAction = signal<'borrow' | 'buy'>('borrow');
+
+  public openCheckout(action: 'borrow' | 'buy', item: Item): void {
+    this.checkoutAction.set(action);
+    this.checkoutItem.set(item);
+    this.showCheckoutModal.set(true);
+  }
+
+  public closeCheckout(): void {
+    this.showCheckoutModal.set(false);
+    this.checkoutItem.set(null);
+  }
+
+  // Global Ticket Modal State
+  public readonly showTicketModal = signal<boolean>(false);
+  public readonly activeTicketTransaction = signal<Transaction | null>(null);
+
+  public openTicketModal(tx: Transaction): void {
+    this.activeTicketTransaction.set(tx);
+    this.showTicketModal.set(true);
+  }
+
+  public closeTicketModal(): void {
+    this.showTicketModal.set(false);
+    this.activeTicketTransaction.set(null);
+  }
 
   // General Platform Stats
   public readonly totalItems = computed(() => this._items().length);
@@ -398,6 +495,88 @@ export class PrestifyService {
     return { success: true };
   }
 
+  public adminAddUser(user: User): { success: boolean; error?: string } {
+    const emailLower = user.email.toLowerCase().trim();
+    const exists = this._users().some(u => u.email.toLowerCase() === emailLower);
+    if (exists) {
+      return { success: false, error: 'El correo electrónico ya está registrado.' };
+    }
+
+    const newUser: User = {
+      ...user,
+      email: emailLower,
+      reputation: user.reputation || 5.0,
+      reputationCount: user.reputationCount || 1
+    };
+
+    this._users.update(users => [...users, newUser]);
+    this.persistUsers();
+    return { success: true };
+  }
+
+  public updateUser(email: string, updatedData: Partial<User>): { success: boolean; error?: string } {
+    const emailLower = email.toLowerCase().trim();
+    const index = this._users().findIndex(u => u.email.toLowerCase() === emailLower);
+    if (index === -1) {
+      return { success: false, error: 'Usuario no encontrado.' };
+    }
+
+    this._users.update(users => users.map(u => {
+      if (u.email.toLowerCase() === emailLower) {
+        return {
+          ...u,
+          ...updatedData,
+          // Do not allow email to be changed easily to avoid key collisions
+          email: u.email
+        };
+      }
+      return u;
+    }));
+    this.persistUsers();
+
+    // Update active user session if they edited themselves
+    const current = this._currentUser();
+    if (current && current.email.toLowerCase() === emailLower) {
+      const updatedUser = this._users().find(u => u.email.toLowerCase() === emailLower);
+      if (updatedUser) {
+        this._currentUser.set({
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role,
+          type: updatedUser.type,
+          reputation: updatedUser.reputation,
+          reputationCount: updatedUser.reputationCount
+        });
+        this.persistSession();
+      }
+    }
+
+    return { success: true };
+  }
+
+  public deleteUser(email: string): { success: boolean; error?: string } {
+    const emailLower = email.toLowerCase().trim();
+    if (emailLower === 'contacto@municipio.org') {
+      return { success: false, error: 'No se puede eliminar la cuenta del Administrador principal.' };
+    }
+
+    const exists = this._users().some(u => u.email.toLowerCase() === emailLower);
+    if (!exists) {
+      return { success: false, error: 'Usuario no encontrado.' };
+    }
+
+    this._users.update(users => users.filter(u => u.email.toLowerCase() !== emailLower));
+    this.persistUsers();
+
+    // Log out if the deleted user is the current session
+    const current = this._currentUser();
+    if (current && current.email.toLowerCase() === emailLower) {
+      this.logout();
+    }
+
+    return { success: true };
+  }
+
   public login(email: string, password: string): { success: boolean; error?: string } {
     const emailLower = email.toLowerCase().trim();
     const user = this._users().find(u => u.email.toLowerCase() === emailLower && u.password === password);
@@ -474,11 +653,13 @@ export class PrestifyService {
   }
 
   // --- Item CRUD Actions ---
-  public addItem(item: Omit<Item, 'id' | 'status'>): void {
+  public addItem(item: Omit<Item, 'id' | 'status' | 'sku'> & { sku?: string }): void {
+    const generatedSku = item.sku || `SKU-${item.category.substring(0, 4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const newItem: Item = {
       ...item,
       id: Math.random().toString(36).substr(2, 9),
-      status: 'disponible'
+      status: 'disponible',
+      sku: generatedSku
     };
 
     this._items.update(items => [newItem, ...items]);
@@ -490,38 +671,51 @@ export class PrestifyService {
     this.persistItems();
   }
 
+  public updateItemDetails(itemId: string, updatedData: Partial<Item>): { success: boolean; error?: string } {
+    const exists = this._items().some(i => i.id === itemId);
+    if (!exists) {
+      return { success: false, error: 'Artículo no encontrado.' };
+    }
+
+    this._items.update(items => items.map(i => {
+      if (i.id === itemId) {
+        return {
+          ...i,
+          ...updatedData
+        };
+      }
+      return i;
+    }));
+    this.persistItems();
+    return { success: true };
+  }
+
   // --- Transaction Actions ---
   
-  // Handover Checklist - loan start
+  // Handover Checklist - request loan (enters pending approval)
   public borrowItem(
     itemId: string, 
     borrower: string, 
     dueDate: string, 
     price: number, 
     checklist: string[], 
-    notes?: string
+    notes?: string,
+    paymentMethod?: 'efectivo' | 'mercadopago'
   ): void {
     const item = this._items().find(i => i.id === itemId);
     if (!item) return;
 
-    // Update Item status
-    this._items.update(items => items.map(i => {
-      if (i.id === itemId) {
-        return {
-          ...i,
-          status: 'prestado',
-          borrower,
-          loanDate: new Date().toISOString().split('T')[0],
-          dueDate,
-          notes: notes || '',
-          paymentStatus: price > 0 ? 'Pendiente' : 'Gratuito'
-        };
-      }
-      return i;
-    }));
-    this.persistItems();
+    // Create a random ticket number
+    const ticketNumber = 'TK-' + Math.floor(100000 + Math.random() * 900000);
+    const itemSku = item.sku || `SKU-${item.category.substring(0,4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Create active Transaction
+    // Calculate duration
+    const startDate = new Date();
+    const endDate = new Date(dueDate);
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    const durationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+
+    // Create pending Transaction
     const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       itemId,
@@ -533,39 +727,36 @@ export class PrestifyService {
       dateStarted: new Date().toISOString().split('T')[0],
       dateEndedOrDue: dueDate,
       price,
-      status: 'Activo',
-      handoverChecklist: checklist
+      status: 'Pendiente',
+      handoverChecklist: checklist,
+      ticketNumber,
+      sku: itemSku,
+      approvalStatus: 'pendiente',
+      paymentMethod: paymentMethod || 'efectivo',
+      durationDays,
+      notes: notes || ''
     };
 
     this._transactions.update(txs => [newTx, ...txs]);
     this.persistTransactions();
   }
 
-  // Buy Item Direct Sale - instantly sets transaction to Sold
+  // Buy Item Direct Sale - enters pending approval
   public buyItem(
     itemId: string, 
     buyer: string, 
     price: number, 
-    checklist: string[]
+    checklist: string[],
+    paymentMethod?: 'efectivo' | 'mercadopago'
   ): void {
     const item = this._items().find(i => i.id === itemId);
     if (!item) return;
 
-    // Update Item status to sold
-    this._items.update(items => items.map(i => {
-      if (i.id === itemId) {
-        return {
-          ...i,
-          status: 'vendido',
-          borrower: buyer, // Stored borrower for records
-          notes: 'Vendido de forma directa.'
-        };
-      }
-      return i;
-    }));
-    this.persistItems();
+    // Create a random ticket number
+    const ticketNumber = 'TK-' + Math.floor(100000 + Math.random() * 900000);
+    const itemSku = item.sku || `SKU-${item.category.substring(0,4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Create transaction log
+    // Create pending Transaction
     const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       itemId,
@@ -576,14 +767,84 @@ export class PrestifyService {
       owner: item.owner,
       dateStarted: new Date().toISOString().split('T')[0],
       dateEndedOrDue: new Date().toISOString().split('T')[0],
-      returnDate: new Date().toISOString().split('T')[0],
       price,
-      status: 'Vendido',
-      handoverChecklist: checklist
+      status: 'Pendiente',
+      handoverChecklist: checklist,
+      ticketNumber,
+      sku: itemSku,
+      approvalStatus: 'pendiente',
+      paymentMethod: paymentMethod || 'efectivo'
     };
 
     this._transactions.update(txs => [newTx, ...txs]);
     this.persistTransactions();
+  }
+
+  // Accept a pending transaction (Called by the owner of the item)
+  public acceptTransaction(txId: string): void {
+    const tx = this._transactions().find(t => t.id === txId);
+    if (!tx || tx.approvalStatus !== 'pendiente') return;
+
+    // 1. Update the item's status and details
+    this._items.update(items => items.map(item => {
+      if (item.id === tx.itemId) {
+        if (tx.type === 'prestamo') {
+          return {
+            ...item,
+            status: 'prestado',
+            borrower: tx.borrowerOrBuyer,
+            loanDate: tx.dateStarted,
+            dueDate: tx.dateEndedOrDue,
+            notes: tx.notes || '',
+            paymentStatus: tx.price > 0 ? 'Pendiente' : 'Gratuito'
+          };
+        } else {
+          // Sale
+          return {
+            ...item,
+            status: 'vendido',
+            borrower: tx.borrowerOrBuyer,
+            notes: 'Vendido a través de la red.'
+          };
+        }
+      }
+      return item;
+    }));
+    this.persistItems();
+
+    // 2. Update the transaction's status
+    this._transactions.update(txs => txs.map(t => {
+      if (t.id === txId) {
+        return {
+          ...t,
+          approvalStatus: 'aprobado',
+          status: t.type === 'prestamo' ? 'Activo' : (t.price > 0 ? 'Pago Pendiente' : 'Vendido')
+        };
+      }
+      return t;
+    }));
+    this.persistTransactions();
+  }
+
+  // Reject a pending transaction (Called by the owner of the item)
+  public rejectTransaction(txId: string): void {
+    const tx = this._transactions().find(t => t.id === txId);
+    if (!tx || tx.approvalStatus !== 'pendiente') return;
+
+    // 1. Mark transaction as rejected
+    this._transactions.update(txs => txs.map(t => {
+      if (t.id === txId) {
+        return {
+          ...t,
+          approvalStatus: 'rechazado',
+          status: 'Rechazado'
+        };
+      }
+      return t;
+    }));
+    this.persistTransactions();
+
+    // Note: Item remains 'disponible' as we did not change its status during reservation
   }
 
   // Return Checklist - loan ends

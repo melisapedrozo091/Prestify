@@ -1,0 +1,668 @@
+<div class="animate-fade-up">
+  <!-- ================= ADMINISTRATOR INTERFACE PANEL ================= -->
+  @if (prestifyService.currentUser()?.role === 'admin') {
+    <div class="profile-banner">
+      <div class="profile-banner-info">
+        <h2>Panel de Control - Administración General</h2>
+        <p>Moderación de catálogos vecinales, gestión de usuarios, control de transacciones y auditoría logística.</p>
+      </div>
+      <span class="profile-banner-role">ADMINISTRADOR DEL SISTEMA</span>
+    </div>
+
+    <!-- Stats -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon-wrapper blue">
+          <span class="material-symbols-outlined">group</span>
+        </div>
+        <div class="metric-details">
+          <h3>Cuentas Registradas</h3>
+          <p class="metric-value">{{ prestifyService.totalRegisteredUsers() }}</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-wrapper green">
+          <span class="material-symbols-outlined">inventory_2</span>
+        </div>
+        <div class="metric-details">
+          <h3>Bienes Totales</h3>
+          <p class="metric-value">{{ prestifyService.totalItems() }}</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-wrapper yellow">
+          <span class="material-symbols-outlined">schedule</span>
+        </div>
+        <div class="metric-details">
+          <h3>Préstamos Activos</h3>
+          <p class="metric-value">{{ prestifyService.activeLoansCount() }}</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-wrapper pink">
+          <span class="material-symbols-outlined">payments</span>
+        </div>
+        <div class="metric-details">
+          <h3>Transacciones Totales</h3>
+          <p class="metric-value">{{ prestifyService.transactions().length }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Sub-Navigation Tabs -->
+    <div class="admin-tabs-nav" style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 2rem;">
+      <button class="category-tab" [class.active]="adminTab() === 'users'" (click)="adminTab.set('users')">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle; margin-right: 4px;">manage_accounts</span>
+        ABM Usuarios
+      </button>
+      <button class="category-tab" [class.active]="adminTab() === 'catalog'" (click)="adminTab.set('catalog')">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle; margin-right: 4px;">storefront</span>
+        ABM Catálogo (Productos)
+      </button>
+      <button class="category-tab" [class.active]="adminTab() === 'transactions'" (click)="adminTab.set('transactions')">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle; margin-right: 4px;">receipt_long</span>
+        Registro de Transacciones
+      </button>
+    </div>
+
+    <!-- TAB 1: USER ABM -->
+    @if (adminTab() === 'users') {
+      <section style="margin-bottom: 3rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+          <h3 class="section-title" style="margin-bottom: 0;">
+            Gestión de Usuarios Activos
+          </h3>
+          <button class="btn btn-primary" (click)="openCreateUserModal()">
+            <span class="material-symbols-outlined">person_add</span>
+            Nuevo Usuario
+          </button>
+        </div>
+
+        <div class="history-table-container" style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Nombre de Usuario</th>
+                <th>Correo Electrónico</th>
+                <th>Tipo de Organización</th>
+                <th>Rol</th>
+                <th>Reputación</th>
+                <th style="text-align: right; width: 120px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of regularUsers(); track user.email) {
+                <tr>
+                  <td><strong>{{ user.name }}</strong></td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                    <span class="badge" style="background-color: var(--bg-input); color: var(--text-main); font-weight:700; text-transform: capitalize;">
+                      {{ user.type }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-usuario">Usuario</span>
+                  </td>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:4px; font-weight:700;">
+                      <span class="material-symbols-outlined" style="color:var(--warning); font-size:1.1rem; vertical-align:middle;">star</span>
+                      <span>{{ user.reputation }} / 5</span>
+                    </div>
+                  </td>
+                  <td style="text-align: right;">
+                    <div style="display:inline-flex; gap:0.5rem; justify-content: flex-end;">
+                      <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" (click)="openEditUserModal(user)" title="Editar Usuario">
+                        <span class="material-symbols-outlined" style="font-size:1.1rem;">edit</span>
+                      </button>
+                      <button class="btn btn-danger" style="padding: 4px 8px; font-size:0.8rem;" (click)="deleteUser(user)" title="Eliminar Usuario">
+                        <span class="material-symbols-outlined" style="font-size:1.1rem;">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- TAB 2: CATALOG ABM (Admin Moderator view) -->
+    @if (adminTab() === 'catalog') {
+      <section style="margin-bottom: 3rem;">
+        <h3 class="section-title" style="margin-bottom: 1.5rem;">
+          Control y Moderación del Catálogo General
+        </h3>
+
+        <div class="history-table-container" style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Miniatura</th>
+                <th>Título del Objeto</th>
+                <th>Categoría</th>
+                <th>Propietario</th>
+                <th>Modalidad</th>
+                <th>Costo</th>
+                <th>Estado</th>
+                <th style="text-align: right; width: 120px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of prestifyService.items(); track item.id) {
+                <tr>
+                  <td class="font-mono" style="font-size:0.8rem;"><strong>{{ item.sku }}</strong></td>
+                  <td>
+                    <img [src]="item.photoUrl" alt="" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid var(--border-color);" />
+                  </td>
+                  <td><strong>{{ item.title }}</strong></td>
+                  <td>
+                    <span class="badge" style="background-color: var(--bg-input); font-weight:700;">{{ item.category }}</span>
+                  </td>
+                  <td>{{ item.owner }}</td>
+                  <td>
+                    <span class="badge" [style.color]="item.mode === 'prestamo' ? 'var(--primary)' : 'var(--secondary)'">
+                      {{ item.mode === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                    </span>
+                  </td>
+                  <td style="font-weight:700;">{{ item.price > 0 ? '$' + item.price : 'Gratis' }}</td>
+                  <td>
+                    <span class="badge" 
+                      [class.badge-disponible]="item.status === 'disponible'"
+                      [class.badge-prestado]="item.status === 'prestado'"
+                      [class.badge-secondary]="item.status === 'vendido'">
+                      {{ item.status }}
+                    </span>
+                  </td>
+                  <td style="text-align: right;">
+                    <div style="display:inline-flex; gap:0.5rem; justify-content: flex-end;">
+                      <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" (click)="openEditProductModal(item)" title="Editar Artículo">
+                        <span class="material-symbols-outlined" style="font-size:1.1rem;">edit</span>
+                      </button>
+                      <button class="btn btn-danger" style="padding: 4px 8px; font-size:0.8rem;" (click)="deleteProduct(item.id)" title="Eliminar del Catálogo">
+                        <span class="material-symbols-outlined" style="font-size:1.1rem;">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- TAB 3: TRANSACTIONS MODERATION -->
+    @if (adminTab() === 'transactions') {
+      <section style="margin-bottom: 3rem;">
+        <h3 class="section-title" style="margin-bottom: 1.5rem;">
+          Control Administrativo de Transacciones
+        </h3>
+
+        @if (prestifyService.transactions().length > 0) {
+        <div class="history-table-container" style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Comprobante</th>
+                <th>Artículo</th>
+                <th>Tipo</th>
+                <th>Dueño (Remitente)</th>
+                <th>Solicitante (Adquirente)</th>
+                <th>Aprobación</th>
+                <th>Monto</th>
+                <th>Pago Presencial</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tx of prestifyService.transactions(); track tx.id) {
+              <tr>
+                <td class="font-mono" style="font-size:0.8rem;">{{ tx.ticketNumber }}</td>
+                <td><strong>{{ tx.itemTitle }}</strong></td>
+                <td>
+                  <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
+                    {{ tx.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                  </span>
+                </td>
+                <td>{{ tx.owner }}</td>
+                <td>{{ tx.borrowerOrBuyer }}</td>
+                <td>
+                  <span class="badge" 
+                    [style.color]="tx.approvalStatus === 'aprobado' ? 'var(--success)' : (tx.approvalStatus === 'pendiente' ? 'var(--warning)' : 'var(--danger)')"
+                    [style.backgroundColor]="tx.approvalStatus === 'aprobado' ? 'rgba(16,185,129,0.08)' : (tx.approvalStatus === 'pendiente' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)')">
+                    {{ tx.approvalStatus }}
+                  </span>
+                </td>
+                <td style="font-weight: 700;">{{ tx.price > 0 ? '$' + tx.price : 'Gratis' }}</td>
+                <td>
+                  @if (tx.price > 0) {
+                    @if (tx.type === 'prestamo') {
+                      <span class="badge" [style.color]="tx.status === 'Devuelto' ? 'var(--success)' : 'var(--warning)'">
+                        {{ tx.status === 'Devuelto' ? 'Cobrado' : 'Pendiente Retorno' }}
+                      </span>
+                    } @else {
+                      <span class="badge" [class.badge-disponible]="tx.status === 'Vendido'"
+                        [class.badge-prestado]="tx.status === 'Pago Pendiente'">
+                        {{ tx.status === 'Vendido' ? 'Cobrado' : 'Pago Pendiente' }}
+                      </span>
+                    }
+                  } @else {
+                    <span style="color:var(--text-muted); font-size:0.8rem;">Gratuito</span>
+                  }
+                </td>
+                <td>
+                  @if (tx.price > 0 && tx.status === 'Pago Pendiente' && tx.approvalStatus === 'aprobado') {
+                  <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;"
+                    (click)="handleConfirmPayment(tx.id)">
+                    Confirmar Pago
+                  </button>
+                  } @else {
+                  <span style="color:var(--text-muted); font-size: 0.75rem;">Verificado</span>
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        } @else {
+        <div class="empty-state">
+          <h3>Sin transacciones activas</h3>
+          <p>No se han registrado operaciones en el sistema todavía.</p>
+        </div>
+        }
+      </section>
+    }
+  }
+
+  <!-- ================= REGULAR USER INTERFACE PANEL ================= -->
+  @else {
+    <div class="profile-banner">
+      <div class="profile-banner-info">
+        <h2>Mis Intercambios Activos</h2>
+        <p>Lleva el control de los bienes que has solicitado, prestado y las solicitudes de tus propios objetos.</p>
+      </div>
+      <span class="profile-banner-role">{{ prestifyService.currentUser()?.type }}</span>
+    </div>
+
+    <!-- Stats -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon-wrapper blue">
+          <span class="material-symbols-outlined">shopping_bag</span>
+        </div>
+        <div class="metric-details">
+          <h3>Mis Préstamos Activos</h3>
+          <p class="metric-value">{{ myBorrowedItems().length }}</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-wrapper green">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <div class="metric-details">
+          <h3>Objetos Disponibles</h3>
+          <p class="metric-value">{{ prestifyService.availableItemsCount() }}</p>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-wrapper yellow">
+          <span class="material-symbols-outlined">handshake</span>
+        </div>
+        <div class="metric-details">
+          <h3>Préstamos Activos Red</h3>
+          <p class="metric-value">{{ prestifyService.activeLoansCount() }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: RECEIVED REQUESTS (Owner Approval Flow) -->
+    <section class="active-loans-section" style="margin-bottom: 3rem;">
+      <h2 class="section-title">
+        <span class="material-symbols-outlined" style="color:var(--primary);">notifications_active</span>
+        Solicitudes de mis Objetos (Aprobación)
+        <span class="count">{{ myReceivedRequests().length }}</span>
+      </h2>
+
+      @if (myReceivedRequests().length > 0) {
+        <div class="history-table-container" style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Artículo Solicitado</th>
+                <th>Solicitante</th>
+                <th>Operación</th>
+                <th>Medio de Pago</th>
+                <th>Plazo / Costo</th>
+                <th style="text-align: right; width: 180px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (req of myReceivedRequests(); track req.id) {
+                <tr>
+                  <td class="font-mono" style="font-size:0.8rem;">{{ req.sku }}</td>
+                  <td><strong>{{ req.itemTitle }}</strong></td>
+                  <td>{{ req.borrowerOrBuyer }}</td>
+                  <td>
+                    <span class="badge" style="background-color: var(--bg-input); font-weight:700; text-transform:capitalize;">
+                      {{ req.type }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [style.color]="req.paymentMethod === 'mercadopago' ? '#009ee3' : 'var(--text-muted)'"
+                          [style.backgroundColor]="req.paymentMethod === 'mercadopago' ? 'rgba(0,158,227,0.08)' : 'var(--bg-input)'">
+                      {{ req.paymentMethod === 'mercadopago' ? 'Mercado Pago' : 'Efectivo' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (req.type === 'prestamo') {
+                      <span>{{ req.durationDays }} días (Devuelve: {{ req.dateEndedOrDue }})</span>
+                    } @else {
+                      <strong>{{ req.price > 0 ? '$' + req.price : 'Gratuito' }}</strong>
+                    }
+                  </td>
+                  <td style="text-align: right;">
+                    <div style="display:inline-flex; gap:0.5rem; justify-content: flex-end;">
+                      <button class="btn btn-primary" style="padding: 4px 12px; font-size:0.8rem; background: var(--success); box-shadow:none;" (click)="handleAcceptRequest(req.id)">
+                        Aceptar
+                      </button>
+                      <button class="btn btn-danger" style="padding: 4px 12px; font-size:0.8rem; box-shadow:none;" (click)="handleRejectRequest(req.id)">
+                        Rechazar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty-state" style="padding: 2rem 1rem;">
+          <p style="margin: 0; font-size:0.9rem; color:var(--text-muted);">No tienes solicitudes pendientes de aprobación de tus objetos en este momento.</p>
+        </div>
+      }
+    </section>
+
+    <!-- SECTION 2: MY ALQUILERES & COMPRAS (Checkout tickets) -->
+    <section class="active-loans-section" style="margin-bottom: 3rem;">
+      <h2 class="section-title">
+        <span class="material-symbols-outlined" style="color:var(--primary);">shopping_bag</span>
+        Mis Solicitudes y Compras (Tickets)
+        <span class="count">{{ myRequestedTransactions().length }}</span>
+      </h2>
+
+      @if (myRequestedTransactions().length > 0) {
+        <div class="history-table-container" style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Comprobante</th>
+                <th>Artículo</th>
+                <th>Dueño (Remitente)</th>
+                <th>Tipo</th>
+                <th>Medio de Pago</th>
+                <th>Estado Solicitud</th>
+                <th style="text-align: right; width: 180px;">Comprobante</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tx of myRequestedTransactions(); track tx.id) {
+                <tr>
+                  <td class="font-mono" style="font-size:0.8rem;">{{ tx.ticketNumber }}</td>
+                  <td><strong>{{ tx.itemTitle }}</strong></td>
+                  <td>{{ tx.owner }}</td>
+                  <td>
+                    <span class="badge" style="background-color: var(--bg-input); font-weight:700; text-transform:capitalize;">{{ tx.type }}</span>
+                  </td>
+                  <td style="text-transform: capitalize;">{{ tx.paymentMethod }}</td>
+                  <td>
+                    <span class="badge" 
+                      [style.color]="tx.approvalStatus === 'aprobado' ? 'var(--success)' : (tx.approvalStatus === 'pendiente' ? 'var(--warning)' : 'var(--danger)')"
+                      [style.backgroundColor]="tx.approvalStatus === 'aprobado' ? 'rgba(16,185,129,0.08)' : (tx.approvalStatus === 'pendiente' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)')">
+                      {{ tx.approvalStatus === 'aprobado' ? 'Aprobada' : (tx.approvalStatus === 'pendiente' ? 'Pendiente Aprobación' : 'Rechazada') }}
+                    </span>
+                  </td>
+                  <td style="text-align: right;">
+                    @if (tx.approvalStatus === 'aprobado') {
+                      <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; box-shadow:none; display: inline-flex; align-items:center; gap:4px;" (click)="openTicket(tx)">
+                        <span class="material-symbols-outlined" style="font-size:0.95rem;">receipt_long</span>
+                        Ver Ticket
+                      </button>
+                    } @else {
+                      <span style="font-size: 0.75rem; color: var(--text-muted);">No disponible</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty-state" style="padding: 2.5rem 1rem;">
+          <p style="margin: 0; font-size:0.9rem; color:var(--text-muted);">No has solicitado ningún objeto todavía.</p>
+        </div>
+      }
+    </section>
+
+    <!-- SECTION 3: ITEMS IN ACTIVE LOAN (For Devolver action) -->
+    <section class="active-loans-section">
+      <h2 class="section-title">
+        <span class="material-symbols-outlined" style="color:var(--primary);">keyboard_return</span>
+        Artículos que tengo físicamente en préstamo
+        <span class="count">{{ myBorrowedItems().length }}</span>
+      </h2>
+
+      @if (myBorrowedItems().length > 0) {
+        @for (item of myBorrowedItems(); track item.id) {
+          <div class="active-loan-card animate-fade-up">
+            <div class="active-loan-item-info">
+              <img [src]="item.photoUrl" alt="" class="active-loan-img" />
+              <div class="active-loan-details">
+                <h4>{{ item.title }}</h4>
+                <p>Ofrecido por: <strong>{{ item.owner }}</strong></p>
+              </div>
+            </div>
+
+            <div class="active-loan-meta">
+              <div class="loan-due-info">
+                <p class="due-date" [style.color]="item.dueDate && item.dueDate < '2026-05-30' ? 'var(--danger)' : ''">
+                  {{ item.dueDate }}
+                </p>
+                <p class="due-label">Devolver antes de</p>
+              </div>
+              <button class="btn btn-secondary" (click)="openChecklist('return', item)">
+                <span class="material-symbols-outlined">keyboard_return</span>
+                Devolver
+              </button>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="empty-state" style="padding: 3rem 1rem;">
+          <span class="material-symbols-outlined empty-state-icon">shopping_cart_checkout</span>
+          <h3>No tienes objetos en posesión física</h3>
+          <p>¿Necesitas alguna herramienta o insumo ortopédico? Explora el catálogo.</p>
+          <button class="btn btn-primary" (click)="navigateToCatalog()">Ver Catálogo</button>
+        </div>
+      }
+    </section>
+  }
+</div>
+
+<!-- ================= USER ABM MODAL (For Admins) ================= -->
+@if (showUserModal()) {
+<div class="modal-overlay" (click)="closeUserModal()">
+  <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 480px;">
+    <div class="modal-header">
+      <h2>{{ userModalMode() === 'create' ? 'Registrar Nuevo Usuario' : 'Editar Usuario' }}</h2>
+      <button class="btn btn-icon" (click)="closeUserModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="saveUser()">
+        <div class="form-group">
+          <label for="userName">Nombre Completo o Razón Social *</label>
+          <input type="text" id="userName" class="form-input" placeholder="Ej. Juan Pérez / Tienda S.A."
+            [(ngModel)]="userFormName" name="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="userEmail">Correo Electrónico *</label>
+          <input type="email" id="userEmail" class="form-input" placeholder="ej. juan@correo.com"
+            [(ngModel)]="userFormEmail" name="email" required [disabled]="userModalMode() === 'edit'" />
+        </div>
+
+        <div class="form-group">
+          <label for="userPassword">Contraseña *</label>
+          <input type="password" id="userPassword" class="form-input" placeholder="Ingresa contraseña"
+            [(ngModel)]="userFormPassword" name="password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="userType">Tipo de Organización</label>
+          <select id="userType" class="form-select" [(ngModel)]="userFormType" name="type">
+            <option value="vecino">Vecino Individual</option>
+            <option value="institucion">Institución u ONG</option>
+            <option value="empresa">Empresa o Comercio Local</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="userReputation">Reputación Inicial (1 - 5 estrellas)</label>
+          <input type="number" id="userReputation" class="form-input" min="1" max="5" step="0.1"
+            [(ngModel)]="userFormReputation" name="reputation" />
+        </div>
+
+        <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
+          <button type="button" class="btn btn-secondary" (click)="closeUserModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            {{ userModalMode() === 'create' ? 'Registrar' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ================= PRODUCT CATALOG ABM MODAL (For Admins - moderation) ================= -->
+@if (showProductModal()) {
+<div class="modal-overlay" (click)="closeProductModal()">
+  <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <h2>Editar Artículo del Catálogo (Admin)</h2>
+      <button class="btn btn-icon" (click)="closeProductModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="saveProduct()">
+        <div class="form-group">
+          <label for="pTitle">Nombre del Objeto *</label>
+          <input type="text" id="pTitle" class="form-input" [(ngModel)]="productFormTitle" name="pTitle" required />
+        </div>
+
+        <div class="form-group">
+          <label for="pSku">Código SKU (Identificador)</label>
+          <input type="text" id="pSku" class="form-input font-mono" [(ngModel)]="productFormSku" name="pSku" placeholder="Autogenerado si está vacío" />
+        </div>
+
+        <div class="form-group">
+          <label for="pDesc">Descripción</label>
+          <textarea id="pDesc" class="form-textarea" [(ngModel)]="productFormDesc" name="pDesc" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pCategory">Categoría</label>
+          <select id="pCategory" class="form-select" [(ngModel)]="productFormCategory" name="pCategory">
+            <option value="Herramientas">Herramientas</option>
+            <option value="Salud">Salud / Ortopedia</option>
+            <option value="Deportes">Deportes / Camping</option>
+            <option value="Indumentaria">Indumentaria</option>
+            <option value="Electrónica">Electrónica</option>
+            <option value="Juegos">Juegos</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="pOwner">Propietario / Remitente *</label>
+          <input type="text" id="pOwner" class="form-input" [(ngModel)]="productFormOwner" name="pOwner" required />
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Modalidad Comercial</label>
+            <select class="form-select" [(ngModel)]="productFormMode" name="pMode">
+              <option value="prestamo">Ofrecer en Préstamo</option>
+              <option value="venta">Ofrecer en Venta Directa</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Costo / Precio ($)</label>
+            <input type="number" class="form-input" [(ngModel)]="productFormPrice" name="pPrice" />
+          </div>
+        </div>
+
+        <!-- File Upload from PC with preview -->
+        <div class="form-group" style="border: 1px dashed var(--border-color); padding: 1rem; border-radius: var(--radius-md); background-color: rgba(99,102,241,0.02);">
+          <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="material-symbols-outlined" style="color:var(--primary);">upload_file</span>
+            Actualizar Foto desde PC
+          </label>
+          <input type="file" id="pPhotoFile" accept="image/*" (change)="onProductFileSelected($event)" class="form-input" style="padding: 0.35rem 0.75rem;" />
+          
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin: 0.5rem 0 0.25rem 0; text-align: center;">- O URL externa -</span>
+          <input type="url" class="form-input" [(ngModel)]="productFormPhoto" name="pPhoto" />
+          
+          @if (productFormPhoto) {
+            <div style="margin-top: 0.85rem; text-align: center; background-color: var(--bg-card); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <img [src]="productFormPhoto" alt="Vista previa" style="max-height: 100px; max-width: 100%; border-radius: var(--radius-sm); object-fit: cover;" />
+            </div>
+          }
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Latitud</label>
+            <input type="number" step="any" class="form-input" [(ngModel)]="productFormLat" name="pLat" required />
+          </div>
+          <div class="form-group">
+            <label>Longitud</label>
+            <input type="number" step="any" class="form-input" [(ngModel)]="productFormLng" name="pLng" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="pCondition">Estado de conservación</label>
+          <select id="pCondition" class="form-select" [(ngModel)]="productFormCondition" name="pCondition">
+            <option value="Nuevo">Nuevo</option>
+            <option value="Como nuevo">Como nuevo</option>
+            <option value="Bueno">Bueno</option>
+            <option value="Aceptable">Aceptable</option>
+          </select>
+        </div>
+
+        <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
+          <button type="button" class="btn btn-secondary" (click)="closeProductModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+}

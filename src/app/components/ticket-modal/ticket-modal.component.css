@@ -1,0 +1,140 @@
+.ticket-paper {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  font-family: var(--font-family);
+  margin: 1.5rem;
+  position: relative;
+}
+
+/* Simulated serrated border top and bottom for ticket paper effect */
+.ticket-paper::before, .ticket-paper::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background-size: 10px 6px;
+}
+
+.ticket-paper::before {
+  top: -6px;
+  background-image: radial-gradient(circle, transparent 70%, #ffffff 70%);
+}
+
+.ticket-paper::after {
+  bottom: -6px;
+  background-image: radial-gradient(circle, transparent 70%, #ffffff 70%);
+}
+
+.ticket-header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.ticket-logo {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+  display: block;
+}
+
+.ticket-tagline {
+  font-size: 0.75rem;
+  color: #64748b;
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.ticket-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.ticket-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.ticket-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.ticket-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ticket-value {
+  color: #0f172a;
+  font-weight: 600;
+  text-align: right;
+}
+
+.font-mono {
+  font-family: monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.total-row {
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.cost-value {
+  color: var(--primary);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.barcode-section {
+  text-align: center;
+  margin: 1.25rem 0 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mp-qr-section {
+  text-align: center;
+  margin-top: 1.5rem;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: rgba(0, 158, 227, 0.08);
+  color: #009ee3;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid rgba(0, 158, 227, 0.15);
+}
+
+.mp-badge-icon {
+  font-size: 1rem;
+}
+
+[data-theme="dark"] .ticket-paper {
+  background-color: #ffffff; /* Keep ticket paper white for printable contrast and realism */
+  color: #0f172a;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}

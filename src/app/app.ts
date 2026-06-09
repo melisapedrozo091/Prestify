@@ -1,33 +1,32 @@
-import { Component, signal, computed, inject, OnInit, AfterViewInit } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
-import { PrestifyService, Item, Transaction, User } from './services/prestify.service';
+import { CommonModule } from '@angular/common';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { PrestifyService, Item, User } from './services/prestify.service';
+import { CheckoutComponent } from './components/checkout/checkout.component';
+import { TicketModalComponent } from './components/ticket-modal/ticket-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule, DecimalPipe],
+  imports: [
+    FormsModule, 
+    CommonModule, 
+    RouterOutlet, 
+    RouterLink, 
+    RouterLinkActive, 
+    CheckoutComponent, 
+    TicketModalComponent
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App implements OnInit, AfterViewInit {
+export class App implements OnInit {
   public readonly prestifyService = inject(PrestifyService);
+  private readonly router = inject(Router);
 
-  // Map reference
-  private mapInstance: any = null;
-
-  // App Navigation & UI State
-  public readonly currentTab = signal<'landing' | 'catalog' | 'dashboard' | 'history'>('landing');
+  // App Theme State
   public readonly theme = signal<'light' | 'dark'>('dark');
-  public readonly searchQuery = signal<string>('');
-  public readonly selectedCategory = signal<string>('Todos');
-
-  // Unified Auth Modal State
-  public readonly showAuthModal = signal<boolean>(false);
-  public readonly authMode = signal<'login' | 'register' | 'recover'>('login');
-  
-  // Product Detail View State
-  public readonly selectedItem = signal<Item | null>(null);
   
   // Auth Form Fields
   public loginEmail = '';
@@ -35,12 +34,10 @@ export class App implements OnInit, AfterViewInit {
   public registerName = '';
   public registerEmail = '';
   public registerPassword = '';
-  public registerRole: 'usuario' | 'admin' = 'usuario';
   public registerType: 'vecino' | 'institucion' | 'empresa' = 'vecino';
   public recoveryEmail = '';
 
   // Add Item Modal Form State
-  public readonly showAddModal = signal<boolean>(false);
   public newItemTitle = '';
   public newItemDesc = '';
   public newItemCategory: 'Electrónica' | 'Deportes' | 'Herramientas' | 'Juegos' | 'Salud' | 'Indumentaria' | 'Otros' = 'Electrónica';
@@ -48,66 +45,19 @@ export class App implements OnInit, AfterViewInit {
   public newItemPhoto = '';
   public newItemCondition: 'Nuevo' | 'Como nuevo' | 'Bueno' | 'Aceptable' = 'Bueno';
   public newItemMode: 'prestamo' | 'venta' = 'prestamo';
-  public newItemPrice = 0; // 0 if free, >0 if paid
+  public newItemPrice = 0; 
   public newItemLat = -34.6037;
   public newItemLng = -58.3816;
 
-  // Checklist Dialog Modals State
-  public readonly showChecklistModal = signal<boolean>(false);
-  public checklistAction: 'borrow' | 'return' | 'buy' = 'borrow';
-  public checklistItem: Item | null = null;
-
-  // Checklist checklist properties (mandatory verification)
+  // Checklist Dialog Form State
   public checkLimpio = false;
   public checkEstructura = false;
   public checkMecanico = false;
   public checkAccesorios = false;
-  
-  // Return rating review
   public returnRating = 5;
-
-  // Borrow Modal Form State
   public borrowerName = '';
   public dueDate = '';
   public borrowNotes = '';
-
-  // Notification Toasts State
-  public readonly toasts = signal<{ message: string; type: 'success' | 'info' | 'warning' }[]>([]);
-
-  // Computed Values for Layout & Filters
-  public readonly filteredItems = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    const category = this.selectedCategory();
-    const items = this.prestifyService.items();
-
-    let filtered = items;
-
-    if (category !== 'Todos') {
-      filtered = filtered.filter(item => item.category === category);
-    }
-
-    if (query) {
-      filtered = filtered.filter(item => 
-        item.title.toLowerCase().includes(query) || 
-        item.description.toLowerCase().includes(query) ||
-        item.owner.toLowerCase().includes(query) ||
-        (item.borrower && item.borrower.toLowerCase().includes(query))
-      );
-    }
-
-    return filtered;
-  });
-
-  // Items currently borrowed or purchased by active user
-  public readonly myBorrowedItems = computed(() => {
-    const currentUser = this.prestifyService.currentUser();
-    if (!currentUser) return [];
-    
-    return this.prestifyService.items().filter(item => 
-      item.status === 'prestado' && 
-      item.borrower?.toLowerCase() === currentUser.name.toLowerCase()
-    );
-  });
 
   ngOnInit(): void {
     // Load theme from localStorage
@@ -118,121 +68,6 @@ export class App implements OnInit, AfterViewInit {
       }
     }
     this.applyTheme();
-
-    // Map Global callback bridge
-    if (typeof window !== 'undefined') {
-      (window as any).angularComponentRef = {
-        selectItemFromMap: (id: string) => this.selectItemFromMap(id)
-      };
-    }
-
-    // Default redirect to dashboard if logged in
-    if (this.prestifyService.currentUser()) {
-      this.currentTab.set('dashboard');
-    }
-  }
-
-  ngAfterViewInit(): void {
-    this.initMapDeferred();
-  }
-
-  // --- Map Initialization ---
-  private initMapDeferred(): void {
-    setTimeout(() => {
-      this.initLeafletMap();
-    }, 300);
-  }
-
-  private initLeafletMap(): void {
-    if (typeof window === 'undefined') return;
-    const L = (window as any).L;
-    if (!L) return;
-
-    // Look for map element in the DOM
-    const mapElement = document.getElementById('map-container');
-    if (!mapElement) return;
-
-    try {
-      if (this.mapInstance) {
-        this.mapInstance.remove();
-        this.mapInstance = null;
-      }
-
-      this.mapInstance = L.map('map-container').setView([-34.6037, -58.3816], 13); // Buenos Aires Center
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(this.mapInstance);
-
-      // Add markers
-      this.filteredItems().forEach(item => {
-        if (item.status !== 'vendido') {
-          // Style markers based on category and status
-          const marker = L.marker([item.lat, item.lng]).addTo(this.mapInstance);
-          
-          const popupContent = `
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; width: 180px; padding: 4px;">
-              <span style="font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6;">${item.category}</span>
-              <h4 style="margin: 2px 0 6px 0; font-size: 0.95rem; font-family: 'Outfit', sans-serif; font-weight: 700; color: #0f172a;">${item.title}</h4>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span class="badge" style="background-color: ${item.status === 'disponible' ? '#e1fbf2' : '#fef3c7'}; color: ${item.status === 'disponible' ? '#10b981' : '#f59e0b'}; padding: 2px 6px; font-size: 0.65rem; border-radius: 20px; font-weight: 700;">
-                  ${item.status === 'disponible' ? 'Disponible' : 'Prestado'}
-                </span>
-                <strong style="color: #6366f1; font-size: 0.85rem;">${item.price > 0 ? '$' + item.price : 'Gratis'}</strong>
-              </div>
-              <button 
-                style="width: 100%; border: none; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;"
-                onclick="window.angularComponentRef.selectItemFromMap('${item.id}')">
-                Ver Ficha
-              </button>
-            </div>
-          `;
-          marker.bindPopup(popupContent);
-        }
-      });
-    } catch (e) {
-      console.error('Error initializing Leaflet map:', e);
-    }
-  }
-
-  public selectItemFromMap(itemId: string): void {
-    const item = this.prestifyService.items().find(i => i.id === itemId);
-    if (item) {
-      this.openItemDetail(item);
-      this.showToast(`Mostrando detalle de: ${item.title}`, 'info');
-    }
-  }
-
-  public openItemDetail(item: Item): void {
-    this.selectedItem.set(item);
-    if (this.currentTab() !== 'catalog') {
-      this.currentTab.set('catalog');
-    }
-    // Defer initialization to make sure map element exists if needed
-    this.initMapDeferred();
-  }
-
-  public getOwnerDetails(ownerName: string): User | null {
-    return this.prestifyService.users().find(u => u.name.toLowerCase() === ownerName.toLowerCase()) || null;
-  }
-
-  public setTab(tab: 'landing' | 'catalog' | 'dashboard' | 'history'): void {
-    this.currentTab.set(tab);
-    this.searchQuery.set('');
-    this.selectedCategory.set('Todos');
-    this.selectedItem.set(null); // Clear active detail view on tab navigation
-    
-    // Refresh map if landing or catalog
-    if (tab === 'landing' || tab === 'catalog') {
-      this.initMapDeferred();
-    }
-  }
-
-  public selectCategory(category: string): void {
-    this.selectedCategory.set(category);
-    // Refresh map markers by reinitializing
-    this.initMapDeferred();
   }
 
   public toggleTheme(): void {
@@ -242,7 +77,7 @@ export class App implements OnInit, AfterViewInit {
       window.localStorage.setItem('prestify_theme', nextTheme);
     }
     this.applyTheme();
-    this.showToast(`Modo ${nextTheme === 'dark' ? 'Oscuro' : 'Claro'} activado`, 'info');
+    this.prestifyService.showToast(`Modo ${nextTheme === 'dark' ? 'Oscuro' : 'Claro'} activado`, 'info');
   }
 
   private applyTheme(): void {
@@ -251,58 +86,49 @@ export class App implements OnInit, AfterViewInit {
     }
   }
 
-  // Toast Notification Manager
-  public showToast(message: string, type: 'success' | 'info' | 'warning' = 'success'): void {
-    const toast = { message, type };
-    this.toasts.update(current => [...current, toast]);
-    setTimeout(() => {
-      this.toasts.update(current => current.filter(t => t !== toast));
-    }, 4500);
-  }
-
   // --- Auth Actions ---
   public openAuthModal(mode: 'login' | 'register' | 'recover' = 'login'): void {
-    this.authMode.set(mode);
-    this.showAuthModal.set(true);
+    this.prestifyService.openAuthModal(mode);
   }
 
   public closeAuthModal(): void {
-    this.showAuthModal.set(false);
+    this.prestifyService.closeAuthModal();
     this.resetAuthForms();
   }
 
   public setAuthMode(mode: 'login' | 'register' | 'recover'): void {
-    this.authMode.set(mode);
+    this.prestifyService.openAuthModal(mode);
   }
 
   public handleLogin(): void {
     if (!this.loginEmail.trim() || !this.loginPassword.trim()) {
-      this.showToast('Por favor completa todos los campos.', 'warning');
+      this.prestifyService.showToast('Por favor completa todos los campos.', 'warning');
       return;
     }
 
     const result = this.prestifyService.login(this.loginEmail, this.loginPassword);
     if (result.success) {
       const user = this.prestifyService.currentUser();
-      this.showToast(`¡Sesión iniciada! Bienvenido, ${user?.name}.`, 'success');
+      this.prestifyService.showToast(`¡Sesión iniciada! Bienvenido, ${user?.name}.`, 'success');
       this.closeAuthModal();
-      this.currentTab.set('dashboard');
+      this.router.navigate(['/dashboard']);
     } else {
-      this.showToast(result.error || 'Error de credenciales.', 'warning');
+      this.prestifyService.showToast(result.error || 'Error de credenciales.', 'warning');
     }
   }
 
   public handleRegister(): void {
     if (!this.registerName.trim() || !this.registerEmail.trim() || !this.registerPassword.trim()) {
-      this.showToast('Por favor completa todos los campos.', 'warning');
+      this.prestifyService.showToast('Por favor completa todos los campos.', 'warning');
       return;
     }
 
+    // Role is strictly 'usuario' for public registrations
     const result = this.prestifyService.register({
       name: this.registerName,
       email: this.registerEmail,
       password: this.registerPassword,
-      role: this.registerRole,
+      role: 'usuario', 
       type: this.registerType,
       reputation: 5,
       reputationCount: 1
@@ -310,147 +136,73 @@ export class App implements OnInit, AfterViewInit {
 
     if (result.success) {
       const user = this.prestifyService.currentUser();
-      this.showToast(`¡Registro exitoso! Cuenta creada como ${user?.type}.`, 'success');
+      this.prestifyService.showToast(`¡Registro exitoso! Cuenta creada como ${user?.type}.`, 'success');
       this.closeAuthModal();
-      this.currentTab.set('dashboard');
+      this.router.navigate(['/dashboard']);
     } else {
-      this.showToast(result.error || 'Error al registrar.', 'warning');
+      this.prestifyService.showToast(result.error || 'Error al registrar.', 'warning');
     }
   }
 
   public handleRecovery(): void {
     if (!this.recoveryEmail.trim()) {
-      this.showToast('Por favor introduce tu correo electrónico.', 'warning');
+      this.prestifyService.showToast('Por favor introduce tu correo electrónico.', 'warning');
       return;
     }
 
     const result = this.prestifyService.recoverPassword(this.recoveryEmail);
     if (result.success) {
-      this.showToast(result.message || 'Contraseña restablecida.', 'success');
-      this.authMode.set('login');
+      this.prestifyService.showToast(result.message || 'Contraseña restablecida.', 'success');
+      this.prestifyService.openAuthModal('login');
     } else {
-      this.showToast(result.message || 'El correo no está registrado.', 'warning');
+      this.prestifyService.showToast(result.message || 'El correo no está registrado.', 'warning');
     }
   }
 
   public handleLogout(): void {
     this.prestifyService.logout();
-    this.showToast('Sesión cerrada.', 'info');
-    this.currentTab.set('landing');
-    this.initMapDeferred();
+    this.prestifyService.showToast('Sesión cerrada.', 'info');
+    this.router.navigate(['/landing']);
   }
 
-  // --- Checklist Handover & Return Actions ---
-  public openChecklistModal(action: 'borrow' | 'return' | 'buy', item: Item): void {
-    const user = this.prestifyService.currentUser();
-    if (!user) {
-      this.showToast('Debes iniciar sesión para realizar transacciones.', 'info');
-      this.openAuthModal('login');
-      return;
-    }
-
-    this.checklistAction = action;
-    this.checklistItem = item;
-    
-    // Reset checks
-    this.checkLimpio = false;
-    this.checkEstructura = false;
-    this.checkMecanico = false;
-    this.checkAccesorios = false;
-    this.returnRating = 5;
-
-    // Set default borrow values
-    this.borrowerName = user.name;
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    this.dueDate = nextWeek.toISOString().split('T')[0];
-    this.borrowNotes = '';
-
-    this.showChecklistModal.set(true);
-  }
-
-  public closeChecklistModal(): void {
-    this.showChecklistModal.set(false);
-    this.checklistItem = null;
-  }
-
-  public handleChecklistSubmit(): void {
-    const item = this.checklistItem;
-    if (!item) return;
-
-    // All checklist boxes must be checked
-    if (!this.checkLimpio || !this.checkEstructura || !this.checkMecanico || !this.checkAccesorios) {
-      this.showToast('Es obligatorio verificar todos los puntos del Checklist para garantizar las condiciones óptimas.', 'warning');
-      return;
-    }
-
-    const verificationLog = [
-      'Limpio y desinfectado',
-      'Sin daños estructurales',
-      'Funcionamiento verificado',
-      'Accesorios completos'
-    ];
-
-    if (this.checklistAction === 'borrow') {
-      this.prestifyService.borrowItem(
-        item.id,
-        this.borrowerName,
-        this.dueDate,
-        item.price, // Same price configured
-        verificationLog,
-        this.borrowNotes
-      );
-      this.showToast(`Préstamo iniciado para "${item.title}".`, 'success');
-      this.currentTab.set('dashboard');
-    } else if (this.checklistAction === 'buy') {
-      this.prestifyService.buyItem(
-        item.id,
-        this.borrowerName,
-        item.price,
-        verificationLog
-      );
-      this.showToast(`¡Compra finalizada de "${item.title}"! Pago pendiente en entrega presencial.`, 'success');
-      this.currentTab.set('dashboard');
-    } else if (this.checklistAction === 'return') {
-      this.prestifyService.returnItem(
-        item.id,
-        verificationLog,
-        this.returnRating
-      );
-      this.showToast(`Devolución procesada y calificación registrada exitosamente.`, 'success');
-      this.currentTab.set('dashboard');
-    }
-
-    this.closeChecklistModal();
-    this.initMapDeferred();
-  }
-
-  // --- Add Item ---
+  // --- Add Item Actions ---
   public openAddModal(): void {
     const user = this.prestifyService.currentUser();
     if (!user) {
-      this.showToast('Inicia sesión para registrar objetos.', 'info');
+      this.prestifyService.showToast('Inicia sesión para registrar objetos.', 'info');
       this.openAuthModal('login');
       return;
     }
     
     this.newItemOwner = user.name;
-    
-    // Spread coordinates around Buenos Aires center slightly for map diversity
     this.newItemLat = -34.6037 + (Math.random() - 0.5) * 0.04;
     this.newItemLng = -58.3816 + (Math.random() - 0.5) * 0.04;
     
-    this.showAddModal.set(true);
+    this.prestifyService.showAddModal.set(true);
   }
 
   public closeAddModal(): void {
-    this.showAddModal.set(false);
+    this.prestifyService.showAddModal.set(false);
     this.resetAddForm();
+  }
+
+  // File selected from PC
+  public onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.newItemPhoto = reader.result as string; // Set Base64 DataURL
+        this.prestifyService.showToast('Foto cargada correctamente desde la PC.', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   public handleAddItem(): void {
     if (!this.newItemTitle.trim() || !this.newItemOwner.trim()) {
-      this.showToast('Por favor rellena los campos requeridos.', 'warning');
+      this.prestifyService.showToast('Por favor rellena los campos requeridos.', 'warning');
       return;
     }
 
@@ -481,26 +233,85 @@ export class App implements OnInit, AfterViewInit {
       lng: this.newItemLng
     });
 
-    this.showToast(`¡Objeto "${this.newItemTitle}" registrado para ${this.newItemMode === 'prestamo' ? 'Préstamo' : 'Venta'}!`, 'success');
+    this.prestifyService.showToast(`¡Objeto "${this.newItemTitle}" registrado!`, 'success');
     this.closeAddModal();
-    this.currentTab.set('catalog');
-    this.initMapDeferred();
+    this.router.navigate(['/catalog']);
   }
 
-  public handleDeleteItem(itemId: string): void {
-    const item = this.prestifyService.items().find(i => i.id === itemId);
+  // --- Checklist Modal Actions ---
+  public openChecklistModal(action: 'borrow' | 'return' | 'buy', item: Item): void {
+    const user = this.prestifyService.currentUser();
+    if (!user) {
+      this.prestifyService.showToast('Debes iniciar sesión para realizar transacciones.', 'info');
+      this.openAuthModal('login');
+      return;
+    }
+
+    this.checkLimpio = false;
+    this.checkEstructura = false;
+    this.checkMecanico = false;
+    this.checkAccesorios = false;
+    this.returnRating = 5;
+
+    this.borrowerName = user.name;
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    this.dueDate = nextWeek.toISOString().split('T')[0];
+    this.borrowNotes = '';
+
+    this.prestifyService.openChecklistModal(action, item);
+  }
+
+  public closeChecklistModal(): void {
+    this.prestifyService.closeChecklistModal();
+  }
+
+  public handleChecklistSubmit(): void {
+    const item = this.prestifyService.checklistItem();
+    const action = this.prestifyService.checklistAction();
     if (!item) return;
 
-    if (confirm(`¿Estás seguro de que quieres eliminar "${item.title}"?`)) {
-      this.prestifyService.deleteItem(itemId);
-      this.showToast(`Objeto eliminado del catálogo.`, 'info');
-      this.initMapDeferred();
+    if (!this.checkLimpio || !this.checkEstructura || !this.checkMecanico || !this.checkAccesorios) {
+      this.prestifyService.showToast('Es obligatorio verificar todos los puntos del Checklist.', 'warning');
+      return;
     }
-  }
 
-  public handleConfirmPayment(txId: string): void {
-    this.prestifyService.confirmPayment(txId);
-    this.showToast('Pago presencial registrado y confirmado.', 'success');
+    const verificationLog = [
+      'Limpio y desinfectado',
+      'Sin daños estructurales',
+      'Funcionamiento verificado',
+      'Accesorios completos'
+    ];
+
+    if (action === 'borrow') {
+      this.prestifyService.borrowItem(
+        item.id,
+        this.borrowerName,
+        this.dueDate,
+        item.price,
+        verificationLog,
+        this.borrowNotes
+      );
+      this.prestifyService.showToast(`Préstamo iniciado para "${item.title}".`, 'success');
+    } else if (action === 'buy') {
+      this.prestifyService.buyItem(
+        item.id,
+        this.borrowerName,
+        item.price,
+        verificationLog
+      );
+      this.prestifyService.showToast(`¡Compra finalizada de "${item.title}"! Pago pendiente en entrega presencial.`, 'success');
+    } else if (action === 'return') {
+      this.prestifyService.returnItem(
+        item.id,
+        verificationLog,
+        this.returnRating
+      );
+      this.prestifyService.showToast(`Devolución procesada y calificación registrada.`, 'success');
+    }
+
+    this.closeChecklistModal();
+    this.router.navigate(['/dashboard']);
   }
 
   private resetAuthForms(): void {
@@ -509,7 +320,6 @@ export class App implements OnInit, AfterViewInit {
     this.registerName = '';
     this.registerEmail = '';
     this.registerPassword = '';
-    this.registerRole = 'usuario';
     this.registerType = 'vecino';
     this.recoveryEmail = '';
   }

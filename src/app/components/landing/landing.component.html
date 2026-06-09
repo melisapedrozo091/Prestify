@@ -1,0 +1,101 @@
+<div class="landing-container animate-fade-up">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-text">
+      <span class="hero-tagline">Plataforma Vecinal de Economía Circular</span>
+      <h1 class="hero-title">Comparte recursos en tu comunidad</h1>
+      <p class="hero-subtitle">
+        Gestiona el préstamo y venta directa de herramientas, insumos de salud, equipamiento de camping y textiles
+        entre vecinos, instituciones y empresas de tu localidad.
+      </p>
+      <div class="hero-actions-row">
+        <button class="btn btn-primary" (click)="joinNetwork()">
+          Unirse a la Red
+        </button>
+        <button class="btn btn-secondary" (click)="exploreCatalog()">
+          <span class="material-symbols-outlined">explore</span>
+          Explorar Catálogo
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-image-wrapper">
+      <div class="hero-illustration-card">
+        <div class="hero-illustration-header">
+          <h4 style="margin:0;">¿Qué compartimos?</h4>
+          <span class="hero-illustration-badge"
+            style="background-color: rgba(99,102,241,0.1); color: var(--primary);">Préstamos / Ventas</span>
+        </div>
+        <div class="hero-illustration-row">
+          <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.5rem;">handyman</span>
+          <div>
+            <h5 style="margin:0; font-size: 0.85rem;">Herramientas Eléctricas y Escaleras</h5>
+            <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Uso ocasional y doméstico</p>
+          </div>
+        </div>
+        <div class="hero-illustration-row">
+          <span class="material-symbols-outlined"
+            style="color: var(--success); font-size: 1.5rem;">medical_services</span>
+          <div>
+            <h5 style="margin:0; font-size: 0.85rem;">Insumos de Salud y Ortopedia</h5>
+            <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Muletas, andadores y más</p>
+          </div>
+        </div>
+        <div class="hero-illustration-row">
+          <span class="material-symbols-outlined" style="color: var(--secondary); font-size: 1.5rem;">checkroom</span>
+          <div>
+            <h5 style="margin:0; font-size: 0.85rem;">Indumentaria Específica y Textil</h5>
+            <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Parkas térmicas, botas de seguridad</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leaflet Geolocation Map -->
+  <section class="map-section animate-fade-up">
+    <h2 class="features-section-title">Mapa Geográfico de Artículos Cercanos</h2>
+    <p class="features-section-subtitle">Visualiza la ubicación aproximada de los objetos y puntos de retiro
+      registrados por vecinos y empresas de tu zona.</p>
+    <div class="card-glass" style="padding: 0.5rem; overflow: hidden; border-radius: var(--radius-lg);">
+      <div #mapContainer
+        style="height: 400px; width: 100%; border-radius: calc(var(--radius-lg) - 0.5rem); z-index: 1;"></div>
+    </div>
+  </section>
+
+  <!-- Features Grid Section -->
+  <section class="features-section">
+    <h2 class="features-section-title">¿Cómo funciona Prestify?</h2>
+    <p class="features-section-subtitle">Conectamos vecinos, organizaciones y comercios para optimizar el ciclo de
+      vida de los recursos.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <span class="material-symbols-outlined">swap_horiz</span>
+        </div>
+        <h3>Catálogo Multimodal</h3>
+        <p>Elige si deseas prestar un artículo de forma gratuita, cobrar un pago presencial de mantenimiento, o
+          venderlo definitivamente.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box success">
+          <span class="material-symbols-outlined">assignment_turned_in</span>
+        </div>
+        <h3>Checklists de Estado</h3>
+        <p>Es obligatorio revisar las condiciones de los objetos al entregar y recibir, asegurando la calidad y el
+          buen funcionamiento.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box accent">
+          <span class="material-symbols-outlined">stars</span>
+        </div>
+        <h3>Validación y Reputación</h3>
+        <p>Califica a los usuarios tras cada devolución. Mantén una red segura y confiable con perfiles verificados.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>

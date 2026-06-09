@@ -1,0 +1,205 @@
+<div class="modal-overlay" (click)="handleClose()">
+  <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 450px;">
+    
+    <div class="modal-header">
+      <h2>
+        <span class="material-symbols-outlined header-icon">receipt_long</span>
+        Comprobante de Operación
+      </h2>
+      <button class="btn btn-icon" (click)="handleClose()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body" style="padding: 0;">
+      <!-- Paper ticket visual card -->
+      <div class="ticket-paper">
+        <div class="ticket-header">
+          <span class="ticket-logo">Prestify</span>
+          <span class="ticket-tagline">Consumo Colaborativo & Economía Circular</span>
+          <div class="ticket-divider"></div>
+        </div>
+
+        <div class="ticket-details-list">
+          <div class="ticket-row">
+            <span class="ticket-label">N° de Comprobante</span>
+            <strong class="ticket-value font-mono">{{ prestifyService.activeTicketTransaction()?.ticketNumber }}</strong>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-label">Código SKU</span>
+            <strong class="ticket-value font-mono">{{ prestifyService.activeTicketTransaction()?.sku }}</strong>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-label">Fecha de Operación</span>
+            <span class="ticket-value">{{ prestifyService.activeTicketTransaction()?.dateStarted }}</span>
+          </div>
+          
+          <div class="ticket-divider"></div>
+          
+          <div class="ticket-row">
+            <span class="ticket-label">Artículo / Insumo</span>
+            <strong class="ticket-value">{{ prestifyService.activeTicketTransaction()?.itemTitle }}</strong>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-label">Categoría</span>
+            <span class="ticket-value">{{ prestifyService.activeTicketTransaction()?.category }}</span>
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <div class="ticket-row">
+            <span class="ticket-label">Remitente (Dueño)</span>
+            <span class="ticket-value">{{ prestifyService.activeTicketTransaction()?.owner }}</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-label">Adquirente (Usuario)</span>
+            <span class="ticket-value">{{ prestifyService.activeTicketTransaction()?.borrowerOrBuyer }}</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-label">Modalidad</span>
+            <span class="ticket-value" style="text-transform: capitalize;">
+              {{ prestifyService.activeTicketTransaction()?.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
+            </span>
+          </div>
+
+          @if (prestifyService.activeTicketTransaction()?.type === 'prestamo') {
+            <div class="ticket-row">
+              <span class="ticket-label">Plazo de Devolución</span>
+              <strong class="ticket-value">{{ prestifyService.activeTicketTransaction()?.dateEndedOrDue }} ({{ prestifyService.activeTicketTransaction()?.durationDays }} días)</strong>
+            </div>
+          }
+
+          <div class="ticket-divider"></div>
+
+          <div class="ticket-row">
+            <span class="ticket-label">Medio de Pago</span>
+            <span class="ticket-value">
+              {{ prestifyService.activeTicketTransaction()?.paymentMethod === 'mercadopago' ? 'Mercado Pago (QR)' : 'Efectivo / Entrega Presencial' }}
+            </span>
+          </div>
+          <div class="ticket-row total-row">
+            <span class="ticket-label">Monto a Abonar</span>
+            <strong class="ticket-value cost-value">
+              {{ (prestifyService.activeTicketTransaction()?.price || 0) > 0 ? '$' + prestifyService.activeTicketTransaction()?.price : 'Gratuito' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="ticket-divider"></div>
+
+        <!-- Barcode Simulation Section -->
+        <div class="barcode-section">
+          <span style="font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom: 6px;">CÓDIGO DE VALIDACIÓN DE RETIRO</span>
+          
+          <svg width="280" height="50" style="background: white; padding: 4px; border-radius: 4px; border: 1px solid var(--border-color);">
+            <g fill="#0f172a">
+              <rect x="15" y="3" width="3" height="32"/>
+              <rect x="20" y="3" width="1" height="32"/>
+              <rect x="23" y="3" width="2" height="32"/>
+              <rect x="28" y="3" width="4" height="32"/>
+              <rect x="34" y="3" width="1" height="32"/>
+              <rect x="37" y="3" width="3" height="32"/>
+              <rect x="43" y="3" width="1" height="32"/>
+              <rect x="47" y="3" width="2" height="32"/>
+              <rect x="52" y="3" width="4" height="32"/>
+              <rect x="59" y="3" width="1" height="32"/>
+              <rect x="63" y="3" width="3" height="32"/>
+              <rect x="68" y="3" width="2" height="32"/>
+              <rect x="72" y="3" width="1" height="32"/>
+              <rect x="75" y="3" width="4" height="32"/>
+              <rect x="81" y="3" width="2" height="32"/>
+              <rect x="85" y="3" width="1" height="32"/>
+              <rect x="89" y="3" width="3" height="32"/>
+              <rect x="95" y="3" width="4" height="32"/>
+              <rect x="101" y="3" width="1" height="32"/>
+              <rect x="105" y="3" width="2" height="32"/>
+              <rect x="109" y="3" width="3" height="32"/>
+              <rect x="115" y="3" width="1" height="32"/>
+              <rect x="121" y="3" width="2" height="32"/>
+              <rect x="125" y="3" width="1" height="32"/>
+              <rect x="129" y="3" width="3" height="32"/>
+              <rect x="135" y="3" width="4" height="32"/>
+              <rect x="141" y="3" width="1" height="32"/>
+              <rect x="144" y="3" width="2" height="32"/>
+              <rect x="148" y="3" width="3" height="32"/>
+              <rect x="154" y="3" width="1" height="32"/>
+              <rect x="158" y="3" width="3" height="32"/>
+              <rect x="163" y="3" width="2" height="32"/>
+              <rect x="167" y="3" width="1" height="32"/>
+              <rect x="170" y="3" width="4" height="32"/>
+              <rect x="176" y="3" width="2" height="32"/>
+              <rect x="180" y="3" width="1" height="32"/>
+              <rect x="184" y="3" width="3" height="32"/>
+              <rect x="190" y="3" width="4" height="32"/>
+              <rect x="196" y="3" width="1" height="32"/>
+              <rect x="200" y="3" width="2" height="32"/>
+              <rect x="204" y="3" width="3" height="32"/>
+              <rect x="210" y="3" width="1" height="32"/>
+              <rect x="214" y="3" width="4" height="32"/>
+              <rect x="220" y="3" width="2" height="32"/>
+              <rect x="224" y="3" width="1" height="32"/>
+              <rect x="228" y="3" width="3" height="32"/>
+              <rect x="234" y="3" width="4" height="32"/>
+              <rect x="240" y="3" width="1" height="32"/>
+              <rect x="244" y="3" width="3" height="32"/>
+              <rect x="250" y="3" width="2" height="32"/>
+              <rect x="254" y="3" width="1" height="32"/>
+              <rect x="258" y="3" width="4" height="32"/>
+            </g>
+            <text x="140" y="45" font-size="8" text-anchor="middle" font-family="monospace" fill="#0f172a">{{ prestifyService.activeTicketTransaction()?.sku }}</text>
+          </svg>
+        </div>
+
+        <!-- Mercado Pago QR Simulation Section -->
+        @if (prestifyService.activeTicketTransaction()?.paymentMethod === 'mercadopago' && (prestifyService.activeTicketTransaction()?.price || 0) > 0) {
+          <div class="mp-qr-section">
+            <div class="mp-badge">
+              <span class="material-symbols-outlined mp-badge-icon">qr_code_2</span>
+              <span>Pagar con Mercado Pago</span>
+            </div>
+            
+            <svg width="110" height="110" style="background: white; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 0.5rem; display: inline-block;">
+              <!-- QR corners -->
+              <rect x="0" y="0" width="24" height="24" fill="#0f172a"/>
+              <rect x="4" y="4" width="16" height="16" fill="white"/>
+              <rect x="8" y="8" width="8" height="8" fill="#0f172a"/>
+              
+              <rect x="74" y="0" width="24" height="24" fill="#0f172a"/>
+              <rect x="78" y="4" width="16" height="16" fill="white"/>
+              <rect x="82" y="8" width="8" height="8" fill="#0f172a"/>
+
+              <rect x="0" y="74" width="24" height="24" fill="#0f172a"/>
+              <rect x="4" y="78" width="16" height="16" fill="white"/>
+              <rect x="8" y="82" width="8" height="8" fill="#0f172a"/>
+
+              <!-- QR center MP logo -->
+              <rect x="37" y="37" width="24" height="24" fill="#009ee3" rx="4"/>
+              <text x="49" y="52" font-size="10" fill="white" font-weight="bold" text-anchor="middle" font-family="sans-serif">MP</text>
+
+              <!-- random code dots -->
+              <rect x="30" y="10" width="8" height="8" fill="#0f172a"/>
+              <rect x="45" y="18" width="6" height="8" fill="#0f172a"/>
+              <rect x="10" y="35" width="8" height="6" fill="#0f172a"/>
+              <rect x="25" y="50" width="6" height="8" fill="#0f172a"/>
+              <rect x="70" y="40" width="10" height="8" fill="#0f172a"/>
+              <rect x="85" y="78" width="8" height="8" fill="#0f172a"/>
+              <rect x="45" y="74" width="8" height="12" fill="#0f172a"/>
+              <rect x="68" y="74" width="8" height="4" fill="#0f172a"/>
+              <rect x="82" y="35" width="6" height="6" fill="#0f172a"/>
+            </svg>
+            <span style="font-size:0.7rem; color:var(--text-muted); display:block; margin-top: 4px;">Escanea con tu celular para abonar al remitente.</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="modal-footer" style="display:flex; gap:1rem;">
+      <button class="btn btn-secondary" style="flex:1;" (click)="handleClose()">Cerrar</button>
+      <button class="btn btn-primary" style="flex:1;" (click)="downloadTicket(prestifyService.activeTicketTransaction()!)">
+        <span class="material-symbols-outlined">download</span>
+        Descargar (.txt)
+      </button>
+    </div>
+
+  </div>
+</div>

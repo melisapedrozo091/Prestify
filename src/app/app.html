@@ -3,14 +3,14 @@
 <div class="public-layout">
   <!-- Public Navbar -->
   <nav class="public-navbar">
-    <a href="javascript:void(0)" class="public-navbar-logo" (click)="setTab('landing')">
+    <a routerLink="/landing" class="public-navbar-logo">
       <span class="material-symbols-outlined logo-icon">swap_horizontal_circle</span>
       <span class="logo-text">Prestify</span>
       <span class="logo-dot">.</span>
     </a>
 
     <div class="public-navbar-actions">
-      <button class="nav-link" (click)="setTab('catalog')">Explorar Objetos</button>
+      <a routerLink="/catalog" routerLinkActive="active" class="nav-link" style="display:inline-block; width:auto; text-decoration:none;">Explorar Objetos</a>
       <button class="btn btn-primary btn-nav-auth" (click)="openAuthModal('login')">Iniciar Sesión</button>
       <button class="btn btn-primary btn-nav-auth" (click)="openAuthModal('register')">Registrarse</button>
       <button class="btn btn-icon" (click)="toggleTheme()" title="Cambiar Tema">
@@ -23,316 +23,15 @@
     </div>
   </nav>
 
-  <!-- Public Tab 1: HOME LANDING -->
-  @if (currentTab() === 'landing') {
-  <div class="landing-container animate-fade-up">
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="hero-text">
-        <span class="hero-tagline">Plataforma Vecinal de Economía Circular</span>
-        <h1 class="hero-title">Comparte recursos en tu comunidad</h1>
-        <p class="hero-subtitle">
-          Gestiona el préstamo y venta directa de herramientas, insumos de salud, equipamiento de camping y textiles
-          entre vecinos, instituciones y empresas de tu localidad.
-        </p>
-        <div class="hero-actions-row">
-          <button class="btn btn-primary" (click)="openAuthModal('register')">
-            Unirse a la Red
-          </button>
-          <button class="btn btn-secondary" (click)="setTab('catalog')">
-            <span class="material-symbols-outlined">explore</span>
-            Explorar Catálogo
-          </button>
-        </div>
-      </div>
-
-      <div class="hero-image-wrapper">
-        <div class="hero-illustration-card">
-          <div class="hero-illustration-header">
-            <h4 style="margin:0;">¿Qué compartimos?</h4>
-            <span class="hero-illustration-badge"
-              style="background-color: rgba(99,102,241,0.1); color: var(--primary);">Préstamos / Ventas</span>
-          </div>
-          <div class="hero-illustration-row">
-            <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.5rem;">handyman</span>
-            <div>
-              <h5 style="margin:0; font-size: 0.85rem;">Herramientas Eléctricas y Escaleras</h5>
-              <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Uso ocasional y doméstico</p>
-            </div>
-          </div>
-          <div class="hero-illustration-row">
-            <span class="material-symbols-outlined"
-              style="color: var(--success); font-size: 1.5rem;">medical_services</span>
-            <div>
-              <h5 style="margin:0; font-size: 0.85rem;">Insumos de Salud y Ortopedia</h5>
-              <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Muletas, andadores y más</p>
-            </div>
-          </div>
-          <div class="hero-illustration-row">
-            <span class="material-symbols-outlined" style="color: var(--secondary); font-size: 1.5rem;">checkroom</span>
-            <div>
-              <h5 style="margin:0; font-size: 0.85rem;">Indumentaria Específica y Textil</h5>
-              <p style="margin:0; font-size: 0.7rem; color: var(--text-muted);">Parkas térmicas, botas de seguridad</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Leaflet Geolocation Map -->
-    <section class="map-section animate-fade-up">
-      <h2 class="features-section-title">Mapa Geográfico de Artículos Cercanos</h2>
-      <p class="features-section-subtitle">Visualiza la ubicación aproximada de los objetos y puntos de retiro
-        registrados por vecinos y empresas de tu zona.</p>
-      <div class="card-glass" style="padding: 0.5rem; overflow: hidden; border-radius: var(--radius-lg);">
-        <div id="map-container"
-          style="height: 400px; width: 100%; border-radius: calc(var(--radius-lg) - 0.5rem); z-index: 1;"></div>
-      </div>
-    </section>
-
-    <!-- Features Grid Section -->
-    <section class="features-section">
-      <h2 class="features-section-title">¿Cómo funciona Prestify?</h2>
-      <p class="features-section-subtitle">Conectamos vecinos, organizaciones y comercios para optimizar el ciclo de
-        vida de los recursos.</p>
-
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon-box">
-            <span class="material-symbols-outlined">swap_horiz</span>
-          </div>
-          <h3>Catálogo Multimodal</h3>
-          <p>Elige si deseas prestar un artículo de forma gratuita, cobrar un pago presencial de mantenimiento, o
-            venderlo definitivamente.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon-box success">
-            <span class="material-symbols-outlined">assignment_turned_in</span>
-          </div>
-          <h3>Checklists de Estado</h3>
-          <p>Es obligatorio revisar las condiciones de los objetos al entregar y recibir, asegurando la calidad y el
-            buen funcionamiento.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon-box accent">
-            <span class="material-symbols-outlined">stars</span>
-          </div>
-          <h3>Validación y Reputación</h3>
-          <p>Califica a los usuarios tras cada devolución. Mantén una red segura y confiable con perfiles verificados.
-          </p>
-        </div>
-      </div>
-    </section>
-  </div>
-  }
-
-  <!-- Public Tab 2: CATALOG -->
-  @if (currentTab() === 'catalog') {
-  <div class="container animate-fade-up">
-
-    @if (selectedItem()) {
-      <!-- GORGEOUS PRODUCT DETAIL VIEW (PUBLIC VERSION) -->
-      <div class="item-detail-container card-glass animate-fade-up" style="margin-bottom: 2rem; padding: 2.5rem; border-radius: var(--radius-lg);">
-        <button class="btn btn-secondary btn-back-catalog" (click)="selectedItem.set(null)" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-          <span class="material-symbols-outlined">arrow_back</span>
-          Volver al Catálogo
-        </button>
-
-        <div class="item-detail-layout">
-          <!-- Left: Huge photo & badges -->
-          <div class="item-detail-media">
-            <img [src]="selectedItem()?.photoUrl" alt="" class="item-detail-image" />
-            <span class="detail-category-badge">{{ selectedItem()?.category }}</span>
-            <span class="badge detail-status-badge"
-                  [class.badge-disponible]="selectedItem()?.status === 'disponible'"
-                  [class.badge-prestado]="selectedItem()?.status === 'prestado'">
-              {{ selectedItem()?.status === 'disponible' ? 'Disponible' : 'Prestado' }}
-            </span>
-          </div>
-
-          <!-- Right: Content details -->
-          <div class="item-detail-info">
-            <div class="detail-header-block">
-              <span class="detail-mode-tag">{{ selectedItem()?.mode === 'prestamo' ? 'Ofrecido en Préstamo' : 'Ofrecido en Venta' }}</span>
-              <h2 class="detail-title">{{ selectedItem()?.title }}</h2>
-              <div class="detail-price-box">
-                <span class="price-label">Valor:</span>
-                <strong class="price-value">{{ (selectedItem()?.price || 0) > 0 ? '$' + selectedItem()?.price : 'Gratuito' }}</strong>
-              </div>
-            </div>
-
-            <!-- Owner details & Reputation -->
-            <div class="detail-section-card detail-owner-card">
-              <div class="owner-avatar">
-                <span class="material-symbols-outlined">account_circle</span>
-              </div>
-              <div class="owner-meta">
-                <span class="meta-label">Propietario Publicador</span>
-                <h4 class="owner-name">{{ selectedItem()?.owner }}</h4>
-                <div class="owner-reputation">
-                  @if (getOwnerDetails(selectedItem()?.owner || '')) {
-                    <div class="stars-row">
-                      <span class="material-symbols-outlined star-icon" style="color:var(--warning); font-size:1.1rem; vertical-align:middle;">star</span>
-                      <span class="reputation-number" style="font-weight:700; color:var(--text-main); margin-left: 2px;">{{ getOwnerDetails(selectedItem()?.owner || '')?.reputation }}</span>
-                      <span class="reputation-count" style="color:var(--text-muted); margin-left: 4px;">({{ getOwnerDetails(selectedItem()?.owner || '')?.reputationCount }} valoraciones)</span>
-                    </div>
-                  } @else {
-                    <span class="reputation-count">Sin reputación registrada</span>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <div class="detail-meta-grid">
-              <div class="detail-meta-item">
-                <span class="material-symbols-outlined">stars</span>
-                <div>
-                  <span class="meta-label">Estado de Conservación</span>
-                  <strong class="meta-value">{{ selectedItem()?.condition }}</strong>
-                </div>
-              </div>
-              @if (selectedItem()?.status === 'prestado') {
-                <div class="detail-meta-item" style="color: var(--warning);">
-                  <span class="material-symbols-outlined">assignment_ind</span>
-                  <div>
-                    <span class="meta-label">En posesión de</span>
-                    <strong class="meta-value">{{ selectedItem()?.borrower }}</strong>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <div class="detail-description-block">
-              <h4 class="section-sub-title">Descripción del Insumo</h4>
-              <p class="detail-description">{{ selectedItem()?.description }}</p>
-            </div>
-
-            <!-- Location Info -->
-            <div class="detail-section-card detail-location-card">
-              <h4 class="section-sub-title" style="margin-top:0; margin-bottom: 0.5rem; display:flex; align-items:center; gap:6px;">
-                <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.2rem;">location_on</span>
-                Punto de Retiro Aproximado
-              </h4>
-              <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">Ubicación geográfica aproximada para coordinar entrega presencial.</p>
-              <div style="background-color: var(--bg-input); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-                Coordenadas: Latitud {{ selectedItem()?.lat | number:'1.4-4' }}, Longitud {{ selectedItem()?.lng | number:'1.4-4' }}
-              </div>
-            </div>
-
-            <div class="detail-actions-row" style="margin-top:2rem;">
-              <button class="btn btn-primary" style="padding:0.85rem 2rem; font-size:1rem;" (click)="openChecklistModal(selectedItem()?.mode === 'prestamo' ? 'borrow' : 'buy', selectedItem()!)">
-                <span class="material-symbols-outlined">assignment_turned_in</span>
-                {{ selectedItem()?.mode === 'prestamo' ? 'Solicitar Préstamo' : 'Adquirir / Comprar' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    } @else {
-      <div class="public-catalog-header">
-        <h2>Catálogo de la Comunidad</h2>
-        <p>Herramientas, insumos de salud, camping e indumentaria disponibles en tu localidad.</p>
-      </div>
-
-      <!-- Map in explore tab -->
-      <div class="card-glass"
-        style="padding: 0.5rem; overflow: hidden; border-radius: var(--radius-lg); margin-bottom: 2.5rem;">
-        <div id="map-container"
-          style="height: 350px; width: 100%; border-radius: calc(var(--radius-lg) - 0.5rem); z-index: 1;"></div>
-      </div>
-
-      <!-- Filters -->
-      <div class="filters-row">
-        <div class="category-tabs">
-          @for (cat of ['Todos', 'Herramientas', 'Salud', 'Deportes', 'Indumentaria', 'Electrónica', 'Juegos', 'Otros'];
-          track cat) {
-          <button class="category-tab" [class.active]="selectedCategory() === cat" (click)="selectCategory(cat)">
-            {{ cat }}
-          </button>
-          }
-        </div>
-        <!-- Live Search -->
-        <div class="search-bar-container">
-          <span class="material-symbols-outlined search-icon">search</span>
-          <input type="text" class="search-input" placeholder="Buscar objetos..." [(ngModel)]="searchQuery" />
-        </div>
-      </div>
-
-      <!-- Catalog Grid -->
-      @if (filteredItems().length > 0) {
-      <div class="items-grid">
-        @for (item of filteredItems(); track item.id) {
-        <article class="item-card animate-fade-up">
-          <div class="item-card-image-container" (click)="openItemDetail(item)" style="cursor: pointer;">
-            <img [src]="item.photoUrl" alt="{{ item.title }}" class="item-card-image" />
-            <span class="item-category-floating">{{ item.category }}</span>
-
-            <span class="badge item-badge-floating" [class.badge-disponible]="item.status === 'disponible'"
-              [class.badge-prestado]="item.status === 'prestado'">
-              {{ item.status === 'disponible' ? 'Disponible' : 'Prestado' }}
-            </span>
-          </div>
-
-          <div class="item-card-content">
-            <h3 class="item-card-title" (click)="openItemDetail(item)" style="cursor: pointer; transition: color 0.2s;">{{ item.title }}</h3>
-            <p class="item-card-description" (click)="openItemDetail(item)" style="cursor: pointer;">{{ item.description }}</p>
-
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.25rem;">
-              <div style="display:flex; flex-direction:column;">
-                <span
-                  style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Modo</span>
-                <strong style="color:var(--text-main); font-size:0.9rem;">
-                  {{ item.mode === 'prestamo' ? 'Préstamo' : 'Venta' }}
-                </strong>
-              </div>
-              <div style="text-align:right;">
-                <span
-                  style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Costo</span>
-                <strong style="color:var(--primary); font-size:1.1rem;">
-                  {{ item.price > 0 ? '$' + item.price : 'Gratis' }}
-                </strong>
-              </div>
-            </div>
-
-            <div class="item-card-meta-list">
-              <div class="item-card-meta-item">
-                <span class="material-symbols-outlined">person</span>
-                <span>Ofrecido por: <strong>{{ item.owner }}</strong></span>
-              </div>
-              <div class="item-card-meta-item">
-                <span class="material-symbols-outlined">stars</span>
-                <span>Conservación: <strong>{{ item.condition }}</strong></span>
-              </div>
-            </div>
-
-            <div class="item-card-actions">
-              <button class="btn btn-primary"
-                (click)="openChecklistModal(item.mode === 'prestamo' ? 'borrow' : 'buy', item)">
-                <span class="material-symbols-outlined">assignment_turned_in</span>
-                {{ item.mode === 'prestamo' ? 'Solicitar Préstamo' : 'Adquirir / Comprar' }}
-              </button>
-            </div>
-          </div>
-        </article>
-        }
-      </div>
-      } @else {
-      <div class="empty-state">
-        <span class="material-symbols-outlined empty-state-icon">search_off</span>
-        <h3>No se encontraron objetos</h3>
-        <p>Prueba con otra palabra clave o categoría.</p>
-      </div>
-      }
-    }
-  </div>
-  }
+  <!-- Route Content for Guests -->
+  <main class="container">
+    <router-outlet></router-outlet>
+  </main>
 </div>
 }
 
 <!-- ================= PRIVATE AUTHENTICATED PANEL ================= -->
-@if (prestifyService.currentUser()) {
+@else {
 <div class="app-container">
   <!-- Sidebar Navigation -->
   <aside class="sidebar">
@@ -344,22 +43,22 @@
 
     <ul class="nav-links">
       <li class="nav-item">
-        <button class="nav-link" [class.active]="currentTab() === 'dashboard'" (click)="setTab('dashboard')">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
           <span class="material-symbols-outlined">dashboard</span>
           <span>Mi Panel</span>
-        </button>
+        </a>
       </li>
       <li class="nav-item">
-        <button class="nav-link" [class.active]="currentTab() === 'catalog'" (click)="setTab('catalog')">
+        <a routerLink="/catalog" routerLinkActive="active" class="nav-link">
           <span class="material-symbols-outlined">grid_view</span>
           <span>Explorar Objetos</span>
-        </button>
+        </a>
       </li>
       <li class="nav-item">
-        <button class="nav-link" [class.active]="currentTab() === 'history'" (click)="setTab('history')">
+        <a routerLink="/history" routerLinkActive="active" class="nav-link">
           <span class="material-symbols-outlined">history</span>
           <span>Historial Transacciones</span>
-        </button>
+        </a>
       </li>
     </ul>
 
@@ -417,590 +116,43 @@
     <!-- Header -->
     <header class="content-header">
       <div class="header-title-section">
-        @if (currentTab() === 'dashboard') {
-        <h1>Panel de Control</h1>
-        <p>Bienvenido de nuevo, {{ prestifyService.currentUser()?.name }}.</p>
-        } @else if (currentTab() === 'catalog') {
-        <h1>Explorar Artículos</h1>
-        <p>Busca e intercambia artículos de uso ocasional y herramientas.</p>
-        } @else {
-        <h1>Historial de Transacciones</h1>
-        <p>Registro y seguimiento de préstamos y ventas.</p>
-        }
+        <h1>Bienes & Recursos</h1>
+        <p>Economía Circular Vecinal</p>
       </div>
 
       <div class="header-actions">
-        @if (currentTab() === 'catalog') {
-        <div class="search-bar-container">
+        <!-- Live Search displayed in header when logged in and browsing catalog -->
+        <div class="search-bar-container" style="display: block;">
           <span class="material-symbols-outlined search-icon">search</span>
-          <input type="text" class="search-input" placeholder="Buscar objetos..." [(ngModel)]="searchQuery" />
+          <input type="text" class="search-input" placeholder="Buscar objetos..." [ngModel]="prestifyService.searchQuery()" (ngModelChange)="prestifyService.searchQuery.set($event)" />
         </div>
-        }
+        
         <button class="btn btn-primary" (click)="openAddModal()">
           <span class="material-symbols-outlined">add</span>
-          Publicar Bien (ABM)
+          Publicar
         </button>
       </div>
     </header>
 
-    <!-- AUTHENTICATED TAB 1: DASHBOARD -->
-    @if (currentTab() === 'dashboard') {
-    <div class="animate-fade-up">
-
-      <!-- ADMIN INTERFACE VIEW -->
-      @if (prestifyService.currentUser()?.role === 'admin') {
-      <div class="profile-banner">
-        <div class="profile-banner-info">
-          <h2>Panel de Administración - Economía Circular</h2>
-          <p>Monitoreo logístico de préstamos, pagos pendientes y estado de los bienes.</p>
-        </div>
-        <span class="profile-banner-role">ADMIN</span>
-      </div>
-
-      <!-- Stats -->
-      <section class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-icon-wrapper blue">
-            <span class="material-symbols-outlined">group</span>
-          </div>
-          <div class="metric-details">
-            <h3>Cuentas Registradas</h3>
-            <p class="metric-value">{{ prestifyService.totalRegisteredUsers() }}</p>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-icon-wrapper green">
-            <span class="material-symbols-outlined">inventory_2</span>
-          </div>
-          <div class="metric-details">
-            <h3>Bienes Totales</h3>
-            <p class="metric-value">{{ prestifyService.totalItems() }}</p>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-icon-wrapper yellow">
-            <span class="material-symbols-outlined">schedule</span>
-          </div>
-          <div class="metric-details">
-            <h3>Préstamos Activos</h3>
-            <p class="metric-value">{{ prestifyService.activeLoansCount() }}</p>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-icon-wrapper pink">
-            <span class="material-symbols-outlined">payments</span>
-          </div>
-          <div class="metric-details">
-            <h3>Transacciones Totales</h3>
-            <p class="metric-value">{{ prestifyService.transactions().length }}</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Table of Administrative Loans & Sales Logs -->
-      <section style="margin-bottom: 3rem;">
-        <h2 class="section-title" style="margin-bottom: 1rem;">
-          Control Administrativo de Transacciones
-        </h2>
-
-        @if (prestifyService.transactions().length > 0) {
-        <div class="history-table-container">
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th>Artículo</th>
-                <th>Tipo</th>
-                <th>Propietario / Dueño</th>
-                <th>Solicitante / Adquirente</th>
-                <th>Estado de Uso</th>
-                <th>Costo</th>
-                <th>Pago Presencial</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (tx of prestifyService.transactions(); track tx.id) {
-              <tr>
-                <td><strong>{{ tx.itemTitle }}</strong></td>
-                <td>
-                  <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
-                    {{ tx.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
-                  </span>
-                </td>
-                <td>{{ tx.owner }}</td>
-                <td>{{ tx.borrowerOrBuyer }}</td>
-                <td>
-                  <!-- Active vs Overdue Alerts -->
-                  @if (tx.type === 'prestamo') {
-                  <span class="badge" [class.badge-disponible]="tx.status === 'Activo' || tx.status === 'Devuelto'"
-                    [style.color]="tx.status === 'Caducado' ? 'var(--danger)' : ''"
-                    [style.backgroundColor]="tx.status === 'Caducado' ? 'rgba(239,68,68,0.1)' : ''">
-                    {{ tx.status === 'Caducado' ? 'Caducado (Alerta)' : tx.status }}
-                  </span>
-                  } @else {
-                  <span class="badge badge-disponible">
-                    {{ tx.status }}
-                  </span>
-                  }
-                </td>
-                <td style="font-weight: 700;">{{ tx.price > 0 ? '$' + tx.price : 'Gratis' }}</td>
-                <td>
-                  @if (tx.price > 0) {
-                  @if (tx.type === 'prestamo') {
-                  <!-- Paid loan status -->
-                  <span class="badge" [style.color]="tx.status === 'Devuelto' ? 'var(--success)' : 'var(--warning)'">
-                    {{ tx.status === 'Devuelto' ? 'Cobrado' : 'Pendiente Retorno' }}
-                  </span>
-                  } @else {
-                  <!-- Sale transaction status -->
-                  <span class="badge" [class.badge-disponible]="tx.status === 'Vendido'"
-                    [class.badge-prestado]="tx.status === 'Pago Pendiente'">
-                    {{ tx.status === 'Vendido' ? 'Cobrado' : 'Pago Pendiente' }}
-                  </span>
-                  }
-                  } @else {
-                  <span style="color:var(--text-muted); font-size:0.8rem;">Gratuito</span>
-                  }
-                </td>
-                <td>
-                  @if (tx.price > 0 && tx.status === 'Pago Pendiente') {
-                  <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;"
-                    (click)="handleConfirmPayment(tx.id)">
-                    Confirmar Pago
-                  </button>
-                  } @else {
-                  <span style="color:var(--text-muted); font-size: 0.75rem;">Verificado</span>
-                  }
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-        } @else {
-        <div class="empty-state">
-          <h3>Sin transacciones activas</h3>
-          <p>No se han registrado operaciones en el sistema todavía.</p>
-        </div>
-        }
-      </section>
-      }
-
-      <!-- REGULAR USER INTERFACE VIEW -->
-      @else {
-      <div class="profile-banner">
-        <div class="profile-banner-info">
-          <h2>Mis Intercambios Activos</h2>
-          <p>Lleva el control de los bienes que has solicitado o prestado.</p>
-        </div>
-        <span class="profile-banner-role">{{ prestifyService.currentUser()?.type }}</span>
-      </div>
-
-      <!-- Stats -->
-      <section class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-icon-wrapper blue">
-            <span class="material-symbols-outlined">shopping_bag</span>
-          </div>
-          <div class="metric-details">
-            <h3>Mis Préstamos Activos</h3>
-            <p class="metric-value">{{ myBorrowedItems().length }}</p>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-icon-wrapper green">
-            <span class="material-symbols-outlined">check_circle</span>
-          </div>
-          <div class="metric-details">
-            <h3>Objetos Disponibles</h3>
-            <p class="metric-value">{{ prestifyService.availableItemsCount() }}</p>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-icon-wrapper yellow">
-            <span class="material-symbols-outlined">handshake</span>
-          </div>
-          <div class="metric-details">
-            <h3>Préstamos Activos Red</h3>
-            <p class="metric-value">{{ prestifyService.activeLoansCount() }}</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Items borrowed by me -->
-      <section class="active-loans-section">
-        <h2 class="section-title">
-          Artículos que tengo en préstamo
-          <span class="count">{{ myBorrowedItems().length }}</span>
-        </h2>
-
-        @if (myBorrowedItems().length > 0) {
-        @for (item of myBorrowedItems(); track item.id) {
-        <div class="active-loan-card animate-fade-up">
-          <div class="active-loan-item-info">
-            <img [src]="item.photoUrl" alt="" class="active-loan-img" />
-            <div class="active-loan-details">
-              <h4>{{ item.title }}</h4>
-              <p>Ofrecido por: <strong>{{ item.owner }}</strong></p>
-            </div>
-          </div>
-
-          <div class="active-loan-meta">
-            <div class="loan-due-info">
-              <p class="due-date" [style.color]="item.dueDate && item.dueDate < '2026-05-30' ? 'var(--danger)' : ''">
-                {{ item.dueDate }}
-              </p>
-              <p class="due-label">
-                {{ item.dueDate && item.dueDate < '2026-05-30' ? 'Vencido (Alerta)' : 'Devolver antes de' }} </p>
-            </div>
-            <button class="btn btn-secondary" (click)="openChecklistModal('return', item)">
-              <span class="material-symbols-outlined">keyboard_return</span>
-              Devolver
-            </button>
-          </div>
-        </div>
-        }
-        } @else {
-        <div class="empty-state">
-          <span class="material-symbols-outlined empty-state-icon">shopping_cart_checkout</span>
-          <h3>No tienes objetos en préstamo</h3>
-          <p>¿Necesitas alguna herramienta o insumo ortopédico? Explora el catálogo.</p>
-          <button class="btn btn-primary" (click)="setTab('catalog')">Ver Catálogo</button>
-        </div>
-        }
-      </section>
-      }
+    <!-- Route Content for Authenticated Users -->
+    <div style="position: relative;">
+      <router-outlet></router-outlet>
     </div>
-    }
-
-    <!-- AUTHENTICATED TAB 2: EXPLORE CATALOG -->
-    @if (currentTab() === 'catalog') {
-    <div class="animate-fade-up">
-
-      @if (selectedItem()) {
-        <!-- GORGEOUS PRODUCT DETAIL VIEW -->
-        <div class="item-detail-container card-glass animate-fade-up" style="margin-bottom: 2rem; padding: 2.5rem; border-radius: var(--radius-lg);">
-          <button class="btn btn-secondary btn-back-catalog" (click)="selectedItem.set(null)" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span class="material-symbols-outlined">arrow_back</span>
-            Volver al Catálogo
-          </button>
-
-          <div class="item-detail-layout">
-            <!-- Left: Huge photo & badges -->
-            <div class="item-detail-media">
-              <img [src]="selectedItem()?.photoUrl" alt="" class="item-detail-image" />
-              <span class="detail-category-badge">{{ selectedItem()?.category }}</span>
-              <span class="badge detail-status-badge"
-                    [class.badge-disponible]="selectedItem()?.status === 'disponible'"
-                    [class.badge-prestado]="selectedItem()?.status === 'prestado'"
-                    [class.badge-secondary]="selectedItem()?.status === 'vendido'">
-                {{ selectedItem()?.status === 'disponible' ? 'Disponible' : selectedItem()?.status === 'prestado' ? 'Prestado' : 'Vendido' }}
-              </span>
-            </div>
-
-            <!-- Right: Content details -->
-            <div class="item-detail-info">
-              <div class="detail-header-block">
-                <span class="detail-mode-tag">{{ selectedItem()?.mode === 'prestamo' ? 'Ofrecido en Préstamo' : 'Ofrecido en Venta' }}</span>
-                <h2 class="detail-title">{{ selectedItem()?.title }}</h2>
-                <div class="detail-price-box">
-                  <span class="price-label">Valor:</span>
-                  <strong class="price-value">{{ (selectedItem()?.price || 0) > 0 ? '$' + selectedItem()?.price : 'Gratuito' }}</strong>
-                </div>
-              </div>
-
-              <!-- Owner details & Reputation -->
-              <div class="detail-section-card detail-owner-card">
-                <div class="owner-avatar">
-                  <span class="material-symbols-outlined">account_circle</span>
-                </div>
-                <div class="owner-meta">
-                  <span class="meta-label">Propietario Publicador</span>
-                  <h4 class="owner-name">{{ selectedItem()?.owner }}</h4>
-                  <div class="owner-reputation">
-                    @if (getOwnerDetails(selectedItem()?.owner || '')) {
-                      <div class="stars-row">
-                        <span class="material-symbols-outlined star-icon" style="color:var(--warning); font-size:1.1rem; vertical-align:middle;">star</span>
-                        <span class="reputation-number" style="font-weight:700; color:var(--text-main); margin-left: 2px;">{{ getOwnerDetails(selectedItem()?.owner || '')?.reputation }}</span>
-                        <span class="reputation-count" style="color:var(--text-muted); margin-left: 4px;">({{ getOwnerDetails(selectedItem()?.owner || '')?.reputationCount }} valoraciones)</span>
-                      </div>
-                    } @else {
-                      <span class="reputation-count">Sin reputación registrada</span>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <div class="detail-meta-grid">
-                <div class="detail-meta-item">
-                  <span class="material-symbols-outlined">stars</span>
-                  <div>
-                    <span class="meta-label">Estado de Conservación</span>
-                    <strong class="meta-value">{{ selectedItem()?.condition }}</strong>
-                  </div>
-                </div>
-                @if (selectedItem()?.status === 'prestado') {
-                  <div class="detail-meta-item" style="color: var(--warning);">
-                    <span class="material-symbols-outlined">assignment_ind</span>
-                    <div>
-                      <span class="meta-label">En posesión de</span>
-                      <strong class="meta-value">{{ selectedItem()?.borrower }}</strong>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <div class="detail-description-block">
-                <h4 class="section-sub-title">Descripción del Insumo</h4>
-                <p class="detail-description">{{ selectedItem()?.description }}</p>
-              </div>
-
-              <!-- Location Info -->
-              <div class="detail-section-card detail-location-card">
-                <h4 class="section-sub-title" style="margin-top:0; margin-bottom: 0.5rem; display:flex; align-items:center; gap:6px;">
-                  <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.2rem;">location_on</span>
-                  Punto de Retiro Aproximado
-                </h4>
-                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">Ubicación geográfica aproximada para coordinar entrega presencial.</p>
-                <div style="background-color: var(--bg-input); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-family: monospace; color: var(--text-muted);">
-                  Coordenadas: Latitud {{ selectedItem()?.lat | number:'1.4-4' }}, Longitud {{ selectedItem()?.lng | number:'1.4-4' }}
-                </div>
-              </div>
-
-              <div class="detail-actions-row" style="margin-top:2rem;">
-                @if (selectedItem()?.status === 'disponible') {
-                  <button class="btn btn-primary" style="padding:0.85rem 2rem; font-size:1rem;" (click)="openChecklistModal(selectedItem()?.mode === 'prestamo' ? 'borrow' : 'buy', selectedItem()!)">
-                    <span class="material-symbols-outlined">assignment_turned_in</span>
-                    {{ selectedItem()?.mode === 'prestamo' ? 'Solicitar Préstamo' : 'Adquirir / Comprar' }}
-                  </button>
-                } @else if (selectedItem()?.status === 'prestado') {
-                  @if (prestifyService.currentUser()?.role === 'admin' || selectedItem()?.borrower === prestifyService.currentUser()?.name) {
-                    <button class="btn btn-secondary" style="padding:0.85rem 2rem; font-size:1rem;" (click)="openChecklistModal('return', selectedItem()!)">
-                      <span class="material-symbols-outlined">keyboard_return</span>
-                      Devolver Objeto
-                    </button>
-                  } @else {
-                    <button class="btn btn-secondary" disabled style="opacity: 0.6; cursor: not-allowed; padding:0.85rem 2rem; font-size:1rem;">
-                      No Disponible
-                    </button>
-                  }
-                } @else {
-                  <button class="btn btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed; padding:0.85rem 2rem; font-size:1rem;">
-                    Vendido
-                  </button>
-                }
-
-                @if (prestifyService.currentUser()?.role === 'admin' || selectedItem()?.owner === prestifyService.currentUser()?.name) {
-                  <button class="btn btn-delete-item" style="padding:0.85rem 1.5rem;" (click)="handleDeleteItem(selectedItem()!.id); selectedItem.set(null);" title="Eliminar Articulo">
-                    <span class="material-symbols-outlined">delete</span>
-                    Eliminar
-                  </button>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      } @else {
-        <!-- Leaflet Map in catalog -->
-        <div class="card-glass"
-          style="padding: 0.5rem; overflow: hidden; border-radius: var(--radius-lg); margin-bottom: 2rem; z-index: 1;">
-          <div id="map-container"
-            style="height: 350px; width: 100%; border-radius: calc(var(--radius-lg) - 0.5rem); z-index: 1;"></div>
-        </div>
-
-        <div class="filters-row">
-          <div class="category-tabs">
-            @for (cat of ['Todos', 'Herramientas', 'Salud', 'Deportes', 'Indumentaria', 'Electrónica', 'Juegos', 'Otros'];
-            track cat) {
-            <button class="category-tab" [class.active]="selectedCategory() === cat" (click)="selectCategory(cat)">
-              {{ cat }}
-            </button>
-            }
-          </div>
-        </div>
-
-        <!-- Catalog Grid -->
-        @if (filteredItems().length > 0) {
-        <div class="items-grid">
-          @for (item of filteredItems(); track item.id) {
-          <article class="item-card animate-fade-up">
-            <div class="item-card-image-container" (click)="openItemDetail(item)" style="cursor: pointer;">
-              <img [src]="item.photoUrl" alt="" class="item-card-image" />
-              <span class="item-category-floating">{{ item.category }}</span>
-
-              <span class="badge item-badge-floating" [class.badge-disponible]="item.status === 'disponible'"
-                [class.badge-prestado]="item.status === 'prestado'" [class.badge-secondary]="item.status === 'vendido'">
-                {{ item.status === 'disponible' ? 'Disponible' : item.status === 'prestado' ? 'Prestado' : 'Vendido' }}
-              </span>
-            </div>
-
-            <div class="item-card-content">
-              <h3 class="item-card-title" (click)="openItemDetail(item)" style="cursor: pointer; transition: color 0.2s;">{{ item.title }}</h3>
-              <p class="item-card-description" (click)="openItemDetail(item)" style="cursor: pointer;">{{ item.description }}</p>
-
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.25rem;">
-                <div style="display:flex; flex-direction:column;">
-                  <span
-                    style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Modo</span>
-                  <strong style="color:var(--text-main); font-size:0.9rem;">
-                    {{ item.mode === 'prestamo' ? 'Préstamo' : 'Venta' }}
-                  </strong>
-                </div>
-                <div style="text-align:right;">
-                  <span
-                    style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Costo</span>
-                  <strong style="color:var(--primary); font-size:1.1rem;">
-                    {{ item.price > 0 ? '$' + item.price : 'Gratis' }}
-                  </strong>
-                </div>
-              </div>
-
-              <div class="item-card-meta-list">
-                <div class="item-card-meta-item">
-                  <span class="material-symbols-outlined">person</span>
-                  <span>Dueño: <strong>{{ item.owner }}</strong></span>
-                </div>
-                <div class="item-card-meta-item">
-                  <span class="material-symbols-outlined">stars</span>
-                  <span>Estado: <strong>{{ item.condition }}</strong></span>
-                </div>
-                @if (item.status === 'prestado') {
-                <div class="item-card-meta-item" style="color: var(--warning);">
-                  <span class="material-symbols-outlined">assignment_ind</span>
-                  <span>Prestado a: <strong>{{ item.borrower }}</strong></span>
-                </div>
-                }
-              </div>
-
-              <div class="item-card-actions">
-                @if (item.status === 'disponible') {
-                <button class="btn btn-primary"
-                  (click)="openChecklistModal(item.mode === 'prestamo' ? 'borrow' : 'buy', item)">
-                  <span class="material-symbols-outlined">assignment_turned_in</span>
-                  {{ item.mode === 'prestamo' ? 'Pedir Prestado' : 'Comprar / Adquirir' }}
-                </button>
-                } @else if (item.status === 'prestado') {
-                @if (prestifyService.currentUser()?.role === 'admin' || item.borrower ===
-                prestifyService.currentUser()?.name) {
-                <button class="btn btn-secondary" (click)="openChecklistModal('return', item)">
-                  <span class="material-symbols-outlined">keyboard_return</span>
-                  Devolver Objeto
-                </button>
-                } @else {
-                <button class="btn btn-secondary" disabled style="opacity: 0.6; cursor: not-allowed;">
-                  No Disponible
-                </button>
-                }
-                } @else {
-                <button class="btn btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed;">
-                  Vendido
-                </button>
-                }
-
-                @if (prestifyService.currentUser()?.role === 'admin' || item.owner ===
-                prestifyService.currentUser()?.name) {
-                <button class="btn btn-delete-item" (click)="handleDeleteItem(item.id)" title="Eliminar Articulo">
-                  <span class="material-symbols-outlined">delete</span>
-                </button>
-                }
-              </div>
-            </div>
-          </article>
-          }
-        </div>
-        } @else {
-        <div class="empty-state">
-          <span class="material-symbols-outlined empty-state-icon">search_off</span>
-          <h3>No se encontraron objetos</h3>
-          <p>Prueba con otra categoría o término de búsqueda.</p>
-        </div>
-        }
-      }
-    </div>
-    }
-
-    <!-- AUTHENTICATED TAB 3: GENERAL LOG HISTORY -->
-    @if (currentTab() === 'history') {
-    <div class="animate-fade-up">
-      @if (prestifyService.transactions().length > 0) {
-      <div class="history-table-container">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Artículo</th>
-              <th>Tipo</th>
-              <th>Dueño</th>
-              <th>Vecino/Empresa</th>
-              <th>Inicio</th>
-              <th>Retorno/Fin</th>
-              <th>Checklist Entrega</th>
-              <th>Checklist Devolución</th>
-              <th>Calificación</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (log of prestifyService.transactions(); track log.id) {
-            <tr>
-              <td><strong>{{ log.itemTitle }}</strong></td>
-              <td>
-                <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
-                  {{ log.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
-                </span>
-              </td>
-              <td>{{ log.owner }}</td>
-              <td>{{ log.borrowerOrBuyer }}</td>
-              <td class="history-date">{{ log.dateStarted }}</td>
-              <td class="history-date">{{ log.returnDate || log.dateEndedOrDue }}</td>
-              <td style="font-size:0.75rem; color:var(--text-muted);">
-                ✔ Completo (4/4)
-              </td>
-              <td style="font-size:0.75rem; color:var(--text-muted);">
-                {{ log.returnChecklist ? '✔ Completo (4/4)' : '-' }}
-              </td>
-              <td>
-                @if (log.ratingGiven) {
-                <div style="display:flex; align-items:center; gap:2px; color:var(--warning); font-weight:700;">
-                  <span class="material-symbols-outlined" style="font-size:1rem;">star</span>
-                  <span>{{ log.ratingGiven }}</span>
-                </div>
-                } @else {
-                <span style="color:var(--text-muted); font-size:0.8rem;">-</span>
-                }
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      } @else {
-      <div class="empty-state">
-        <span class="material-symbols-outlined empty-state-icon">history</span>
-        <h3>Historial vacío</h3>
-        <p>Las transacciones completadas se registrarán aquí automáticamente.</p>
-      </div>
-      }
-    </div>
-    }
   </main>
 </div>
 }
 
 <!-- ================= AUTH MODAL ================= -->
-@if (showAuthModal()) {
+@if (prestifyService.showAuthModal()) {
 <div class="modal-overlay" (click)="closeAuthModal()">
   <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 480px;">
 
-    @if (authMode() !== 'recover') {
+    @if (prestifyService.authMode() !== 'recover') {
     <div class="auth-mode-selector">
-      <button type="button" class="auth-tab-btn" [class.active]="authMode() === 'login'" (click)="setAuthMode('login')">
+      <button type="button" class="auth-tab-btn" [class.active]="prestifyService.authMode() === 'login'" (click)="setAuthMode('login')">
         Iniciar Sesión
       </button>
-      <button type="button" class="auth-tab-btn" [class.active]="authMode() === 'register'"
+      <button type="button" class="auth-tab-btn" [class.active]="prestifyService.authMode() === 'register'"
         (click)="setAuthMode('register')">
         Crear Cuenta
       </button>
@@ -1017,7 +169,7 @@
     <div class="modal-body">
 
       <!-- LOGIN FORM -->
-      @if (authMode() === 'login') {
+      @if (prestifyService.authMode() === 'login') {
       <form (ngSubmit)="handleLogin()">
         <div class="form-group">
           <label for="loginEmail">Correo Electrónico</label>
@@ -1050,8 +202,8 @@
       </form>
       }
 
-      <!-- REGISTER FORM -->
-      @if (authMode() === 'register') {
+      <!-- REGISTER FORM (No initial role selection - strictly for general users) -->
+      @if (prestifyService.authMode() === 'register') {
       <form (ngSubmit)="handleRegister()">
         <div class="form-group">
           <label for="regName">Nombre Completo o Razón Social</label>
@@ -1081,20 +233,6 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label>Rol Inicial</label>
-          <div class="role-selection-group">
-            <label class="role-radio-label" [class.active]="registerRole === 'usuario'">
-              <input type="radio" name="role" [(ngModel)]="registerRole" value="usuario" />
-              Usuario Comun
-            </label>
-            <label class="role-radio-label" [class.active]="registerRole === 'admin'">
-              <input type="radio" name="role" [(ngModel)]="registerRole" value="admin" />
-              Administrador
-            </label>
-          </div>
-        </div>
-
         <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
           <button type="button" class="btn btn-secondary" (click)="closeAuthModal()">Cancelar</button>
           <button type="submit" class="btn btn-primary">Registrarse</button>
@@ -1103,7 +241,7 @@
       }
 
       <!-- PASSWORD RECOVERY FORM -->
-      @if (authMode() === 'recover') {
+      @if (prestifyService.authMode() === 'recover') {
       <form (ngSubmit)="handleRecovery()">
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
           Introduce tu correo electrónico registrado. Te enviaremos tu contraseña simulada en un aviso flotante.
@@ -1128,11 +266,11 @@
 }
 
 <!-- ================= PUBLISH BIEN MODAL (ABM) ================= -->
-@if (showAddModal()) {
+@if (prestifyService.showAddModal()) {
 <div class="modal-overlay" (click)="closeAddModal()">
   <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Publicar Artículo / Insumo (ABM)</h2>
+      <h2>Publicar Artículo / Insumo</h2>
       <button class="btn btn-icon" (click)="closeAddModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -1187,10 +325,24 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="itemPhoto">URL de la Imagen (Opcional)</label>
-          <input type="url" id="itemPhoto" class="form-input" placeholder="Dejar en blanco para usar imagen temática"
+        <!-- PC File Upload for Photo with preview and fallback to URL -->
+        <div class="form-group" style="border: 1px dashed var(--border-color); padding: 1rem; border-radius: var(--radius-md); background-color: rgba(99,102,241,0.02);">
+          <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="material-symbols-outlined" style="color:var(--primary);">upload_file</span>
+            Cargar Foto desde PC *
+          </label>
+          <input type="file" id="itemPhotoFile" accept="image/*" (change)="onFileSelected($event)" class="form-input" style="padding: 0.35rem 0.75rem;" />
+          
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin: 0.5rem 0 0.25rem 0; text-align: center;">- O introduce una URL de imagen externa -</span>
+          <input type="url" id="itemPhoto" class="form-input" placeholder="https://ejemplo.com/imagen.jpg"
             [(ngModel)]="newItemPhoto" name="photoUrl" />
+            
+          @if (newItemPhoto) {
+            <div style="margin-top: 0.85rem; text-align: center; background-color: var(--bg-card); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <span style="font-size:0.75rem; color: var(--text-muted); display:block; margin-bottom:4px;">Vista previa de la imagen cargada:</span>
+              <img [src]="newItemPhoto" alt="Vista previa de imagen" style="max-height: 140px; max-width: 100%; border-radius: var(--radius-sm); object-fit: cover;" />
+            </div>
+          }
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
@@ -1216,7 +368,7 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeAddModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Publicar Bien</button>
+          <button type="submit" class="btn btn-primary">Publicar</button>
         </div>
       </form>
     </div>
@@ -1225,13 +377,13 @@
 }
 
 <!-- ================= MANDATORY CHECKLIST TRANSACTION MODAL ================= -->
-@if (showChecklistModal()) {
+@if (prestifyService.showChecklistModal()) {
 <div class="modal-overlay" (click)="closeChecklistModal()">
   <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 500px;">
     <div class="modal-header">
       <h2>
-        @if (checklistAction === 'borrow') { Verificación de Entrega de Préstamo }
-        @else if (checklistAction === 'buy') { Confirmación de Compra Directa }
+        @if (prestifyService.checklistAction() === 'borrow') { Verificación de Entrega de Préstamo }
+        @else if (prestifyService.checklistAction() === 'buy') { Confirmación de Compra Directa }
         @else { Verificación de Recepción y Retorno }
       </h2>
       <button class="btn btn-icon" (click)="closeChecklistModal()">
@@ -1243,18 +395,18 @@
       <!-- Checklist details -->
       <div
         style="background-color: var(--bg-input); padding:1rem; border-radius: var(--radius-md); margin-bottom:1.5rem; display:flex; gap:1rem; align-items:center;">
-        <img [src]="checklistItem?.photoUrl" alt=""
+        <img [src]="prestifyService.checklistItem()?.photoUrl" alt=""
           style="width: 50px; height: 50px; object-fit: cover; border-radius: var(--radius-sm);" />
         <div>
-          <h4 style="margin:0; font-size:1rem;">{{ checklistItem?.title }}</h4>
-          <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Dueño: {{ checklistItem?.owner }}</p>
+          <h4 style="margin:0; font-size:1rem;">{{ prestifyService.checklistItem()?.title }}</h4>
+          <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Dueño: {{ prestifyService.checklistItem()?.owner }}</p>
         </div>
       </div>
 
       <form (ngSubmit)="handleChecklistSubmit()">
 
         <!-- Borrow Additional fields -->
-        @if (checklistAction === 'borrow') {
+        @if (prestifyService.checklistAction() === 'borrow') {
         <div class="form-group">
           <label for="checkBorrower">¿Quién retira? *</label>
           <input type="text" id="checkBorrower" class="form-input" [(ngModel)]="borrowerName" name="bName" required />
@@ -1305,7 +457,7 @@
         </div>
 
         <!-- Return Rating -->
-        @if (checklistAction === 'return') {
+        @if (prestifyService.checklistAction() === 'return') {
         <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
           <label>Calificar al Solicitante por el cuidado del bien (Reputación):</label>
           <select class="form-select" [(ngModel)]="returnRating" name="rating">
@@ -1331,9 +483,19 @@
 </div>
 }
 
+<!-- ================= CHECKOUT MODAL ================= -->
+@if (prestifyService.showCheckoutModal()) {
+  <app-checkout></app-checkout>
+}
+
+<!-- ================= TICKET MODAL ================= -->
+@if (prestifyService.showTicketModal()) {
+  <app-ticket-modal></app-ticket-modal>
+}
+
 <!-- ================= TOASTS NOTIFICATIONS ================= -->
 <div class="toast-container">
-  @for (toast of toasts(); track toast) {
+  @for (toast of prestifyService.toasts(); track toast) {
   <div class="toast animate-fade-up" [class.toast-success]="toast.type === 'success'"
     [class.toast-info]="toast.type === 'info'" [class.toast-warning]="toast.type === 'warning'">
     @if (toast.type === 'success') {
