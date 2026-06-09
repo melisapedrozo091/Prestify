@@ -223,7 +223,11 @@
             <tbody>
               @for (tx of prestifyService.transactions(); track tx.id) {
               <tr>
-                <td class="font-mono" style="font-size:0.8rem;">{{ tx.ticketNumber }}</td>
+                <td class="font-mono" style="font-size:0.8rem;">
+                  <a href="javascript:void(0)" (click)="openTicket(tx)" style="color: var(--primary); font-weight: 700; text-decoration: none;" title="Ver Comprobante">
+                    {{ tx.ticketNumber }}
+                  </a>
+                </td>
                 <td><strong>{{ tx.itemTitle }}</strong></td>
                 <td>
                   <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
