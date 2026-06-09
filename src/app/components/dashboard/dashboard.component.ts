@@ -44,6 +44,19 @@ export class DashboardComponent implements OnInit {
   public productFormLng = -58.3816;
   public productFormSku = '';
 
+  // Transaction ABM Modal & Form State (Admin)
+  public readonly showTxModal = signal<boolean>(false);
+  public readonly selectedTx = signal<Transaction | null>(null);
+  
+  public txFormId = '';
+  public txFormPrice = 0;
+  public txFormStatus: 'Activo' | 'Caducado' | 'Pago Pendiente' | 'Vendido' | 'Devuelto' | 'Pendiente' | 'Rechazado' = 'Pendiente';
+  public txFormApprovalStatus: 'pendiente' | 'aprobado' | 'rechazado' = 'pendiente';
+  public txFormPaymentMethod: 'efectivo' | 'mercadopago' = 'efectivo';
+  public txFormDateStarted = '';
+  public txFormDateEndedOrDue = '';
+  public txFormNotes = '';
+
   // Filter out the primary Admin from the User ABM listing for a cleaner look
   public readonly regularUsers = computed(() => {
     return this.prestifyService.users().filter(u => u.email !== 'contacto@municipio.org');
@@ -268,6 +281,61 @@ export class DashboardComponent implements OnInit {
     if (confirm(`¿Estás seguro de que quieres eliminar "${item.title}" del catálogo general?`)) {
       this.prestifyService.deleteItem(itemId);
       this.prestifyService.showToast('Artículo eliminado del catálogo.', 'info');
+    }
+  }
+
+  // --- TRANSACTION ABM Methods (Admin) ---
+  public openEditTxModal(tx: Transaction): void {
+    this.selectedTx.set(tx);
+    this.txFormId = tx.id;
+    this.txFormPrice = tx.price;
+    this.txFormStatus = tx.status;
+    this.txFormApprovalStatus = tx.approvalStatus;
+    this.txFormPaymentMethod = tx.paymentMethod || 'efectivo';
+    this.txFormDateStarted = tx.dateStarted;
+    this.txFormDateEndedOrDue = tx.dateEndedOrDue;
+    this.txFormNotes = tx.notes || '';
+    
+    this.showTxModal.set(true);
+  }
+
+  public closeTxModal(): void {
+    this.showTxModal.set(false);
+    this.selectedTx.set(null);
+  }
+
+  public saveTx(): void {
+    if (!this.txFormId) return;
+
+    const result = this.prestifyService.updateTransactionDetails(this.txFormId, {
+      price: this.txFormPrice,
+      status: this.txFormStatus,
+      approvalStatus: this.txFormApprovalStatus,
+      paymentMethod: this.txFormPaymentMethod,
+      dateStarted: this.txFormDateStarted,
+      dateEndedOrDue: this.txFormDateEndedOrDue,
+      notes: this.txFormNotes
+    });
+
+    if (result.success) {
+      this.prestifyService.showToast(`Transacción ${this.selectedTx()?.ticketNumber} actualizada.`, 'success');
+      this.closeTxModal();
+    } else {
+      this.prestifyService.showToast(result.error || 'Error al actualizar transacción.', 'warning');
+    }
+  }
+
+  public deleteTx(txId: string): void {
+    const tx = this.prestifyService.transactions().find(t => t.id === txId);
+    if (!tx) return;
+
+    if (confirm(`¿Estás seguro de que quieres eliminar la transacción "${tx.ticketNumber}"? Esto restaurará el estado del artículo.`)) {
+      const result = this.prestifyService.deleteTransaction(txId);
+      if (result.success) {
+        this.prestifyService.showToast(`Transacción "${tx.ticketNumber}" eliminada y estado de objeto restablecido.`, 'info');
+      } else {
+        this.prestifyService.showToast(result.error || 'Error al eliminar transacción.', 'warning');
+      }
     }
   }
 }

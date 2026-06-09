@@ -909,4 +909,86 @@ export class PrestifyService {
     }));
     this.persistTransactions();
   }
+
+  // Admin update transaction (Complete override)
+  public updateTransactionDetails(txId: string, updatedData: Partial<Transaction>): { success: boolean; error?: string } {
+    const exists = this._transactions().some(t => t.id === txId);
+    if (!exists) {
+      return { success: false, error: 'Transacción no encontrada.' };
+    }
+
+    this._transactions.update(txs => txs.map(t => {
+      if (t.id === txId) {
+        const newTx = { ...t, ...updatedData };
+        
+        // Synchronize item status if needed
+        if (updatedData.approvalStatus || updatedData.status) {
+          this._items.update(items => items.map(item => {
+            if (item.id === newTx.itemId) {
+              if (newTx.approvalStatus === 'aprobado') {
+                if (newTx.type === 'prestamo') {
+                  const isDevuelto = newTx.status === 'Devuelto';
+                  return {
+                    ...item,
+                    status: isDevuelto ? 'disponible' : 'prestado',
+                    borrower: isDevuelto ? undefined : newTx.borrowerOrBuyer,
+                    dueDate: isDevuelto ? undefined : newTx.dateEndedOrDue,
+                    paymentStatus: isDevuelto ? undefined : (newTx.price > 0 ? (newTx.status === 'Vendido' || newTx.status === 'Devuelto' ? 'Pagado' : 'Pendiente') : 'Gratuito')
+                  };
+                } else {
+                  return {
+                    ...item,
+                    status: 'vendido',
+                    borrower: newTx.borrowerOrBuyer
+                  };
+                }
+              } else if (newTx.approvalStatus === 'rechazado' || newTx.approvalStatus === 'pendiente') {
+                return {
+                  ...item,
+                  status: 'disponible',
+                  borrower: undefined,
+                  dueDate: undefined,
+                  paymentStatus: undefined
+                };
+              }
+            }
+            return item;
+          }));
+          this.persistItems();
+        }
+
+        return newTx;
+      }
+      return t;
+    }));
+
+    this.persistTransactions();
+    return { success: true };
+  }
+
+  // Admin delete transaction
+  public deleteTransaction(txId: string): { success: boolean; error?: string } {
+    const tx = this._transactions().find(t => t.id === txId);
+    if (!tx) {
+      return { success: false, error: 'Transacción no encontrada.' };
+    }
+
+    this._items.update(items => items.map(item => {
+      if (item.id === tx.itemId) {
+        return {
+          ...item,
+          status: 'disponible',
+          borrower: undefined,
+          dueDate: undefined,
+          paymentStatus: undefined
+        };
+      }
+      return item;
+    }));
+    this.persistItems();
+
+    this._transactions.update(txs => txs.filter(t => t.id !== txId));
+    this.persistTransactions();
+    return { success: true };
+  }
 }

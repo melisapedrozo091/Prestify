@@ -217,6 +217,7 @@
                 <th>Monto</th>
                 <th>Pago Presencial</th>
                 <th>Acción</th>
+                <th style="text-align: right; width: 120px;">Acciones Admin</th>
               </tr>
             </thead>
             <tbody>
@@ -257,13 +258,23 @@
                 </td>
                 <td>
                   @if (tx.price > 0 && tx.status === 'Pago Pendiente' && tx.approvalStatus === 'aprobado') {
-                  <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;"
+                  <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; width: 100%; text-align: center;"
                     (click)="handleConfirmPayment(tx.id)">
                     Confirmar Pago
                   </button>
                   } @else {
                   <span style="color:var(--text-muted); font-size: 0.75rem;">Verificado</span>
                   }
+                </td>
+                <td style="text-align: right;">
+                  <div style="display:inline-flex; gap:0.5rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" (click)="openEditTxModal(tx)" title="Editar Transacción">
+                      <span class="material-symbols-outlined" style="font-size:1.1rem;">edit</span>
+                    </button>
+                    <button class="btn btn-danger" style="padding: 4px 8px; font-size:0.8rem;" (click)="deleteTx(tx.id)" title="Eliminar Transacción">
+                      <span class="material-symbols-outlined" style="font-size:1.1rem;">delete</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
               }
@@ -599,7 +610,11 @@
 
         <div class="form-group">
           <label for="pOwner">Propietario / Remitente *</label>
-          <input type="text" id="pOwner" class="form-input" [(ngModel)]="productFormOwner" name="pOwner" required />
+          <select id="pOwner" class="form-select" [(ngModel)]="productFormOwner" name="pOwner" required>
+            @for (user of prestifyService.users(); track user.email) {
+              <option [value]="user.name">{{ user.name }} ({{ user.type }})</option>
+            }
+          </select>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
@@ -663,6 +678,97 @@
       </form>
     </div>
 
+  </div>
+</div>
+}
+
+<!-- ================= TRANSACTION EDIT MODAL (For Admins) ================= -->
+@if (showTxModal()) {
+<div class="modal-overlay" (click)="closeTxModal()">
+  <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 500px;">
+    <div class="modal-header">
+      <h2>Modificar Transacción (Admin)</h2>
+      <button class="btn btn-icon" (click)="closeTxModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="saveTx()">
+        <div style="background-color: var(--bg-input); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h4 style="margin: 0; font-size: 1rem;">{{ selectedTx()?.itemTitle }}</h4>
+            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+              Comprobante: <strong class="font-mono">{{ selectedTx()?.ticketNumber }}</strong> | SKU: <span class="font-mono">{{ selectedTx()?.sku }}</span>
+            </p>
+          </div>
+          <span class="badge" style="background-color: var(--bg-card); font-weight: 700; text-transform: capitalize;">
+            {{ selectedTx()?.type }}
+          </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Monto / Precio ($)</label>
+            <input type="number" class="form-input" [(ngModel)]="txFormPrice" name="txPrice" required />
+          </div>
+          
+          <div class="form-group">
+            <label>Medio de Pago</label>
+            <select class="form-select" [(ngModel)]="txFormPaymentMethod" name="txPaymentMethod">
+              <option value="efectivo">Efectivo</option>
+              <option value="mercadopago">Mercado Pago</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Fecha de Inicio</label>
+            <input type="date" class="form-input" [(ngModel)]="txFormDateStarted" name="txDateStarted" required />
+          </div>
+          
+          <div class="form-group">
+            <label>Fecha de Devolución/Límite</label>
+            <input type="date" class="form-input" [(ngModel)]="txFormDateEndedOrDue" name="txDateEndedOrDue" required />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Estado de Aprobación</label>
+            <select class="form-select" [(ngModel)]="txFormApprovalStatus" name="txApprovalStatus">
+              <option value="pendiente">Pendiente</option>
+              <option value="aprobado">Aprobado</option>
+              <option value="rechazado">Rechazado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Estado Operativo</label>
+            <select class="form-select" [(ngModel)]="txFormStatus" name="txStatus">
+              <option value="Pendiente">Pendiente (Aprobación)</option>
+              <option value="Activo">Activo (En Préstamo)</option>
+              <option value="Devuelto">Devuelto (Prestado Finalizado)</option>
+              <option value="Pago Pendiente">Pago Pendiente (Compra)</option>
+              <option value="Vendido">Vendido (Compra Finalizada)</option>
+              <option value="Caducado">Caducado (Vencido)</option>
+              <option value="Rechazado">Rechazado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notas de Transacción</label>
+          <input type="text" class="form-input" [(ngModel)]="txFormNotes" name="txNotes" placeholder="Notas internas..." />
+        </div>
+
+        <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
+          <button type="button" class="btn btn-secondary" (click)="closeTxModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 }

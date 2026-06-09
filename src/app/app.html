@@ -43,6 +43,12 @@
 
     <ul class="nav-links">
       <li class="nav-item">
+        <a routerLink="/landing" routerLinkActive="active" class="nav-link">
+          <span class="material-symbols-outlined">home</span>
+          <span>Inicio</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
           <span class="material-symbols-outlined">dashboard</span>
           <span>Mi Panel</span>
@@ -306,7 +312,16 @@
 
         <div class="form-group">
           <label for="itemOwner">Propietario Publicador *</label>
-          <input type="text" id="itemOwner" class="form-input" [(ngModel)]="newItemOwner" name="owner" required />
+          @if (prestifyService.currentUser()?.role === 'admin') {
+            <select id="itemOwner" class="form-select" [(ngModel)]="newItemOwner" name="owner" required>
+              @for (user of prestifyService.users(); track user.email) {
+                <option [value]="user.name">{{ user.name }} ({{ user.type }})</option>
+              }
+            </select>
+          } @else {
+            <input type="text" id="itemOwner" class="form-input" [(ngModel)]="newItemOwner" name="owner" required readonly />
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;">Bloqueado a tu nombre de usuario</span>
+          }
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
