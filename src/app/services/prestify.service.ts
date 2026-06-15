@@ -29,6 +29,7 @@ export interface User {
   type: 'vecino' | 'institucion' | 'empresa';
   reputation: number;       // Star rating (1-5)
   reputationCount: number;  // Number of ratings received
+  mpAlias?: string;         // Mercado Pago payment alias
 }
 
 export interface Transaction {
@@ -63,13 +64,14 @@ const STORAGE_SESSION_KEY = 'prestify_session_circular';
 // Buenos Aires central area seed coordinates
 const SEED_USERS: User[] = [
   {
-    name: 'Municipalidad Local',
-    email: 'contacto@municipio.org',
+    name: 'Administrador',
+    email: 'admin@prestify.com',
     password: 'admin123',
     role: 'admin',
     type: 'institucion',
     reputation: 5,
-    reputationCount: 2
+    reputationCount: 2,
+    mpAlias: 'admin.prestify'
   },
   {
     name: 'Carlos Perez (Vecino)',
@@ -78,7 +80,8 @@ const SEED_USERS: User[] = [
     role: 'usuario',
     type: 'vecino',
     reputation: 4.8,
-    reputationCount: 5
+    reputationCount: 5,
+    mpAlias: 'carlos.perez.mp'
   },
   {
     name: 'Ferretería Central',
@@ -87,7 +90,8 @@ const SEED_USERS: User[] = [
     role: 'usuario',
     type: 'empresa',
     reputation: 4.5,
-    reputationCount: 4
+    reputationCount: 4,
+    mpAlias: 'ferreteria.central.mp'
   },
   {
     name: 'Cruz Roja Filial',
@@ -96,9 +100,31 @@ const SEED_USERS: User[] = [
     role: 'usuario',
     type: 'institucion',
     reputation: 5,
-    reputationCount: 10
+    reputationCount: 10,
+    mpAlias: 'cruz.roja.mp'
+  },
+  {
+    name: 'Luz Blanca',
+    email: 'luz.blanca.0091@gmail.com',
+    password: 'user123',
+    role: 'usuario',
+    type: 'vecino',
+    reputation: 5.0,
+    reputationCount: 1,
+    mpAlias: 'luz.blanca.mp'
+  },
+  {
+    name: 'Beso de tu Boca',
+    email: 'soyunbesodetuboca@gmail.com',
+    password: 'user123',
+    role: 'usuario',
+    type: 'vecino',
+    reputation: 5.0,
+    reputationCount: 1,
+    mpAlias: 'beso.boca.mp'
   }
 ];
+
 
 const SEED_ITEMS: Item[] = [
   {
@@ -395,20 +421,94 @@ export class PrestifyService {
         this.saveToStorage(STORAGE_HISTORY_KEY, SEED_TRANSACTIONS);
       }
 
-      // Load Users
+      // Load Users with migration support
       if (usersData) {
-        this._users.set(JSON.parse(usersData));
+        try {
+          let loadedUsers = JSON.parse(usersData);
+
+          if (Array.isArray(loadedUsers)) {
+            let migratedUsers = false;
+            
+            loadedUsers = loadedUsers.map((u: any) => {
+              if (!u || typeof u !== 'object') return u;
+              
+              let updated = false;
+              let newUser = { ...u };
+              
+              if (newUser.email === 'contacto@municipio.org') {
+                newUser.email = 'admin@prestify.com';
+                updated = true;
+              }
+              if (newUser.name === 'Municipalidad Local') {
+                newUser.name = 'Administrador';
+                newUser.mpAlias = 'admin.prestify';
+                updated = true;
+              }
+              if (!newUser.mpAlias) {
+                const nameStr = newUser.name || 'usuario';
+                const seedUser = SEED_USERS.find(su => su.name.toLowerCase() === nameStr.toLowerCase());
+                newUser.mpAlias = seedUser?.mpAlias || nameStr.toLowerCase().trim().replace(/[^a-z0-9]+/g, '.');
+                updated = true;
+              }
+              
+              if (updated) {
+                migratedUsers = true;
+              }
+              return newUser;
+            });
+
+            this._users.set(loadedUsers);
+            if (migratedUsers) {
+              this.saveToStorage(STORAGE_USERS_KEY, loadedUsers);
+            }
+          } else {
+            this._users.set(SEED_USERS);
+            this.saveToStorage(STORAGE_USERS_KEY, SEED_USERS);
+          }
+        } catch (err) {
+          console.error('Error parsing stored users:', err);
+          this._users.set(SEED_USERS);
+        }
+
+
       } else {
         this._users.set(SEED_USERS);
         this.saveToStorage(STORAGE_USERS_KEY, SEED_USERS);
       }
 
-      // Load Session
+      // Load Session with migration support
       if (sessionData) {
-        this._currentUser.set(JSON.parse(sessionData));
+        try {
+          let session = JSON.parse(sessionData);
+          if (session && typeof session === 'object') {
+            let updatedSession = false;
+            if (session.email === 'contacto@municipio.org') {
+              session.email = 'admin@prestify.com';
+              updatedSession = true;
+            }
+            if (session.name === 'Municipalidad Local') {
+              session.name = 'Administrador';
+              session.mpAlias = 'admin.prestify';
+              updatedSession = true;
+            }
+            if (!session.mpAlias && session.name) {
+              const seedUser = SEED_USERS.find(su => su.name.toLowerCase() === session.name.toLowerCase());
+              session.mpAlias = seedUser?.mpAlias || session.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '.');
+              updatedSession = true;
+            }
+            if (updatedSession) {
+              this.saveToStorage(STORAGE_SESSION_KEY, session);
+            }
+            this._currentUser.set(session);
+          }
+        } catch (err) {
+          console.error('Error parsing session:', err);
+        }
       }
     }
   }
+
+
 
   private saveToStorage(key: string, data: any): void {
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -475,7 +575,8 @@ export class PrestifyService {
       ...user,
       email: emailLower,
       reputation: 5.0, // Initial default reputation
-      reputationCount: 1
+      reputationCount: 1,
+      mpAlias: user.mpAlias || user.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '.') + '.mp'
     };
 
     this._users.update(users => [...users, newUser]);
@@ -488,7 +589,8 @@ export class PrestifyService {
       role: newUser.role,
       type: newUser.type,
       reputation: newUser.reputation,
-      reputationCount: newUser.reputationCount
+      reputationCount: newUser.reputationCount,
+      mpAlias: newUser.mpAlias
     });
     this.persistSession();
 
@@ -506,13 +608,15 @@ export class PrestifyService {
       ...user,
       email: emailLower,
       reputation: user.reputation || 5.0,
-      reputationCount: user.reputationCount || 1
+      reputationCount: user.reputationCount || 1,
+      mpAlias: user.mpAlias || user.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '.') + '.mp'
     };
 
     this._users.update(users => [...users, newUser]);
     this.persistUsers();
     return { success: true };
   }
+
 
   public updateUser(email: string, updatedData: Partial<User>): { success: boolean; error?: string } {
     const emailLower = email.toLowerCase().trim();
@@ -545,7 +649,8 @@ export class PrestifyService {
           role: updatedUser.role,
           type: updatedUser.type,
           reputation: updatedUser.reputation,
-          reputationCount: updatedUser.reputationCount
+          reputationCount: updatedUser.reputationCount,
+          mpAlias: updatedUser.mpAlias
         });
         this.persistSession();
       }
@@ -556,7 +661,7 @@ export class PrestifyService {
 
   public deleteUser(email: string): { success: boolean; error?: string } {
     const emailLower = email.toLowerCase().trim();
-    if (emailLower === 'contacto@municipio.org') {
+    if (emailLower === 'admin@prestify.com') {
       return { success: false, error: 'No se puede eliminar la cuenta del Administrador principal.' };
     }
 
@@ -592,12 +697,14 @@ export class PrestifyService {
       role: user.role,
       type: user.type,
       reputation: user.reputation,
-      reputationCount: user.reputationCount
+      reputationCount: user.reputationCount,
+      mpAlias: user.mpAlias
     });
     this.persistSession();
 
     return { success: true };
   }
+
 
   public logout(): void {
     this._currentUser.set(null);

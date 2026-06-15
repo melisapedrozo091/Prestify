@@ -53,3 +53,9 @@
   color: var(--text-muted);
   font-style: italic;
 }
+
+.font-mono {
+  font-family: monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}

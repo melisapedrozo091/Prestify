@@ -14,6 +14,8 @@ export class TicketModalComponent {
 
   public downloadTicket(tx: Transaction): void {
     const isLoan = tx.type === 'prestamo';
+    const seller = this.prestifyService.users().find(u => u.name.toLowerCase() === tx.owner.toLowerCase());
+    const alias = seller?.mpAlias || 'prestify.mp';
     
     // Generate styled plain text ticket
     const ticketText = `
@@ -37,9 +39,9 @@ Adquirente (Usuario): ${tx.borrowerOrBuyer}
 Duración            : ${isLoan ? (tx.durationDays + ' días (Hasta: ' + tx.dateEndedOrDue + ')') : 'Adquisición definitiva'}
 ---------------------------------------------------------
 DETALLES DE PAGO
-Medio de Pago       : ${tx.paymentMethod === 'mercadopago' ? 'Mercado Pago (Simulado)' : 'Efectivo / Entrega Presencial'}
+Medio de Pago       : ${tx.paymentMethod === 'mercadopago' ? `Mercado Pago (Alias: ${alias})` : 'Efectivo / Entrega Presencial'}
 Monto a Transferir  : ${tx.price > 0 ? ('$' + tx.price) : 'Gratuito'}
-Estado del Pago     : Pendiente de Cobro Físico
+Estado del Pago     : Pendiente de Cobro Físico / Digital
 ---------------------------------------------------------
 CÓDIGO DE BARRAS DE VALIDACIÓN:
 ||| | ||| || |||| ||| || ||| | ||| || |||| ||| || |||
@@ -63,7 +65,24 @@ CÓDIGO DE BARRAS DE VALIDACIÓN:
     this.prestifyService.showToast('¡Comprobante de transacción descargado con éxito!', 'success');
   }
 
+  public getPaymentLink(tx: Transaction): string {
+    const seller = this.prestifyService.users().find(u => u.name.toLowerCase() === tx.owner.toLowerCase());
+    const alias = seller?.mpAlias || 'prestify.mp';
+    return `https://link.mercadopago.com.ar/${alias}`;
+  }
+
+  public getQrCodeUrl(tx: Transaction): string {
+    const paymentUrl = this.getPaymentLink(tx);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(paymentUrl)}`;
+  }
+
+  public getSellerAlias(tx: Transaction): string {
+    const seller = this.prestifyService.users().find(u => u.name.toLowerCase() === tx.owner.toLowerCase());
+    return seller?.mpAlias || 'prestify.mp';
+  }
+
   public handleClose(): void {
     this.prestifyService.closeTicketModal();
   }
+
 }

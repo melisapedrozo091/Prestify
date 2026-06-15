@@ -150,7 +150,7 @@
           </svg>
         </div>
 
-        <!-- Mercado Pago QR Simulation Section -->
+        <!-- Mercado Pago QR Section -->
         @if (prestifyService.activeTicketTransaction()?.paymentMethod === 'mercadopago' && (prestifyService.activeTicketTransaction()?.price || 0) > 0) {
           <div class="mp-qr-section">
             <div class="mp-badge">
@@ -158,36 +158,14 @@
               <span>Pagar con Mercado Pago</span>
             </div>
             
-            <svg width="110" height="110" style="background: white; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 0.5rem; display: inline-block;">
-              <!-- QR corners -->
-              <rect x="0" y="0" width="24" height="24" fill="#0f172a"/>
-              <rect x="4" y="4" width="16" height="16" fill="white"/>
-              <rect x="8" y="8" width="8" height="8" fill="#0f172a"/>
-              
-              <rect x="74" y="0" width="24" height="24" fill="#0f172a"/>
-              <rect x="78" y="4" width="16" height="16" fill="white"/>
-              <rect x="82" y="8" width="8" height="8" fill="#0f172a"/>
-
-              <rect x="0" y="74" width="24" height="24" fill="#0f172a"/>
-              <rect x="4" y="78" width="16" height="16" fill="white"/>
-              <rect x="8" y="82" width="8" height="8" fill="#0f172a"/>
-
-              <!-- QR center MP logo -->
-              <rect x="37" y="37" width="24" height="24" fill="#009ee3" rx="4"/>
-              <text x="49" y="52" font-size="10" fill="white" font-weight="bold" text-anchor="middle" font-family="sans-serif">MP</text>
-
-              <!-- random code dots -->
-              <rect x="30" y="10" width="8" height="8" fill="#0f172a"/>
-              <rect x="45" y="18" width="6" height="8" fill="#0f172a"/>
-              <rect x="10" y="35" width="8" height="6" fill="#0f172a"/>
-              <rect x="25" y="50" width="6" height="8" fill="#0f172a"/>
-              <rect x="70" y="40" width="10" height="8" fill="#0f172a"/>
-              <rect x="85" y="78" width="8" height="8" fill="#0f172a"/>
-              <rect x="45" y="74" width="8" height="12" fill="#0f172a"/>
-              <rect x="68" y="74" width="8" height="4" fill="#0f172a"/>
-              <rect x="82" y="35" width="6" height="6" fill="#0f172a"/>
-            </svg>
-            <span style="font-size:0.7rem; color:var(--text-muted); display:block; margin-top: 4px;">Escanea con tu celular para abonar al remitente.</span>
+            <a [href]="getPaymentLink(prestifyService.activeTicketTransaction()!)" target="_blank" title="Pagar en Mercado Pago" style="display: inline-block; margin-top: 0.5rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+              <img [src]="getQrCodeUrl(prestifyService.activeTicketTransaction()!)" alt="QR Mercado Pago" style="background: white; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); display: inline-block; width: 120px; height: 120px; box-shadow: var(--shadow-sm);" />
+            </a>
+            
+            <span style="font-size:0.75rem; color:var(--text-main); display:block; margin-top: 6px; font-weight: 600;">
+              Alias: <span class="font-mono" style="color: #009ee3;">{{ getSellerAlias(prestifyService.activeTicketTransaction()!) }}</span>
+            </span>
+            <span style="font-size:0.65rem; color:var(--text-muted); display:block; margin-top: 2px;">Escanea el QR o haz clic sobre él para abrir Mercado Pago.</span>
           </div>
         }
       </div>

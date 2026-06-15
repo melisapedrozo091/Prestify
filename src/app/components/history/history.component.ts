@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PrestifyService } from '../../services/prestify.service';
+import { PrestifyService, Transaction } from '../../services/prestify.service';
 
 @Component({
   selector: 'app-history',
@@ -11,4 +11,8 @@ import { PrestifyService } from '../../services/prestify.service';
 })
 export class HistoryComponent {
   public readonly prestifyService = inject(PrestifyService);
+
+  public openTicket(tx: Transaction): void {
+    this.prestifyService.openTicketModal(tx);
+  }
 }

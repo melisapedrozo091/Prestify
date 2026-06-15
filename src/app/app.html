@@ -197,7 +197,7 @@
         <div
           style="background-color: rgba(99, 102, 241, 0.05); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px dashed rgba(99, 102, 241, 0.2); font-size: 0.75rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.4;">
           <strong>Cuentas Disponibles:</strong><br>
-          • <strong>Admin / Institución:</strong> contacto@municipio.org / admin123<br>
+          • <strong>Admin / Institución:</strong> admin@prestify.com / admin123<br>
           • <strong>Usuario / Vecino:</strong> carlos@gmail.com / user123
         </div>
 
@@ -238,6 +238,13 @@
             <option value="empresa">Empresa o Comercio Local</option>
           </select>
         </div>
+
+        <div class="form-group">
+          <label for="regMpAlias">Alias de Mercado Pago</label>
+          <input type="text" id="regMpAlias" class="form-input" placeholder="ej. mi.alias.mp (Para recibir cobros)"
+            [(ngModel)]="registerMpAlias" name="mpAlias" />
+        </div>
+
 
         <div class="modal-footer" style="padding: 1rem 0 0 0; border: none;">
           <button type="button" class="btn btn-secondary" (click)="closeAuthModal()">Cancelar</button>

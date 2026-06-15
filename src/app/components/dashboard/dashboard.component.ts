@@ -27,6 +27,7 @@ export class DashboardComponent implements OnInit {
   public userFormPassword = '';
   public userFormType: 'vecino' | 'institucion' | 'empresa' = 'vecino';
   public userFormReputation = 5;
+  public userFormMpAlias = '';
 
   // Product Catalog ABM Modal & Form State (Admin)
   public readonly showProductModal = signal<boolean>(false);
@@ -59,8 +60,38 @@ export class DashboardComponent implements OnInit {
 
   // Filter out the primary Admin from the User ABM listing for a cleaner look
   public readonly regularUsers = computed(() => {
-    return this.prestifyService.users().filter(u => u.email !== 'contacto@municipio.org');
+    return this.prestifyService.users().filter(u => u.email !== 'admin@prestify.com');
   });
+
+  // Regular User MP Alias Inline Edit
+  public readonly isEditingAlias = signal<boolean>(false);
+  public tempMpAlias = '';
+
+  public startEditAlias(): void {
+    this.tempMpAlias = this.prestifyService.currentUser()?.mpAlias || '';
+    this.isEditingAlias.set(true);
+  }
+
+  public cancelEditAlias(): void {
+    this.isEditingAlias.set(false);
+  }
+
+  public saveAlias(): void {
+    const user = this.prestifyService.currentUser();
+    if (!user) return;
+
+    const result = this.prestifyService.updateUser(user.email, {
+      mpAlias: this.tempMpAlias.trim()
+    });
+
+    if (result.success) {
+      this.prestifyService.showToast('Alias de Mercado Pago actualizado con éxito.', 'success');
+      this.isEditingAlias.set(false);
+    } else {
+      this.prestifyService.showToast(result.error || 'Error al actualizar el alias.', 'warning');
+    }
+  }
+
 
   // Computed Values for Regular Users
   public readonly myBorrowedItems = computed(() => {
@@ -83,6 +114,19 @@ export class DashboardComponent implements OnInit {
     );
   });
 
+  // Active loans I granted to others (where I am the owner)
+  public readonly myLentItems = computed(() => {
+    const currentUser = this.prestifyService.currentUser();
+    if (!currentUser) return [];
+
+    return this.prestifyService.transactions().filter(tx => 
+      tx.owner.toLowerCase() === currentUser.name.toLowerCase() &&
+      tx.type === 'prestamo' &&
+      tx.approvalStatus === 'aprobado' &&
+      (tx.status === 'Activo' || tx.status === 'Caducado')
+    );
+  });
+
   // Pending requests received for items I own (Approval flow)
   public readonly myReceivedRequests = computed(() => {
     const currentUser = this.prestifyService.currentUser();
@@ -93,6 +137,10 @@ export class DashboardComponent implements OnInit {
       tx.approvalStatus === 'pendiente'
     );
   });
+
+  public getItemById(itemId: string): Item | undefined {
+    return this.prestifyService.items().find(i => i.id === itemId);
+  }
 
   ngOnInit(): void {
     // Auth Guard check: redirect to landing if not logged in
@@ -137,6 +185,7 @@ export class DashboardComponent implements OnInit {
     this.userFormPassword = '';
     this.userFormType = 'vecino';
     this.userFormReputation = 5.0;
+    this.userFormMpAlias = '';
     this.userModalMode.set('create');
     this.showUserModal.set(true);
   }
@@ -147,6 +196,7 @@ export class DashboardComponent implements OnInit {
     this.userFormPassword = user.password || 'user123';
     this.userFormType = user.type;
     this.userFormReputation = user.reputation;
+    this.userFormMpAlias = user.mpAlias || '';
     this.userModalMode.set('edit');
     this.showUserModal.set(true);
   }
@@ -169,7 +219,8 @@ export class DashboardComponent implements OnInit {
         role: 'usuario', 
         type: this.userFormType,
         reputation: this.userFormReputation,
-        reputationCount: 1
+        reputationCount: 1,
+        mpAlias: this.userFormMpAlias
       });
 
       if (result.success) {
@@ -183,7 +234,8 @@ export class DashboardComponent implements OnInit {
         name: this.userFormName,
         password: this.userFormPassword,
         type: this.userFormType,
-        reputation: this.userFormReputation
+        reputation: this.userFormReputation,
+        mpAlias: this.userFormMpAlias
       });
 
       if (result.success) {
@@ -196,7 +248,7 @@ export class DashboardComponent implements OnInit {
   }
 
   public deleteUser(user: User): void {
-    if (user.email === 'contacto@municipio.org') {
+    if (user.email === 'admin@prestify.com') {
       this.prestifyService.showToast('No se puede eliminar la cuenta del Administrador principal.', 'warning');
       return;
     }

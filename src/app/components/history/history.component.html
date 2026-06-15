@@ -4,6 +4,7 @@
     <table class="history-table">
       <thead>
         <tr>
+          <th>Comprobante</th>
           <th>Artículo</th>
           <th>Tipo</th>
           <th>Dueño</th>
@@ -18,6 +19,11 @@
       <tbody>
         @for (log of prestifyService.transactions(); track log.id) {
         <tr>
+          <td class="font-mono" style="font-size:0.8rem;">
+            <a href="javascript:void(0)" (click)="openTicket(log)" style="color: var(--primary); font-weight: 700; text-decoration: none;" title="Ver Comprobante">
+              {{ log.ticketNumber }}
+            </a>
+          </td>
           <td><strong>{{ log.itemTitle }}</strong></td>
           <td>
             <span class="badge" style="background-color: var(--bg-input); font-weight:700;">
@@ -29,10 +35,10 @@
           <td class="history-date">{{ log.dateStarted }}</td>
           <td class="history-date">{{ log.returnDate || log.dateEndedOrDue }}</td>
           <td style="font-size:0.75rem; color:var(--text-muted);">
-            ✔ Completo (4/4)
+            ✔ Completo ({{ log.handoverChecklist.length }}/4)
           </td>
           <td style="font-size:0.75rem; color:var(--text-muted);">
-            {{ log.returnChecklist ? '✔ Completo (4/4)' : '-' }}
+            {{ log.returnChecklist ? '✔ Completo (' + log.returnChecklist.length + '/4)' : '-' }}
           </td>
           <td>
             @if (log.ratingGiven) {

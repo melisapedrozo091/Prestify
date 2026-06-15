@@ -35,6 +35,7 @@ export class App implements OnInit {
   public registerEmail = '';
   public registerPassword = '';
   public registerType: 'vecino' | 'institucion' | 'empresa' = 'vecino';
+  public registerMpAlias = '';
   public recoveryEmail = '';
 
   // Add Item Modal Form State
@@ -131,7 +132,8 @@ export class App implements OnInit {
       role: 'usuario', 
       type: this.registerType,
       reputation: 5,
-      reputationCount: 1
+      reputationCount: 1,
+      mpAlias: this.registerMpAlias
     });
 
     if (result.success) {
@@ -321,6 +323,7 @@ export class App implements OnInit {
     this.registerEmail = '';
     this.registerPassword = '';
     this.registerType = 'vecino';
+    this.registerMpAlias = '';
     this.recoveryEmail = '';
   }
 
