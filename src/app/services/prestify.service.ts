@@ -137,7 +137,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Bueno',
     status: 'disponible',
     mode: 'prestamo',
-    price: 0, // Free loan
+    price: 0.00,
     lat: -34.605,
     lng: -58.385,
     sku: 'SKU-SALU-4821'
@@ -145,19 +145,19 @@ const SEED_ITEMS: Item[] = [
   {
     id: '2',
     title: 'Taladro Percutor Inalámbrico Dewalt 20V',
-    description: 'Taladro potente de uso profesional con 2 baterías de litio and maletín de transporte.',
+    description: 'Taladro potente de uso profesional con 2 baterías de litio y maletín de transporte.',
     category: 'Herramientas',
     owner: 'Carlos Perez (Vecino)',
     photoUrl: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=500&auto=format&fit=crop&q=80',
     condition: 'Como nuevo',
     status: 'prestado',
     mode: 'prestamo',
-    price: 1500, // Paid loan (presencial)
+    price: 4500.50,
     lat: -34.615,
     lng: -58.375,
     borrower: 'Ferretería Central',
-    loanDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 5 days ago
-    dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],  // Expired 1 day ago (should trigger Caducado)
+    loanDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     paymentStatus: 'Pendiente',
     sku: 'SKU-HERR-8812'
   },
@@ -171,7 +171,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Nuevo',
     status: 'disponible',
     mode: 'venta',
-    price: 45000, // Direct sale
+    price: 32499.99,
     lat: -34.595,
     lng: -58.395,
     sku: 'SKU-HERR-9041'
@@ -186,7 +186,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Como nuevo',
     status: 'disponible',
     mode: 'prestamo',
-    price: 0,
+    price: 8500.00,
     lat: -34.602,
     lng: -58.405,
     sku: 'SKU-DEPO-3329'
@@ -201,10 +201,55 @@ const SEED_ITEMS: Item[] = [
     condition: 'Bueno',
     status: 'disponible',
     mode: 'venta',
-    price: 25000,
+    price: 84999.99,
     lat: -34.610,
     lng: -58.365,
     sku: 'SKU-INDU-1125'
+  },
+  {
+    id: '6',
+    title: 'Proyector Portátil Epson Full HD 3000lm',
+    description: 'Proyector ideal para presentaciones o noches de cine en el patio. Conectores HDMI y USB, parlante integrado.',
+    category: 'Electrónica',
+    owner: 'Luz Blanca',
+    photoUrl: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=500&auto=format&fit=crop&q=80',
+    condition: 'Como nuevo',
+    status: 'disponible',
+    mode: 'prestamo',
+    price: 9500.00,
+    lat: -34.607,
+    lng: -58.390,
+    sku: 'SKU-ELEC-7012'
+  },
+  {
+    id: '7',
+    title: 'Juego de Mesa Catan (Edición Colonos)',
+    description: 'El clásico juego de mesa de estrategia y negociación de recursos. Completo con todas sus piezas y manual original.',
+    category: 'Juegos',
+    owner: 'Beso de tu Boca',
+    photoUrl: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=500&auto=format&fit=crop&q=80',
+    condition: 'Bueno',
+    status: 'disponible',
+    mode: 'prestamo',
+    price: 1800.00,
+    lat: -34.598,
+    lng: -58.380,
+    sku: 'SKU-JUEG-5510'
+  },
+  {
+    id: '8',
+    title: 'Conservadora Portátil Coleman 34L',
+    description: 'Conservadora de gran capacidad con aislamiento térmico reforzado. Mantiene hielo hasta por 3 días. Manija articulada.',
+    category: 'Otros',
+    owner: 'Ferretería Central',
+    photoUrl: 'https://images.unsplash.com/photo-1628556222564-96cfbd20a424?w=500&auto=format&fit=crop&q=80',
+    condition: 'Bueno',
+    status: 'disponible',
+    mode: 'prestamo',
+    price: 2450.50,
+    lat: -34.612,
+    lng: -58.398,
+    sku: 'SKU-OTRO-6629'
   }
 ];
 
@@ -219,7 +264,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
     owner: 'Carlos Perez (Vecino)',
     dateStarted: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     dateEndedOrDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    price: 1500,
+    price: 4500.50,
     status: 'Caducado',
     handoverChecklist: ['Limpio y desinfectado', 'Sin daños estructurales', 'Funcionamiento mecánico verificado'],
     sku: 'SKU-HERR-8812',
@@ -239,7 +284,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
     dateStarted: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     dateEndedOrDue: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     returnDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    price: 25000,
+    price: 84999.99,
     status: 'Vendido',
     handoverChecklist: ['Limpio y desinfectado', 'Sin roturas ni costuras dañadas'],
     ratingGiven: 5,
@@ -396,8 +441,24 @@ export class PrestifyService {
               description: 'Maletín completo con puntas de destornillador y brocas de alta precisión para metal, madera y concreto.',
             };
           }
+          
+          // Apply new realistic prices to seed items
+          const matchingSeed = SEED_ITEMS.find(si => si.id === item.id);
+          if (matchingSeed && item.price !== matchingSeed.price) {
+            item.price = matchingSeed.price;
+            migrated = true;
+          }
           return item;
         });
+
+        // Append missing seed items
+        const loadedIds = new Set(loadedItems.map((i: any) => i.id));
+        const missingSeeds = SEED_ITEMS.filter(si => !loadedIds.has(si.id));
+        if (missingSeeds.length > 0) {
+          loadedItems = [...loadedItems, ...missingSeeds];
+          migrated = true;
+        }
+
         this._items.set(loadedItems);
         if (migrated) {
           this.saveToStorage(STORAGE_ITEMS_KEY, loadedItems);
@@ -406,7 +467,7 @@ export class PrestifyService {
         this._items.set(SEED_ITEMS);
         this.saveToStorage(STORAGE_ITEMS_KEY, SEED_ITEMS);
       }
-
+ 
       // Load Transactions
       if (transactionData) {
         let loadedTxs = JSON.parse(transactionData);
@@ -418,6 +479,13 @@ export class PrestifyService {
               ...tx,
               itemTitle: 'Taladro Percutor Inalámbrico Dewalt 20V'
             };
+          }
+          
+          // Update transaction prices to match new realistic seed prices
+          const matchingTxSeed = SEED_TRANSACTIONS.find(st => st.id === tx.id);
+          if (matchingTxSeed && tx.price !== matchingTxSeed.price) {
+            tx.price = matchingTxSeed.price;
+            migratedTx = true;
           }
           return tx;
         });
