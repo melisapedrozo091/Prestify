@@ -101,6 +101,10 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
     this.prestifyService.openAuthModal('register');
   }
 
+  public goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
   public exploreCatalog(): void {
     this.router.navigate(['/catalog']);
   }

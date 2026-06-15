@@ -9,13 +9,24 @@
         entre vecinos, instituciones y empresas de tu localidad.
       </p>
       <div class="hero-actions-row">
-        <button class="btn btn-primary" (click)="joinNetwork()">
-          Unirse a la Red
-        </button>
-        <button class="btn btn-secondary" (click)="exploreCatalog()">
-          <span class="material-symbols-outlined">explore</span>
-          Explorar Catálogo
-        </button>
+        @if (!prestifyService.currentUser()) {
+          <button class="btn btn-primary" (click)="joinNetwork()">
+            Unirse a la Red
+          </button>
+          <button class="btn btn-secondary" (click)="exploreCatalog()">
+            <span class="material-symbols-outlined">explore</span>
+            Explorar Catálogo
+          </button>
+        } @else {
+          <button class="btn btn-primary" (click)="goToDashboard()">
+            <span class="material-symbols-outlined" style="margin-right: 6px;">dashboard</span>
+            Ir a mi Panel
+          </button>
+          <button class="btn btn-secondary" (click)="exploreCatalog()">
+            <span class="material-symbols-outlined">explore</span>
+            Explorar Catálogo
+          </button>
+        }
       </div>
     </div>
 

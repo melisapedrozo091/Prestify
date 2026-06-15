@@ -271,6 +271,9 @@ export class PrestifyService {
   public readonly authMode = signal<'login' | 'register' | 'recover'>('login');
 
   public openAuthModal(mode: 'login' | 'register' | 'recover' = 'login'): void {
+    if (this.currentUser()) {
+      return;
+    }
     this.authMode.set(mode);
     this.showAuthModal.set(true);
   }
