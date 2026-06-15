@@ -18,6 +18,14 @@ export class TicketModalComponent {
     const seller = this.prestifyService.users().find(u => u.name.toLowerCase() === tx.owner.toLowerCase());
     const alias = seller?.mpAlias || 'prestify.mp';
     
+    let duration = tx.durationDays;
+    if (isLoan && !duration) {
+      const start = new Date(tx.dateStarted);
+      const end = new Date(tx.dateEndedOrDue);
+      const diffTime = Math.abs(end.getTime() - start.getTime());
+      duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+    }
+    
     const doc = new jsPDF();
     
     // Title & Header
@@ -98,7 +106,7 @@ export class TicketModalComponent {
     doc.setTextColor(15, 23, 42);
     doc.text(isLoan ? 'Préstamo temporal' : 'Compra directa / Adquisición', 65, 128);
     doc.text(tx.borrowerOrBuyer, 65, 134);
-    doc.text(isLoan ? `${tx.durationDays} días (Hasta: ${tx.dateEndedOrDue})` : 'Adquisición definitiva', 65, 140);
+    doc.text(isLoan ? `${duration} días (Hasta: ${tx.dateEndedOrDue})` : 'Adquisición definitiva', 65, 140);
     
     // Draw horizontal separator
     doc.line(20, 146, 190, 146);
