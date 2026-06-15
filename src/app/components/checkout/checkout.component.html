@@ -75,6 +75,20 @@
                 </div>
               </label>
             </div>
+
+            @if (paymentMethod === 'mercadopago') {
+              <div class="mp-instructions-box animate-fade-up" style="background-color: rgba(0, 158, 227, 0.05); border: 1px solid rgba(0, 158, 227, 0.2); padding: 1rem; border-radius: var(--radius-md); margin-top: 1rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="material-symbols-outlined" style="color: #009ee3; font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;">info</span>
+                <div style="flex-grow: 1; min-width: 0; font-size: 0.85rem; line-height: 1.4; color: var(--text-main);">
+                  <p style="margin: 0 0 4px 0; font-weight: 700; color: #009ee3;">Pago por Mercado Pago</p>
+                  <p style="margin: 0 0 8px 0;">Deberás transferir el monto acordado al alias del vendedor. Una vez realizado el pago, envíale el comprobante por chat o WhatsApp para que apruebe la entrega.</p>
+                  <a [href]="'https://link.mercadopago.com.ar/' + getSellerAlias()" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #009ee3; font-weight: 700; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">open_in_new</span>
+                    Alias MP: {{ getSellerAlias() }}
+                  </a>
+                </div>
+              </div>
+            }
           </div>
         }
 

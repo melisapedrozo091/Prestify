@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PrestifyService, Transaction } from '../../services/prestify.service';
 
@@ -11,6 +11,18 @@ import { PrestifyService, Transaction } from '../../services/prestify.service';
 })
 export class HistoryComponent {
   public readonly prestifyService = inject(PrestifyService);
+
+  public readonly myHistoryTransactions = computed(() => {
+    const user = this.prestifyService.currentUser();
+    if (!user) return [];
+    if (user.role === 'admin') {
+      return this.prestifyService.transactions();
+    }
+    return this.prestifyService.transactions().filter(tx => 
+      tx.borrowerOrBuyer.toLowerCase() === user.name.toLowerCase() ||
+      tx.owner.toLowerCase() === user.name.toLowerCase()
+    );
+  });
 
   public openTicket(tx: Transaction): void {
     this.prestifyService.openTicketModal(tx);

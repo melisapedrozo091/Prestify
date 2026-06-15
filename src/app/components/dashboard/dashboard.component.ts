@@ -21,6 +21,7 @@ export class DashboardComponent implements OnInit {
   // User ABM Modal & Form State
   public readonly showUserModal = signal<boolean>(false);
   public readonly userModalMode = signal<'create' | 'edit'>('create');
+  public readonly showUserFormPassword = signal<boolean>(false);
   
   public userFormEmail = '';
   public userFormName = '';
@@ -62,6 +63,82 @@ export class DashboardComponent implements OnInit {
   public readonly regularUsers = computed(() => {
     return this.prestifyService.users().filter(u => u.email !== 'admin@prestify.com');
   });
+
+  // Current month string e.g. "2026-06"
+  public readonly currentMonth = computed(() => {
+    return new Date().toISOString().substring(0, 7);
+  });
+
+  // Calculate monthly payments metric for normal user
+  public readonly userMonthlyStats = computed(() => {
+    const user = this.prestifyService.currentUser();
+    const month = this.currentMonth();
+    if (!user) return { collected: 0, paid: 0, count: 0 };
+
+    const matchingTxs = this.prestifyService.transactions().filter(tx => 
+      tx.dateStarted.substring(0, 7) === month &&
+      tx.price > 0 &&
+      tx.approvalStatus === 'aprobado'
+    );
+
+    const collected = matchingTxs
+      .filter(tx => tx.owner.toLowerCase() === user.name.toLowerCase())
+      .reduce((sum, tx) => sum + tx.price, 0);
+
+    const paid = matchingTxs
+      .filter(tx => tx.borrowerOrBuyer.toLowerCase() === user.name.toLowerCase())
+      .reduce((sum, tx) => sum + tx.price, 0);
+
+    return {
+      collected,
+      paid,
+      count: matchingTxs.filter(tx => 
+        tx.owner.toLowerCase() === user.name.toLowerCase() || 
+        tx.borrowerOrBuyer.toLowerCase() === user.name.toLowerCase()
+      ).length
+    };
+  });
+
+  // Calculate monthly payments metric for Admin
+  public readonly adminMonthlyStats = computed(() => {
+    const month = this.currentMonth();
+    const matchingTxs = this.prestifyService.transactions().filter(tx => 
+      tx.dateStarted.substring(0, 7) === month &&
+      tx.price > 0 &&
+      tx.approvalStatus === 'aprobado'
+    );
+
+    const total = matchingTxs.reduce((sum, tx) => sum + tx.price, 0);
+    return {
+      total,
+      count: matchingTxs.length
+    };
+  });
+
+  // My sales and lent operations where I am the owner
+  public readonly mySalesAndLentTransactions = computed(() => {
+    const user = this.prestifyService.currentUser();
+    if (!user) return [];
+    return this.prestifyService.transactions().filter(tx => 
+      tx.owner.toLowerCase() === user.name.toLowerCase() &&
+      (tx.approvalStatus === 'aprobado' || tx.status === 'Pago Pendiente')
+    );
+  });
+
+  public handleConfirmReceivedPayment(txId: string, method?: 'efectivo' | 'mercadopago'): void {
+    this.prestifyService.confirmReceivedPayment(txId, method);
+    this.prestifyService.showToast('Pago confirmado y operación aprobada.', 'success');
+  }
+
+  public downloadReport(): void {
+    const user = this.prestifyService.currentUser();
+    const month = this.currentMonth();
+    if (!user) return;
+    
+    // For admin, don't limit to user. For normal user, limit to their name
+    const limit = user.role === 'admin' ? undefined : user.name;
+    this.prestifyService.downloadPaymentReport(month, limit);
+  }
 
   // Regular User MP Alias Inline Edit
   public readonly isEditingAlias = signal<boolean>(false);
@@ -186,6 +263,7 @@ export class DashboardComponent implements OnInit {
     this.userFormType = 'vecino';
     this.userFormReputation = 5.0;
     this.userFormMpAlias = '';
+    this.showUserFormPassword.set(false);
     this.userModalMode.set('create');
     this.showUserModal.set(true);
   }
@@ -197,12 +275,14 @@ export class DashboardComponent implements OnInit {
     this.userFormType = user.type;
     this.userFormReputation = user.reputation;
     this.userFormMpAlias = user.mpAlias || '';
+    this.showUserFormPassword.set(false);
     this.userModalMode.set('edit');
     this.showUserModal.set(true);
   }
 
   public closeUserModal(): void {
     this.showUserModal.set(false);
+    this.showUserFormPassword.set(false);
   }
 
   public saveUser(): void {

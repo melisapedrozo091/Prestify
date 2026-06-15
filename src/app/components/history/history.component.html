@@ -1,5 +1,5 @@
 <div class="animate-fade-up">
-  @if (prestifyService.transactions().length > 0) {
+  @if (myHistoryTransactions().length > 0) {
   <div class="history-table-container" style="overflow-x: auto;">
     <table class="history-table">
       <thead>
@@ -17,7 +17,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (log of prestifyService.transactions(); track log.id) {
+        @for (log of myHistoryTransactions(); track log.id) {
         <tr>
           <td class="font-mono" style="font-size:0.8rem;">
             <a href="javascript:void(0)" (click)="openTicket(log)" style="color: var(--primary); font-weight: 700; text-decoration: none;" title="Ver Comprobante">

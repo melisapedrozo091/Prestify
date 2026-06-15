@@ -55,6 +55,13 @@ export class CheckoutComponent implements OnInit {
     return item.price; 
   }
 
+  public getSellerAlias(): string {
+    const item = this.prestifyService.checkoutItem();
+    if (!item) return '';
+    const seller = this.prestifyService.users().find(u => u.name.toLowerCase() === item.owner.toLowerCase());
+    return seller?.mpAlias || item.owner.toLowerCase().replace(/[^a-z0-9]+/g, '.');
+  }
+
   public handleConfirm(): void {
     const item = this.prestifyService.checkoutItem();
     if (!item) return;

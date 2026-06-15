@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { jsPDF } from 'jspdf';
 
 export interface Review {
   id: string;
@@ -1187,20 +1188,199 @@ export class PrestifyService {
 
   // Update payment status (Admin overrides)
   public confirmPayment(transactionId: string): void {
+    this.confirmReceivedPayment(transactionId);
+  }
+
+  public confirmReceivedPayment(transactionId: string, paymentMethodOverride?: 'efectivo' | 'mercadopago'): void {
+    let targetTx: Transaction | undefined;
+
     this._transactions.update(txs => txs.map(tx => {
-      if (tx.id === transactionId && tx.type === 'prestamo') {
-        // Find corresponding item to update its payment status too
-        this._items.update(items => items.map(item => {
-          if (item.id === tx.itemId) {
-            return { ...item, paymentStatus: 'Pagado' };
-          }
-          return item;
-        }));
-        this.persistItems();
+      if (tx.id === transactionId) {
+        targetTx = {
+          ...tx,
+          approvalStatus: 'aprobado',
+          status: tx.type === 'prestamo' ? 'Activo' : 'Vendido',
+          paymentMethod: paymentMethodOverride || tx.paymentMethod || 'efectivo'
+        };
+        return targetTx;
       }
       return tx;
     }));
     this.persistTransactions();
+
+    if (targetTx) {
+      const tx = targetTx;
+      this._items.update(items => items.map(item => {
+        if (item.id === tx.itemId) {
+          if (tx.type === 'prestamo') {
+            return {
+              ...item,
+              status: 'prestado',
+              borrower: tx.borrowerOrBuyer,
+              loanDate: tx.dateStarted,
+              dueDate: tx.dateEndedOrDue,
+              notes: tx.notes || '',
+              paymentStatus: 'Pagado'
+            };
+          } else {
+            return {
+              ...item,
+              status: 'vendido',
+              borrower: tx.borrowerOrBuyer,
+              notes: 'Vendido a través de la red y cobrado.',
+              paymentStatus: 'Pagado'
+            };
+          }
+        }
+        return item;
+      }));
+      this.persistItems();
+    }
+  }
+
+  public downloadPaymentReport(monthStr: string, limitToUser?: string): void {
+    const doc = new jsPDF();
+    const today = new Date().toLocaleDateString('es-AR');
+    
+    // Filter transactions
+    const paidTxs = this._transactions().filter(tx => {
+      const matchesMonth = tx.dateStarted.substring(0, 7) === monthStr;
+      const isPaid = tx.price > 0;
+      const isApproved = tx.approvalStatus === 'aprobado';
+      const userMatches = !limitToUser || 
+        tx.owner.toLowerCase() === limitToUser.toLowerCase() ||
+        tx.borrowerOrBuyer.toLowerCase() === limitToUser.toLowerCase();
+      
+      return matchesMonth && isPaid && isApproved && userMatches;
+    });
+
+    // Header styling
+    doc.setFillColor(99, 102, 241); // var(--primary)
+    doc.rect(0, 0, 210, 30, 'F');
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Prestify - Reporte de Pagos', 20, 20);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Fecha de emisión: ${today}`, 150, 20);
+
+    // Month display
+    const [year, month] = monthStr.split('-');
+    const monthsNames = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    const monthName = monthsNames[parseInt(month) - 1] || month;
+    
+    doc.setFontSize(12);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Período Mensual: ${monthName} ${year}`, 20, 42);
+    if (limitToUser) {
+      doc.text(`Usuario: ${limitToUser}`, 20, 48);
+    }
+
+    // Summary Card
+    const totalCollected = paidTxs.reduce((sum, tx) => {
+      if (tx.owner.toLowerCase() === limitToUser?.toLowerCase()) {
+        return sum + tx.price;
+      }
+      return sum;
+    }, 0);
+
+    const totalPaid = paidTxs.reduce((sum, tx) => {
+      if (tx.borrowerOrBuyer.toLowerCase() === limitToUser?.toLowerCase()) {
+        return sum + tx.price;
+      }
+      return sum;
+    }, 0);
+
+    const overallTotal = paidTxs.reduce((sum, tx) => sum + tx.price, 0);
+
+    doc.setFillColor(241, 245, 249); // bg-input
+    doc.roundedRect(20, 55, 170, 25, 2, 2, 'F');
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    
+    if (limitToUser) {
+      doc.text('Total Cobrado (Ingresos):', 25, 65);
+      doc.text('Total Abonado (Egresos):', 105, 65);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(16, 185, 129); // green
+      doc.text(this.formatPrice(totalCollected), 25, 73);
+      doc.setTextColor(239, 68, 68); // red
+      doc.text(this.formatPrice(totalPaid), 105, 73);
+    } else {
+      doc.text('Total Transaccionado en la Red:', 25, 65);
+      doc.text('Transacciones Pagas:', 125, 65);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(99, 102, 241);
+      doc.text(this.formatPrice(overallTotal), 25, 73);
+      doc.text(`${paidTxs.length} operaciones`, 125, 73);
+    }
+
+    // Table Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    
+    doc.text('Fecha', 20, 95);
+    doc.text('Comprobante', 42, 95);
+    doc.text('Artículo', 70, 95);
+    doc.text('Medio', 125, 95);
+    doc.text('Monto', 155, 95);
+    doc.text('Estado', 180, 95);
+    
+    doc.setDrawColor(226, 232, 240);
+    doc.line(20, 98, 190, 98);
+
+    // Table Rows
+    let y = 105;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+
+    paidTxs.forEach(tx => {
+      if (y > 270) {
+        doc.addPage();
+        y = 30;
+      }
+      
+      doc.text(tx.dateStarted, 20, y);
+      doc.text(tx.ticketNumber, 42, y);
+      
+      // Limit article title length
+      const title = tx.itemTitle.length > 25 ? tx.itemTitle.substring(0, 22) + '...' : tx.itemTitle;
+      doc.text(title, 70, y);
+      
+      const methodStr = tx.paymentMethod === 'mercadopago' ? 'Mercado Pago' : 'Efectivo';
+      doc.text(methodStr, 125, y);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(15, 23, 42);
+      doc.text(this.formatPrice(tx.price), 155, y);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(16, 185, 129);
+      doc.text(tx.status, 180, y);
+      
+      doc.setTextColor(100, 116, 139);
+      y += 8;
+    });
+
+    if (paidTxs.length === 0) {
+      doc.text('No se registraron cobros ni pagos este mes.', 105, 120, { align: 'center' });
+    }
+
+    doc.save(`Reporte_Pagos_${monthStr}.pdf`);
+    this.showToast('Reporte mensual de pagos descargado con éxito.', 'success');
   }
 
   // Admin update transaction (Complete override)

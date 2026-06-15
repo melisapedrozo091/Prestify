@@ -154,21 +154,21 @@ export class TicketModalComponent {
     // Draw barcode container box
     doc.setFillColor(255, 255, 255);
     doc.setDrawColor(226, 232, 240);
-    doc.roundedRect(65, 194, 80, 18, 2, 2, 'FD');
+    doc.roundedRect(55, 194, 100, 24, 2, 2, 'FD');
 
     // Draw barcode lines
-    doc.setFillColor(15, 23, 42);
-    const startX = 70.375;
-    const scale = 0.25;
+    doc.setFillColor(0, 0, 0); // Pure black for maximum crispness and print reliability
+    const startX = 57.91;
+    const scale = 0.34;
     barcodeRects.forEach(([x, w]) => {
-      doc.rect(startX + x * scale, 197, w * scale, 10, 'F');
+      doc.rect(startX + x * scale, 196, w * scale, 14, 'F');
     });
 
     // Draw barcode text label
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.setTextColor(15, 23, 42);
-    doc.text(tx.sku, 105, 210, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    doc.text(tx.sku, 105, 214, { align: 'center' });
     
     // Footer message
     doc.setFontSize(10);

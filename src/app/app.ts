@@ -29,6 +29,8 @@ export class App implements OnInit {
   public readonly theme = signal<'light' | 'dark'>('dark');
   
   // Auth Form Fields
+  public readonly showLoginPassword = signal<boolean>(false);
+  public readonly showRegisterPassword = signal<boolean>(false);
   public loginEmail = '';
   public loginPassword = '';
   public registerName = '';
@@ -358,6 +360,8 @@ export class App implements OnInit {
     this.registerType = 'vecino';
     this.registerMpAlias = '';
     this.recoveryEmail = '';
+    this.showLoginPassword.set(false);
+    this.showRegisterPassword.set(false);
   }
 
   private resetAddForm(): void {
