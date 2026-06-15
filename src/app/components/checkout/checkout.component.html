@@ -49,32 +49,34 @@
         }
 
         <!-- Payment method selector -->
-        <div class="form-group" style="border-top:1px solid var(--border-color); padding-top:1.25rem; margin-top:1.25rem;">
-          <label>Método de Pago Preferido</label>
-          <div class="payment-methods-group">
-            <label class="payment-radio-label" [class.active]="paymentMethod === 'efectivo'">
-              <input type="radio" name="payMethod" [(ngModel)]="paymentMethod" value="efectivo" />
-              <div class="pay-radio-content">
-                <span class="material-symbols-outlined">payments</span>
-                <div>
-                  <strong>Efectivo / Presencial</strong>
-                  <span>Se abona al retirar el objeto</span>
+        @if (totalCost > 0) {
+          <div class="form-group" style="border-top:1px solid var(--border-color); padding-top:1.25rem; margin-top:1.25rem;">
+            <label>Método de Pago Preferido</label>
+            <div class="payment-methods-group">
+              <label class="payment-radio-label" [class.active]="paymentMethod === 'efectivo'">
+                <input type="radio" name="payMethod" [(ngModel)]="paymentMethod" value="efectivo" />
+                <div class="pay-radio-content">
+                  <span class="material-symbols-outlined">payments</span>
+                  <div>
+                    <strong>Efectivo / Presencial</strong>
+                    <span>Se abona al retirar el objeto</span>
+                  </div>
                 </div>
-              </div>
-            </label>
+              </label>
 
-            <label class="payment-radio-label" [class.active]="paymentMethod === 'mercadopago'">
-              <input type="radio" name="payMethod" [(ngModel)]="paymentMethod" value="mercadopago" />
-              <div class="pay-radio-content">
-                <span class="material-symbols-outlined">qr_code_2</span>
-                <div>
-                  <strong>Mercado Pago (MP)</strong>
-                  <span>Escaneo de QR al entregar</span>
+              <label class="payment-radio-label" [class.active]="paymentMethod === 'mercadopago'">
+                <input type="radio" name="payMethod" [(ngModel)]="paymentMethod" value="mercadopago" />
+                <div class="pay-radio-content">
+                  <span class="material-symbols-outlined">qr_code_2</span>
+                  <div>
+                    <strong>Mercado Pago (MP)</strong>
+                    <span>Escaneo de QR al entregar</span>
+                  </div>
                 </div>
-              </div>
-            </label>
+              </label>
+            </div>
           </div>
-        </div>
+        }
 
         <!-- Price Summary -->
         <div class="cost-summary-card">
