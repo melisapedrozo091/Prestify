@@ -28,7 +28,7 @@
             <h2 class="detail-title">{{ selectedItem()?.title }}</h2>
             <div class="detail-price-box">
               <span class="price-label">Valor:</span>
-              <strong class="price-value">{{ (selectedItem()?.price || 0) > 0 ? '$' + selectedItem()?.price : 'Gratuito' }}</strong>
+              <strong class="price-value">{{ prestifyService.formatPrice(selectedItem()?.price, 'Gratuito') }}</strong>
             </div>
           </div>
 
@@ -181,7 +181,7 @@
               <span
                 style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Costo</span>
               <strong style="color:var(--primary); font-size:1.1rem;">
-                {{ item.price > 0 ? '$' + item.price : 'Gratis' }}
+                {{ prestifyService.formatPrice(item.price) }}
               </strong>
             </div>
           </div>

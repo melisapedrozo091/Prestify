@@ -80,7 +80,7 @@
           <div class="ticket-row total-row">
             <span class="ticket-label">Monto a Abonar</span>
             <strong class="ticket-value cost-value">
-              {{ (prestifyService.activeTicketTransaction()?.price || 0) > 0 ? '$' + prestifyService.activeTicketTransaction()?.price : 'Gratuito' }}
+              {{ prestifyService.formatPrice(prestifyService.activeTicketTransaction()?.price, 'Gratuito') }}
             </strong>
           </div>
         </div>

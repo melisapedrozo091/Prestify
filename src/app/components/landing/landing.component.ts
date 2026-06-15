@@ -76,7 +76,7 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
                 <span style="background-color: ${item.status === 'disponible' ? '#e1fbf2' : '#fef3c7'}; color: ${item.status === 'disponible' ? '#10b981' : '#f59e0b'}; padding: 2px 6px; font-size: 0.65rem; border-radius: 20px; font-weight: 700;">
                   ${item.status === 'disponible' ? 'Disponible' : 'Prestado'}
                 </span>
-                <strong style="color: #6366f1; font-size: 0.85rem;">${item.price > 0 ? '$' + item.price : 'Gratis'}</strong>
+                <strong style="color: #6366f1; font-size: 0.85rem;">${this.prestifyService.formatPrice(item.price)}</strong>
               </div>
               <button 
                 style="width: 100%; border: none; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;"

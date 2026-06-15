@@ -173,7 +173,7 @@
                       {{ item.mode === 'prestamo' ? 'Préstamo' : 'Venta' }}
                     </span>
                   </td>
-                  <td style="font-weight:700;">{{ item.price > 0 ? '$' + item.price : 'Gratis' }}</td>
+                  <td style="font-weight:700;">{{ prestifyService.formatPrice(item.price) }}</td>
                   <td>
                     <span class="badge" 
                       [class.badge-disponible]="item.status === 'disponible'"
@@ -247,7 +247,7 @@
                     {{ tx.approvalStatus }}
                   </span>
                 </td>
-                <td style="font-weight: 700;">{{ tx.price > 0 ? '$' + tx.price : 'Gratis' }}</td>
+                <td style="font-weight: 700;">{{ prestifyService.formatPrice(tx.price) }}</td>
                 <td>
                   @if (tx.price > 0) {
                     @if (tx.type === 'prestamo') {
@@ -417,7 +417,7 @@
                     @if (req.type === 'prestamo') {
                       <span>{{ req.durationDays }} días (Devuelve: {{ req.dateEndedOrDue }})</span>
                     } @else {
-                      <strong>{{ req.price > 0 ? '$' + req.price : 'Gratuito' }}</strong>
+                      <strong>{{ prestifyService.formatPrice(req.price, 'Gratuito') }}</strong>
                     }
                   </td>
                   <td style="text-align: right;">
@@ -674,7 +674,7 @@
 
           <div class="form-group">
             <label>Costo / Precio ($)</label>
-            <input type="number" class="form-input" [(ngModel)]="productFormPrice" name="pPrice" />
+            <input type="number" step="any" class="form-input" [(ngModel)]="productFormPrice" name="pPrice" />
           </div>
         </div>
 
@@ -756,7 +756,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label>Monto / Precio ($)</label>
-            <input type="number" class="form-input" [(ngModel)]="txFormPrice" name="txPrice" required />
+            <input type="number" step="any" class="form-input" [(ngModel)]="txFormPrice" name="txPrice" required />
           </div>
           
           <div class="form-group">

@@ -282,6 +282,12 @@ export class PrestifyService {
     this.showAuthModal.set(false);
   }
 
+  public formatPrice(price: number | undefined | null, freeLabel: string = 'Gratis'): string {
+    const val = price ?? 0;
+    if (val === 0) return freeLabel;
+    return '$' + val.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   // Global Add Item Modal State
   public readonly showAddModal = signal<boolean>(false);
 
