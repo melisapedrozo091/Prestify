@@ -311,10 +311,42 @@ export class App implements OnInit {
         this.returnRating
       );
       this.prestifyService.showToast(`Devolución procesada y calificación registrada.`, 'success');
+      
+      // Automatically prompt to rate and review the product
+      const tx = this.prestifyService.transactions().find(t => t.itemId === item.id && t.status === 'Devuelto');
+      if (tx) {
+        setTimeout(() => {
+          this.prestifyService.openReviewModal(item.id, tx.id, item.title);
+        }, 400);
+      }
     }
 
     this.closeChecklistModal();
     this.router.navigate(['/dashboard']);
+  }
+
+  // Product Review Modal Form State
+  public productReviewRating = 5;
+  public productReviewComment = '';
+
+  public handleAddProductReview(): void {
+    const itemId = this.prestifyService.reviewTargetItemId();
+    const txId = this.prestifyService.reviewTargetTxId();
+    const user = this.prestifyService.currentUser();
+    if (!itemId || !user) return;
+
+    this.prestifyService.addProductReview(
+      itemId,
+      txId,
+      user.name,
+      this.productReviewRating,
+      this.productReviewComment.trim()
+    );
+
+    this.prestifyService.showToast('¡Gracias por tu opinión! Reseña del producto registrada.', 'success');
+    this.prestifyService.closeReviewModal();
+    this.productReviewRating = 5;
+    this.productReviewComment = '';
   }
 
   private resetAuthForms(): void {

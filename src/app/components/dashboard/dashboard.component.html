@@ -482,14 +482,22 @@
                     </span>
                   </td>
                   <td style="text-align: right;">
-                    @if (tx.approvalStatus === 'aprobado') {
-                      <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; box-shadow:none; display: inline-flex; align-items:center; gap:4px;" (click)="openTicket(tx)">
-                        <span class="material-symbols-outlined" style="font-size:0.95rem;">receipt_long</span>
-                        Ver Ticket
-                      </button>
-                    } @else {
-                      <span style="font-size: 0.75rem; color: var(--text-muted);">No disponible</span>
-                    }
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                      @if (tx.approvalStatus === 'aprobado') {
+                        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; box-shadow:none; display: inline-flex; align-items:center; gap:4px;" (click)="openTicket(tx)">
+                          <span class="material-symbols-outlined" style="font-size:0.95rem;">receipt_long</span>
+                          Ver Ticket
+                        </button>
+                        @if ((tx.status === 'Devuelto' || tx.status === 'Vendido') && !tx.itemRated) {
+                          <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; display: inline-flex; align-items:center; gap:4px;" (click)="prestifyService.openReviewModal(tx.itemId, tx.id, tx.itemTitle)">
+                            <span class="material-symbols-outlined" style="font-size:0.95rem;">star</span>
+                            Calificar
+                          </button>
+                        }
+                      } @else {
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">No disponible</span>
+                      }
+                    </div>
                   </td>
                 </tr>
               }

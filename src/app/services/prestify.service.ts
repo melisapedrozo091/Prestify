@@ -1,5 +1,13 @@
 import { Injectable, signal, computed } from '@angular/core';
 
+export interface Review {
+  id: string;
+  reviewerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
 export interface Item {
   id: string;
   title: string;
@@ -19,6 +27,7 @@ export interface Item {
   notes?: string;
   paymentStatus?: 'Gratuito' | 'Pendiente' | 'Pagado';
   sku?: string;
+  reviews?: Review[];
 }
 
 export interface User {
@@ -54,6 +63,7 @@ export interface Transaction {
   paymentMethod?: 'efectivo' | 'mercadopago';
   durationDays?: number;
   notes?: string;
+  itemRated?: boolean;
 }
 
 const STORAGE_ITEMS_KEY = 'prestify_items_circular';
@@ -159,7 +169,16 @@ const SEED_ITEMS: Item[] = [
     loanDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     paymentStatus: 'Pendiente',
-    sku: 'SKU-HERR-8812'
+    sku: 'SKU-HERR-8812',
+    reviews: [
+      {
+        id: 'r1',
+        reviewerName: 'Ferretería Central',
+        rating: 5,
+        comment: 'Excelente potencia y durabilidad de las baterías. Muy recomendado.',
+        date: '2026-06-10'
+      }
+    ]
   },
   {
     id: '3',
@@ -264,7 +283,16 @@ const SEED_ITEMS: Item[] = [
     price: 0.00,
     lat: -34.609,
     lng: -58.382,
-    sku: 'SKU-LIBR-1029'
+    sku: 'SKU-LIBR-1029',
+    reviews: [
+      {
+        id: 'r2',
+        reviewerName: 'Luz Blanca',
+        rating: 5,
+        comment: 'Una hermosa edición, el libro está impecable.',
+        date: '2026-06-12'
+      }
+    ]
   }
 ];
 
@@ -411,6 +439,67 @@ export class PrestifyService {
     this.activeTicketTransaction.set(null);
   }
 
+  // Global Review Modal State
+  public readonly showReviewModal = signal<boolean>(false);
+  public readonly reviewTargetItemId = signal<string>('');
+  public readonly reviewTargetTxId = signal<string>('');
+  public readonly reviewItemTitle = signal<string>('');
+
+  public openReviewModal(itemId: string, txId: string, itemTitle: string): void {
+    this.reviewTargetItemId.set(itemId);
+    this.reviewTargetTxId.set(txId);
+    this.reviewItemTitle.set(itemTitle);
+    this.showReviewModal.set(true);
+  }
+
+  public closeReviewModal(): void {
+    this.showReviewModal.set(false);
+    this.reviewTargetItemId.set('');
+    this.reviewTargetTxId.set('');
+    this.reviewItemTitle.set('');
+  }
+
+  public addProductReview(itemId: string, transactionId: string, reviewerName: string, rating: number, comment: string): void {
+    const newReview: Review = {
+      id: Math.random().toString(36).substr(2, 9),
+      reviewerName,
+      rating,
+      comment,
+      date: new Date().toISOString().split('T')[0]
+    };
+
+    // 1. Add review to item
+    this._items.update(items => items.map(item => {
+      if (item.id === itemId) {
+        const reviews = item.reviews || [];
+        return {
+          ...item,
+          reviews: [...reviews, newReview]
+        };
+      }
+      return item;
+    }));
+    this.persistItems();
+
+    // 2. Mark transaction as rated
+    this._transactions.update(txs => txs.map(tx => {
+      if (tx.id === transactionId) {
+        return {
+          ...tx,
+          itemRated: true
+        };
+      }
+      return tx;
+    }));
+    this.persistTransactions();
+  }
+
+  public getAverageRating(item: Item | undefined | null): number {
+    if (!item || !item.reviews || item.reviews.length === 0) return 0;
+    const sum = item.reviews.reduce((acc, r) => acc + r.rating, 0);
+    return parseFloat((sum / item.reviews.length).toFixed(1));
+  }
+
   // General Platform Stats
   public readonly totalItems = computed(() => this._items().length);
   public readonly availableItemsCount = computed(() => this._items().filter(i => i.status === 'disponible').length);
@@ -461,6 +550,11 @@ export class PrestifyService {
           const matchingSeed = SEED_ITEMS.find(si => si.id === item.id);
           if (matchingSeed && item.price !== matchingSeed.price) {
             item.price = matchingSeed.price;
+            migrated = true;
+          }
+          // Migrate reviews if not present
+          if (matchingSeed && !item.reviews && matchingSeed.reviews) {
+            item.reviews = matchingSeed.reviews;
             migrated = true;
           }
           return item;

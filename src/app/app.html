@@ -516,6 +516,57 @@
   <app-ticket-modal></app-ticket-modal>
 }
 
+<!-- ================= PRODUCT REVIEW MODAL ================= -->
+@if (prestifyService.showReviewModal()) {
+<div class="modal-overlay" (click)="prestifyService.closeReviewModal()">
+  <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 500px;">
+    <div class="modal-header">
+      <h2>Calificar Producto</h2>
+      <button class="btn btn-icon" (click)="prestifyService.closeReviewModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div style="background-color: var(--bg-input); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+        <h4 style="margin: 0; font-size: 1.1rem; color: var(--text-main);">{{ prestifyService.reviewItemTitle() }}</h4>
+        <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">Cuéntanos cómo fue tu experiencia usando o comprando este producto.</p>
+      </div>
+
+      <form (ngSubmit)="handleAddProductReview()">
+        <div class="form-group" style="align-items: center; margin-bottom: 1.5rem; text-align: center;">
+          <label style="margin-bottom: 0.5rem; font-size: 1rem;">¿Qué puntuación le darías al producto?</label>
+          <div style="display: flex; gap: 0.5rem; font-size: 2.25rem; cursor: pointer; justify-content: center; margin-top: 0.5rem;">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <span class="material-symbols-outlined star-icon"
+                [style.color]="star <= productReviewRating ? 'var(--warning)' : 'var(--text-muted)'"
+                [style.fontVariationSettings]="star <= productReviewRating ? '\'FILL\' 1' : '\'FILL\' 0'"
+                (click)="productReviewRating = star">
+                star
+              </span>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reviewComment">Tu Reseña / Opinión *</label>
+          <textarea id="reviewComment" class="form-textarea" rows="4" 
+            placeholder="Ej. Cumplió con mis expectativas, excelente calidad..." 
+            [(ngModel)]="productReviewComment" name="comment" required></textarea>
+        </div>
+
+        <div class="modal-footer" style="padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+          <button type="button" class="btn btn-secondary" (click)="prestifyService.closeReviewModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!productReviewComment.trim()">
+            Publicar Opinión
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}
+
 <!-- ================= TOASTS NOTIFICATIONS ================= -->
 <div class="toast-container">
   @for (toast of prestifyService.toasts(); track toast) {
