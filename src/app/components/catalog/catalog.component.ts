@@ -38,6 +38,7 @@ export class CatalogComponent implements OnInit, AfterViewInit, OnDestroy {
         item.title.toLowerCase().includes(query) || 
         item.description.toLowerCase().includes(query) ||
         item.owner.toLowerCase().includes(query) ||
+        (item.sku && item.sku.toLowerCase().includes(query)) ||
         (item.borrower && item.borrower.toLowerCase().includes(query))
       );
     }
