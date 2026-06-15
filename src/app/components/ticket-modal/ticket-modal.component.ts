@@ -134,22 +134,46 @@ export class TicketModalComponent {
     doc.setTextColor(99, 102, 241);
     doc.text(this.prestifyService.formatPrice(tx.price, 'Gratuito'), 65, 180);
     
+    const barcodeRects = [
+      [15, 3], [20, 1], [23, 2], [28, 4], [34, 1], [37, 3], [43, 1], [47, 2], [52, 4], [59, 1],
+      [63, 3], [68, 2], [72, 1], [75, 4], [81, 2], [85, 1], [89, 3], [95, 4], [101, 1], [105, 2],
+      [109, 3], [115, 1], [121, 2], [125, 1], [129, 3], [135, 4], [141, 1], [144, 2], [148, 3],
+      [154, 1], [158, 3], [163, 2], [167, 1], [170, 4], [176, 2], [180, 1], [184, 3], [190, 4],
+      [196, 1], [200, 2], [204, 3], [210, 1], [214, 4], [220, 2], [224, 1], [228, 3], [234, 4],
+      [240, 1], [244, 3], [250, 2], [254, 1], [258, 4]
+    ];
+
     // Draw box around barcode or footer
-    doc.line(20, 190, 190, 190);
+    doc.line(20, 184, 190, 184);
     
-    // Barcode Simulation
-    doc.setFont('courier', 'normal');
-    doc.setFontSize(14);
-    doc.setTextColor(15, 23, 42);
-    doc.text('||| | ||| || |||| ||| || ||| | ||| || |||| ||| || |||', 105, 205, { align: 'center' });
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
-    doc.text(`CÓDIGO DE VALIDACIÓN: ${tx.sku}`, 105, 212, { align: 'center' });
+    doc.text('CÓDIGO DE VALIDACIÓN DE RETIRO', 105, 191, { align: 'center' });
+
+    // Draw barcode container box
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(65, 194, 80, 18, 2, 2, 'FD');
+
+    // Draw barcode lines
+    doc.setFillColor(15, 23, 42);
+    const startX = 70.375;
+    const scale = 0.25;
+    barcodeRects.forEach(([x, w]) => {
+      doc.rect(startX + x * scale, 197, w * scale, 10, 'F');
+    });
+
+    // Draw barcode text label
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(15, 23, 42);
+    doc.text(tx.sku, 105, 210, { align: 'center' });
     
     // Footer message
     doc.setFontSize(10);
     doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 116, 139);
     doc.text('¡Gracias por apoyar el consumo local y colaborativo!', 105, 230, { align: 'center' });
     doc.text('Ayúdanos a cuidar y retornar los bienes a la comunidad.', 105, 236, { align: 'center' });
     
