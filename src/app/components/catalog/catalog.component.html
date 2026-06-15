@@ -62,6 +62,15 @@
                 <strong class="meta-value">{{ selectedItem()?.condition }}</strong>
               </div>
             </div>
+            @if (selectedItem()?.sku) {
+              <div class="detail-meta-item">
+                <span class="material-symbols-outlined">qr_code</span>
+                <div>
+                  <span class="meta-label">Código SKU</span>
+                  <strong class="meta-value font-mono">{{ selectedItem()?.sku }}</strong>
+                </div>
+              </div>
+            }
             @if (selectedItem()?.status === 'prestado') {
               <div class="detail-meta-item" style="color: var(--warning);">
                 <span class="material-symbols-outlined">assignment_ind</span>

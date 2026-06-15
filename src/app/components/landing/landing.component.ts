@@ -94,7 +94,12 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   }
 
   public selectItemFromMap(itemId: string): void {
-    this.router.navigate(['/catalog'], { queryParams: { itemId } });
+    const item = this.prestifyService.items().find(i => i.id === itemId);
+    if (item && item.sku) {
+      this.router.navigate(['/catalog/sku', item.sku.toLowerCase()]);
+    } else {
+      this.router.navigate(['/catalog'], { queryParams: { itemId } });
+    }
   }
 
   public joinNetwork(): void {

@@ -47,13 +47,26 @@ export class CatalogComponent implements OnInit, AfterViewInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    // Listen to query parameters to auto-select an item
+    // Listen to route parameters for SKU
+    this.route.paramMap.subscribe(params => {
+      const sku = params.get('sku');
+      if (sku) {
+        const item = this.prestifyService.items().find(i => i.sku?.toLowerCase() === sku.toLowerCase());
+        if (item) {
+          this.selectedItem.set(item);
+          this.destroyMap();
+        }
+      }
+    });
+
+    // Listen to query parameters to auto-select an item (backward compatibility)
     this.route.queryParams.subscribe(params => {
       const itemId = params['itemId'];
       if (itemId) {
         const item = this.prestifyService.items().find(i => i.id === itemId);
         if (item) {
           this.selectedItem.set(item);
+          this.destroyMap();
         }
       }
     });
@@ -149,12 +162,17 @@ export class CatalogComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openItemDetail(item: Item): void {
     this.selectedItem.set(item);
-    this.router.navigate([], { relativeTo: this.route, queryParams: {} });
+    if (item.sku) {
+      this.router.navigate(['/catalog/sku', item.sku.toLowerCase()]);
+    } else {
+      this.router.navigate([], { relativeTo: this.route, queryParams: { itemId: item.id } });
+    }
     this.destroyMap();
   }
 
   public closeItemDetail(): void {
     this.selectedItem.set(null);
+    this.router.navigate(['/catalog']);
     this.initMapDeferred();
   }
 
