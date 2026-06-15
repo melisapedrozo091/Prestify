@@ -41,7 +41,7 @@ export class App implements OnInit {
   // Add Item Modal Form State
   public newItemTitle = '';
   public newItemDesc = '';
-  public newItemCategory: 'Electrónica' | 'Deportes' | 'Herramientas' | 'Juegos' | 'Salud' | 'Indumentaria' | 'Otros' = 'Electrónica';
+  public newItemCategory: 'Electrónica' | 'Deportes' | 'Herramientas' | 'Juegos' | 'Salud' | 'Indumentaria' | 'Libros' | 'Otros' = 'Electrónica';
   public newItemOwner = '';
   public newItemPhoto = '';
   public newItemCondition: 'Nuevo' | 'Como nuevo' | 'Bueno' | 'Aceptable' = 'Bueno';
@@ -217,6 +217,7 @@ export class App implements OnInit {
         'Juegos': 'https://images.unsplash.com/photo-1585504198199-20277593b94f?w=500&auto=format&fit=crop&q=80',
         'Salud': 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=500&auto=format&fit=crop&q=80',
         'Indumentaria': 'https://images.unsplash.com/photo-1544923246-77307dd654cb?w=500&auto=format&fit=crop&q=80',
+        'Libros': 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=80',
         'Otros': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80',
       };
       photo = categoryImages[this.newItemCategory] || categoryImages['Otros'];

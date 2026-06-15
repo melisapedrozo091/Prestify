@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit {
   public productFormId = '';
   public productFormTitle = '';
   public productFormDesc = '';
-  public productFormCategory: 'Electrónica' | 'Deportes' | 'Herramientas' | 'Juegos' | 'Salud' | 'Indumentaria' | 'Otros' = 'Electrónica';
+  public productFormCategory: 'Electrónica' | 'Deportes' | 'Herramientas' | 'Juegos' | 'Salud' | 'Indumentaria' | 'Libros' | 'Otros' = 'Electrónica';
   public productFormOwner = '';
   public productFormPhoto = '';
   public productFormCondition: 'Nuevo' | 'Como nuevo' | 'Bueno' | 'Aceptable' = 'Bueno';

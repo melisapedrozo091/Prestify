@@ -4,7 +4,7 @@ export interface Item {
   id: string;
   title: string;
   description: string;
-  category: 'Electrónica' | 'Deportes' | 'Herramientas' | 'Juegos' | 'Salud' | 'Indumentaria' | 'Otros';
+  category: 'Electrónica' | 'Deportes' | 'Herramientas' | 'Juegos' | 'Salud' | 'Indumentaria' | 'Libros' | 'Otros';
   owner: string;
   photoUrl: string;
   condition: 'Nuevo' | 'Como nuevo' | 'Bueno' | 'Aceptable';
@@ -152,7 +152,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Como nuevo',
     status: 'prestado',
     mode: 'prestamo',
-    price: 4500.50,
+    price: 9800.00,
     lat: -34.615,
     lng: -58.375,
     borrower: 'Ferretería Central',
@@ -171,7 +171,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Nuevo',
     status: 'disponible',
     mode: 'venta',
-    price: 32499.99,
+    price: 42500.00,
     lat: -34.595,
     lng: -58.395,
     sku: 'SKU-HERR-9041'
@@ -186,7 +186,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Como nuevo',
     status: 'disponible',
     mode: 'prestamo',
-    price: 8500.00,
+    price: 18500.00,
     lat: -34.602,
     lng: -58.405,
     sku: 'SKU-DEPO-3329'
@@ -201,7 +201,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Bueno',
     status: 'disponible',
     mode: 'venta',
-    price: 84999.99,
+    price: 245000.00,
     lat: -34.610,
     lng: -58.365,
     sku: 'SKU-INDU-1125'
@@ -216,7 +216,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Como nuevo',
     status: 'disponible',
     mode: 'prestamo',
-    price: 9500.00,
+    price: 32000.00,
     lat: -34.607,
     lng: -58.390,
     sku: 'SKU-ELEC-7012'
@@ -231,7 +231,7 @@ const SEED_ITEMS: Item[] = [
     condition: 'Bueno',
     status: 'disponible',
     mode: 'prestamo',
-    price: 1800.00,
+    price: 4200.00,
     lat: -34.598,
     lng: -58.380,
     sku: 'SKU-JUEG-5510'
@@ -242,14 +242,29 @@ const SEED_ITEMS: Item[] = [
     description: 'Conservadora de gran capacidad con aislamiento térmico reforzado. Mantiene hielo hasta por 3 días. Manija articulada.',
     category: 'Otros',
     owner: 'Ferretería Central',
-    photoUrl: 'https://images.unsplash.com/photo-1628556222564-96cfbd20a424?w=500&auto=format&fit=crop&q=80',
+    photoUrl: 'https://images.unsplash.com/photo-1596250470547-2da2f170381f?w=500&auto=format&fit=crop&q=80',
     condition: 'Bueno',
     status: 'disponible',
     mode: 'prestamo',
-    price: 2450.50,
+    price: 3200.00,
     lat: -34.612,
     lng: -58.398,
     sku: 'SKU-OTRO-6629'
+  },
+  {
+    id: '9',
+    title: 'El Principito (Edición de Bolsillo)',
+    description: 'Libro clásico de Antoine de Saint-Exupéry. En excelente estado, ideal para lectura escolar o disfrute personal.',
+    category: 'Libros',
+    owner: 'Carlos Perez (Vecino)',
+    photoUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=80',
+    condition: 'Como nuevo',
+    status: 'disponible',
+    mode: 'prestamo',
+    price: 0.00,
+    lat: -34.609,
+    lng: -58.382,
+    sku: 'SKU-LIBR-1029'
   }
 ];
 
@@ -264,7 +279,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
     owner: 'Carlos Perez (Vecino)',
     dateStarted: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     dateEndedOrDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    price: 4500.50,
+    price: 9800.00,
     status: 'Caducado',
     handoverChecklist: ['Limpio y desinfectado', 'Sin daños estructurales', 'Funcionamiento mecánico verificado'],
     sku: 'SKU-HERR-8812',
@@ -284,7 +299,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
     dateStarted: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     dateEndedOrDue: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     returnDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    price: 84999.99,
+    price: 245000.00,
     status: 'Vendido',
     handoverChecklist: ['Limpio y desinfectado', 'Sin roturas ni costuras dañadas'],
     ratingGiven: 5,
