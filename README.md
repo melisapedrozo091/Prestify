@@ -3,7 +3,7 @@
 
 Prestify es una aplicación web desarrollada en **Angular** diseñada para la gestión y simulación de préstamos y finanzas personales. Este proyecto forma parte de la evaluación para la materia de Ingeniería de Software.
 
-## 🚀 Demo en Vivo
+## 🚀 MI PROYECTO ANGULAR
 El proyecto se encuentra desplegado y listo para ser evaluado en producción a través de Netlify:
 🔗 **[https://prestify20.netlify.app/landing](https://prestify20.netlify.app/landing)**
 
