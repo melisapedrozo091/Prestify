@@ -1,59 +1,31 @@
-# Prestify
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.6.
+# Prestify 💰
 
-## Development server
+Prestify es una aplicación web desarrollada en **Angular** diseñada para la gestión y simulación de préstamos y finanzas personales. Este proyecto forma parte de la evaluación para la materia de Ingeniería de Software.
 
-To start a local development server, run:
+## 🚀 Demo en Vivo
+El proyecto se encuentra desplegado y listo para ser evaluado en producción a través de Netlify:
+🔗 **[https://prestify20.netlify.app/landing](https://prestify20.netlify.app/landing)**
 
+---
+
+## 📂 Arquitectura y Estructura del Proyecto
+
+La lógica del frontend está organizada bajo una arquitectura limpia basada en componentes reutilizables dentro de `src/app/components/`:
+
+* **`landing`**: Pantalla de bienvenida pública y presentación del producto.
+* **`dashboard`**: Panel de control principal contenedor para usuarios autenticados.
+* **`catalog`**: Catálogo de servicios o productos financieros disponibles.
+* **`checkout`**: Formulario y pasarela para la confirmación de solicitudes de dinero.
+* **`history`**: Historial detallado de los movimientos y transacciones del usuario.
+* **`ticket-modal`**: Componente modular para la visualización de comprobantes y tickets.
+* **`profile`** *(En desarrollo)*: Sección dedicada a la gestión de datos personales del perfil de usuario.
+
+---
+
+## 🛠️ Desarrollo Local
+
+### 1. Servidor de desarrollo
+Para levantar el proyecto localmente, primero instalá las dependencias con `npm install` y luego ejecutá:
 ```bash
 ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
