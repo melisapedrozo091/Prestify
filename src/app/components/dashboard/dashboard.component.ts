@@ -187,10 +187,25 @@ export class DashboardComponent implements OnInit {
     const currentUser = this.prestifyService.currentUser();
     if (!currentUser) return [];
     
-    return this.prestifyService.items().filter(item => 
-      item.status === 'prestado' && 
-      item.borrower?.toLowerCase() === currentUser.name.toLowerCase()
+    // Find all active transactions where I am the borrower
+    const activeTxs = this.prestifyService.transactions().filter(tx => 
+      tx.type === 'prestamo' &&
+      (tx.status === 'Activo' || tx.status === 'Caducado') &&
+      tx.borrowerOrBuyer.toLowerCase() === currentUser.name.toLowerCase()
     );
+
+    // Map each active transaction to its item, adding the activeTxId
+    return activeTxs.map(tx => {
+      const item = this.prestifyService.items().find(i => i.id === tx.itemId);
+      if (!item) return null;
+      return {
+        ...item,
+        status: 'prestado' as const,
+        borrower: tx.borrowerOrBuyer,
+        dueDate: tx.dateEndedOrDue,
+        activeTxId: tx.id
+      };
+    }).filter((x): x is NonNullable<typeof x> => x !== null);
   });
 
   // Transactions requested by me (rentals or purchases)
@@ -425,7 +440,7 @@ export class DashboardComponent implements OnInit {
       condition: this.productFormCondition,
       mode: this.productFormMode,
       price: this.productFormPrice,
-      stock: this.productFormStock > 0 ? this.productFormStock : 1,
+      stock: this.productFormStock >= 0 ? this.productFormStock : 1,
       lat: this.productFormLat,
       lng: this.productFormLng,
       sku: this.productFormSku

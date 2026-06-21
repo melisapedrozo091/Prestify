@@ -30,6 +30,7 @@ export interface Item {
   paymentStatus?: 'Gratuito' | 'Pendiente' | 'Pagado';
   sku?: string;
   reviews?: Review[];
+  activeTxId?: string;
 }
 
 export interface User {
@@ -1026,7 +1027,7 @@ export class PrestifyService {
     paymentMethod?: 'efectivo' | 'mercadopago'
   ): Transaction | undefined {
     const item = this._items().find(i => i.id === itemId);
-    if (!item) return undefined;
+    if (!item || (item.stock ?? 1) <= 0) return undefined;
 
     // Create a random ticket number
     const ticketNumber = 'TK-' + Math.floor(100000 + Math.random() * 900000);
@@ -1074,7 +1075,7 @@ export class PrestifyService {
     paymentMethod?: 'efectivo' | 'mercadopago'
   ): Transaction | undefined {
     const item = this._items().find(i => i.id === itemId);
-    if (!item) return undefined;
+    if (!item || (item.stock ?? 1) <= 0) return undefined;
 
     // Create a random ticket number
     const ticketNumber = 'TK-' + Math.floor(100000 + Math.random() * 900000);
@@ -1113,10 +1114,13 @@ export class PrestifyService {
     // 1. Update the item's status and details
     this._items.update(items => items.map(item => {
       if (item.id === tx.itemId) {
+        const currentStock = item.stock ?? 1;
+        const newStock = Math.max(0, currentStock - 1);
         if (tx.type === 'prestamo') {
           return {
             ...item,
-            status: 'prestado',
+            stock: newStock,
+            status: newStock === 0 ? 'prestado' : 'disponible',
             borrower: tx.borrowerOrBuyer,
             loanDate: tx.dateStarted,
             dueDate: tx.dateEndedOrDue,
@@ -1127,7 +1131,8 @@ export class PrestifyService {
           // Sale
           return {
             ...item,
-            status: 'vendido',
+            stock: newStock,
+            status: newStock === 0 ? 'vendido' : 'disponible',
             borrower: tx.borrowerOrBuyer,
             notes: 'Vendido a través de la red.'
           };
@@ -1173,15 +1178,16 @@ export class PrestifyService {
   }
 
   // Return Checklist - loan ends
-  public returnItem(itemId: string, checklist: string[], rating?: number): void {
+  public returnItem(itemId: string, checklist: string[], rating?: number, transactionId?: string): void {
     const item = this._items().find(i => i.id === itemId);
-    if (!item || item.status !== 'prestado') return;
+    if (!item) return;
 
     const todayStr = new Date().toISOString().split('T')[0];
 
     // Find active transaction for this item and update it
     this._transactions.update(txs => txs.map(tx => {
-      if (tx.itemId === itemId && (tx.status === 'Activo' || tx.status === 'Caducado')) {
+      const isMatch = transactionId ? (tx.id === transactionId) : (tx.itemId === itemId && (tx.status === 'Activo' || tx.status === 'Caducado'));
+      if (isMatch) {
         return {
           ...tx,
           status: 'Devuelto',
@@ -1199,11 +1205,13 @@ export class PrestifyService {
       this.rateUser(item.borrower, rating);
     }
 
-    // Update item status back to disponible
+    // Update item status back to disponible and increment stock
     this._items.update(items => items.map(i => {
       if (i.id === itemId) {
+        const currentStock = i.stock ?? 1;
         return {
           ...i,
+          stock: currentStock + 1,
           status: 'disponible',
           borrower: undefined,
           loanDate: undefined,
@@ -1243,10 +1251,11 @@ export class PrestifyService {
       const tx = targetTx;
       this._items.update(items => items.map(item => {
         if (item.id === tx.itemId) {
+          const currentStock = item.stock ?? 1;
           if (tx.type === 'prestamo') {
             return {
               ...item,
-              status: 'prestado',
+              status: currentStock === 0 ? 'prestado' : 'disponible',
               borrower: tx.borrowerOrBuyer,
               loanDate: tx.dateStarted,
               dueDate: tx.dateEndedOrDue,
@@ -1256,7 +1265,7 @@ export class PrestifyService {
           } else {
             return {
               ...item,
-              status: 'vendido',
+              status: currentStock === 0 ? 'vendido' : 'disponible',
               borrower: tx.borrowerOrBuyer,
               notes: 'Vendido a través de la red y cobrado.',
               paymentStatus: 'Pagado'
@@ -1664,11 +1673,13 @@ export class PrestifyService {
       return { success: false, error: 'La transacción ya fue eliminada.' };
     }
 
-    // Restore item status to available if it was affected by this transaction
+    // Restore item status to available and increment stock if it was affected by this transaction
     this._items.update(items => items.map(item => {
       if (item.id === tx.itemId && (tx.approvalStatus === 'aprobado')) {
+        const currentStock = item.stock ?? 1;
         return {
           ...item,
+          stock: currentStock + 1,
           status: 'disponible',
           borrower: undefined,
           dueDate: undefined,

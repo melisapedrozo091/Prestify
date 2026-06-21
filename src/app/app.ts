@@ -246,7 +246,7 @@ export class App implements OnInit {
       condition: this.newItemCondition,
       mode: this.newItemMode,
       price: this.newItemPrice,
-      stock: this.newItemStock > 0 ? this.newItemStock : 1,
+      stock: this.newItemStock >= 0 ? this.newItemStock : 1,
       lat: this.newItemLat,
       lng: this.newItemLng
     });
@@ -323,7 +323,8 @@ export class App implements OnInit {
       this.prestifyService.returnItem(
         item.id,
         verificationLog,
-        this.returnRating
+        this.returnRating,
+        (item as any).activeTxId
       );
       this.prestifyService.showToast(`Devolución procesada y calificación registrada.`, 'success');
       

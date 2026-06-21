@@ -81,12 +81,16 @@
               </div>
             }
             <div class="detail-meta-item">
-              <span class="material-symbols-outlined" [style.color]="(selectedItem()?.stock ?? 1) <= 1 ? 'var(--warning)' : 'var(--success)'">inventory</span>
+              <span class="material-symbols-outlined" [style.color]="(selectedItem()?.stock ?? 1) <= 0 ? 'var(--danger)' : (selectedItem()?.stock ?? 1) === 1 ? 'var(--warning)' : 'var(--success)'">inventory</span>
               <div>
                 <span class="meta-label">Unidades en Stock</span>
-                <strong class="meta-value" [style.color]="(selectedItem()?.stock ?? 1) <= 1 ? 'var(--warning)' : 'var(--success)'">
-                  {{ selectedItem()?.stock ?? 1 }} unidad{{ (selectedItem()?.stock ?? 1) !== 1 ? 'es' : '' }}
-                  {{ (selectedItem()?.stock ?? 1) <= 1 ? '(Última unidad)' : 'disponibles' }}
+                <strong class="meta-value" [style.color]="(selectedItem()?.stock ?? 1) <= 0 ? 'var(--danger)' : (selectedItem()?.stock ?? 1) === 1 ? 'var(--warning)' : 'var(--success)'">
+                  @if ((selectedItem()?.stock ?? 1) <= 0) {
+                    SIN STOCK (0 unidades)
+                  } @else {
+                    {{ selectedItem()?.stock ?? 1 }} unidad{{ (selectedItem()?.stock ?? 1) !== 1 ? 'es' : '' }}
+                    {{ (selectedItem()?.stock ?? 1) === 1 ? '(Última unidad)' : 'disponibles' }}
+                  }
                 </strong>
               </div>
             </div>
@@ -152,8 +156,18 @@
           </div>
 
           <div class="detail-actions-row" style="margin-top:2rem;">
-            @if (selectedItem()?.status === 'disponible') {
-              @if (selectedItem()?.owner === prestifyService.currentUser()?.name) {
+            @if (selectedItemBorrowedInstance()) {
+              <button class="btn btn-secondary" style="padding:0.85rem 2rem; font-size:1rem;" (click)="openChecklist('return', selectedItemBorrowedInstance()!)">
+                <span class="material-symbols-outlined">keyboard_return</span>
+                Devolver Objeto
+              </button>
+            } @else if (selectedItem()?.status === 'disponible') {
+              @if ((selectedItem()?.stock ?? 1) <= 0) {
+                <button class="btn btn-danger" disabled style="opacity: 0.8; cursor: not-allowed; padding:0.85rem 2rem; font-size:1rem; display: inline-flex; align-items: center; gap: 6px;">
+                  <span class="material-symbols-outlined">block</span>
+                  SIN STOCK
+                </button>
+              } @else if (selectedItem()?.owner === prestifyService.currentUser()?.name) {
                 <button class="btn btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed; padding:0.85rem 2rem; font-size:1rem; background-color: var(--border-color); color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;">
                   <span class="material-symbols-outlined">info</span>
                   Tu Propio Insumo
@@ -227,10 +241,14 @@
           <img [src]="item.photoUrl" alt="" class="item-card-image" />
           <span class="item-category-floating">{{ item.category }}</span>
 
-          <span class="badge item-badge-floating" [class.badge-disponible]="item.status === 'disponible'"
-            [class.badge-prestado]="item.status === 'prestado'" [class.badge-secondary]="item.status === 'vendido'">
-            {{ item.status === 'disponible' ? 'Disponible' : item.status === 'prestado' ? 'Prestado' : 'Vendido' }}
-          </span>
+          @if ((item.stock ?? 1) <= 0) {
+            <span class="badge badge-danger item-badge-floating">SIN STOCK</span>
+          } @else {
+            <span class="badge item-badge-floating" [class.badge-disponible]="item.status === 'disponible'"
+              [class.badge-prestado]="item.status === 'prestado'" [class.badge-secondary]="item.status === 'vendido'">
+              {{ item.status === 'disponible' ? 'Disponible' : item.status === 'prestado' ? 'Prestado' : 'Vendido' }}
+            </span>
+          }
         </div>
 
         <div class="item-card-content">
@@ -279,7 +297,12 @@
 
           <div class="item-card-actions">
             @if (item.status === 'disponible') {
-              @if (item.owner === prestifyService.currentUser()?.name) {
+              @if ((item.stock ?? 1) <= 0) {
+                <button class="btn btn-danger" disabled style="opacity: 0.8; cursor: not-allowed; width: 100%; display: flex; justify-content: center; align-items: center; gap: 4px;">
+                  <span class="material-symbols-outlined" style="font-size: 1.1rem;">block</span>
+                  SIN STOCK
+                </button>
+              } @else if (item.owner === prestifyService.currentUser()?.name) {
                 <button class="btn btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%; display: flex; justify-content: center; align-items: center; gap: 4px; background-color: var(--border-color); color: var(--text-muted);">
                   <span class="material-symbols-outlined" style="font-size: 1.1rem;">info</span>
                   Tu Propio Insumo

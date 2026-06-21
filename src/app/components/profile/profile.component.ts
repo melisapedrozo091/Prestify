@@ -249,7 +249,7 @@ export class ProfileComponent implements OnInit {
       condition: this.productFormCondition,
       mode: this.productFormMode,
       price: this.productFormPrice,
-      stock: this.productFormStock > 0 ? this.productFormStock : 1,
+      stock: this.productFormStock >= 0 ? this.productFormStock : 1,
       lat: this.productFormLat,
       lng: this.productFormLng,
       sku: this.productFormSku

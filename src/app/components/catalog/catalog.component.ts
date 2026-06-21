@@ -46,6 +46,26 @@ export class CatalogComponent implements OnInit, AfterViewInit, OnDestroy {
     return filtered;
   });
 
+  public readonly selectedItemBorrowedInstance = computed(() => {
+    const item = this.selectedItem();
+    const user = this.prestifyService.currentUser();
+    if (!item || !user) return null;
+    const tx = this.prestifyService.transactions().find(tx =>
+      tx.itemId === item.id &&
+      tx.type === 'prestamo' &&
+      (tx.status === 'Activo' || tx.status === 'Caducado') &&
+      tx.borrowerOrBuyer.toLowerCase() === user.name.toLowerCase()
+    );
+    if (!tx) return null;
+    return {
+      ...item,
+      status: 'prestado' as const,
+      borrower: tx.borrowerOrBuyer,
+      dueDate: tx.dateEndedOrDue,
+      activeTxId: tx.id
+    };
+  });
+
   ngOnInit(): void {
     // Listen to route parameters for SKU
     this.route.paramMap.subscribe(params => {
