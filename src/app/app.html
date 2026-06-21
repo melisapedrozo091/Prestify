@@ -66,11 +66,17 @@
           <span>Historial Transacciones</span>
         </a>
       </li>
+      <li class="nav-item">
+        <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+          <span class="material-symbols-outlined">person</span>
+          <span>Mi Perfil</span>
+        </a>
+      </li>
     </ul>
 
     <!-- User Profile Card -->
     <div class="sidebar-footer">
-      <div style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+      <a routerLink="/profile" style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; cursor: pointer;">
         <div
           style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size:1.1rem; box-shadow: var(--shadow-sm);">
           {{ prestifyService.currentUser()?.name?.charAt(0) }}
@@ -85,7 +91,7 @@
             {{ prestifyService.currentUser()?.type }}
           </span>
         </div>
-      </div>
+      </a>
 
       <div
         style="display:flex; align-items:center; gap:4px; margin-bottom: 1.25rem; font-size:0.8rem; font-weight:700;">

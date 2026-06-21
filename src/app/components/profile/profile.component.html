@@ -1,0 +1,318 @@
+<div class="profile-container animate-fade-in">
+  
+  <!-- PROFILE HEADER / BANNER -->
+  <div class="profile-banner">
+    <div class="profile-banner-left">
+      <div class="profile-avatar">
+        {{ prestifyService.currentUser()?.name?.charAt(0) }}
+      </div>
+      <div class="profile-meta-info">
+        <h2>{{ prestifyService.currentUser()?.name }}</h2>
+        <div class="profile-meta-badges">
+          <span class="badge profile-banner-role">{{ prestifyService.currentUser()?.type }}</span>
+          <span class="badge profile-banner-role font-mono">{{ prestifyService.currentUser()?.email }}</span>
+        </div>
+        <div class="profile-rating-info">
+          <span class="material-symbols-outlined star-icon">star</span>
+          <span class="rating-text">Reputación: <strong>{{ prestifyService.currentUser()?.reputation }} / 5</strong></span>
+          <span class="rating-count">({{ prestifyService.currentUser()?.reputationCount }} calif.)</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- STATS BLOCKS -->
+    <div class="profile-banner-right">
+      <div class="stat-box">
+        <span class="stat-number">{{ myPublishedItems().length }}</span>
+        <span class="stat-label">Objetos Publicados</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number">{{ totalUserTransactions() }}</span>
+        <span class="stat-label">Operaciones Totales</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB SELECTION -->
+  <div class="profile-tabs-nav">
+    <button 
+      class="tab-nav-btn" 
+      [class.active]="activeTab() === 'info'" 
+      (click)="activeTab.set('info')">
+      <span class="material-symbols-outlined">person</span>
+      Datos Personales
+    </button>
+    <button 
+      class="tab-nav-btn" 
+      [class.active]="activeTab() === 'items'" 
+      (click)="activeTab.set('items')">
+      <span class="material-symbols-outlined">inventory_2</span>
+      Mis Objetos ({{ myPublishedItems().length }})
+    </button>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="profile-tab-content">
+    
+    <!-- TAB 1: DATOS PERSONALES -->
+    @if (activeTab() === 'info') {
+      <div class="profile-card animate-fade-up">
+        <h3>Editar Información de Perfil</h3>
+        <p class="profile-card-subtitle">Mantén tus datos actualizados para mejorar la confianza vecinal.</p>
+
+        <form (ngSubmit)="saveProfile()" class="profile-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="profileName">Nombre Completo / Razón Social *</label>
+              <input 
+                type="text" 
+                id="profileName" 
+                class="form-input" 
+                [(ngModel)]="profileName" 
+                name="profileName" 
+                placeholder="Ej. Carlos Perez" 
+                required />
+            </div>
+
+            <div class="form-group">
+              <label for="profileType">Tipo de Vecino / Organización *</label>
+              <select 
+                id="profileType" 
+                class="form-select" 
+                [(ngModel)]="profileType" 
+                name="profileType" 
+                required>
+                <option value="vecino">Vecino Individual</option>
+                <option value="institucion">Institución / ONG / Club</option>
+                <option value="empresa">Empresa / Comercio Local</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="profileMpAlias">Alias Mercado Pago (Para cobro de préstamos/ventas)</label>
+              <input 
+                type="text" 
+                id="profileMpAlias" 
+                class="form-input" 
+                [(ngModel)]="profileMpAlias" 
+                name="profileMpAlias" 
+                placeholder="Ej. mi.alias.mp" />
+            </div>
+
+            <div class="form-group">
+              <label for="profilePassword">Contraseña de Acceso</label>
+              <div class="password-wrapper">
+                <input 
+                  [type]="showPassword() ? 'text' : 'password'" 
+                  id="profilePassword" 
+                  class="form-input" 
+                  [(ngModel)]="profilePassword" 
+                  name="profilePassword" 
+                  placeholder="Escribe una nueva contraseña para cambiarla" />
+                <button 
+                  type="button" 
+                  class="password-toggle-btn" 
+                  (click)="showPassword.set(!showPassword())" 
+                  tabindex="-1">
+                  <span class="material-symbols-outlined">
+                    {{ showPassword() ? 'visibility_off' : 'visibility' }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <span class="material-symbols-outlined">save</span>
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- TAB 2: MIS OBJETOS -->
+    @if (activeTab() === 'items') {
+      <div class="profile-card animate-fade-up">
+        <div class="profile-card-header">
+          <div>
+            <h3>Mis Publicaciones</h3>
+            <p class="profile-card-subtitle">Administra los bienes y recursos que ofreces a la comunidad.</p>
+          </div>
+          <button class="btn btn-primary" (click)="triggerGlobalPublishModal()">
+            <span class="material-symbols-outlined">add</span>
+            Publicar Nuevo Objeto
+          </button>
+        </div>
+
+        @if (myPublishedItems().length > 0) {
+          <div class="my-items-grid">
+            @for (item of myPublishedItems(); track item.id) {
+              <div class="my-item-card">
+                <div class="my-item-card-image">
+                  <img [src]="item.photoUrl" [alt]="item.title" />
+                  <span class="badge-category">{{ item.category }}</span>
+                  <span class="badge-mode" [class.mode-loan]="item.mode === 'prestamo'" [class.mode-sale]="item.mode === 'venta'">
+                    {{ item.mode === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                  </span>
+                </div>
+                
+                <div class="my-item-card-body">
+                  <div class="my-item-card-header-row">
+                    <h4>{{ item.title }}</h4>
+                    <span class="badge-status" [class.status-available]="item.status === 'disponible'" [class.status-loaned]="item.status === 'prestado'" [class.status-sold]="item.status === 'vendido'">
+                      {{ item.status }}
+                    </span>
+                  </div>
+                  
+                  @if (item.sku) {
+                    <span class="my-item-sku font-mono">SKU: {{ item.sku }}</span>
+                  }
+                  
+                  <div class="my-item-card-info-row">
+                    <div class="info-block">
+                      <span class="info-label">Precio</span>
+                      <span class="info-val font-heading">{{ prestifyService.formatPrice(item.price) }}</span>
+                    </div>
+                    <div class="info-block">
+                      <span class="info-label">Estado</span>
+                      <span class="info-val">{{ item.condition }}</span>
+                    </div>
+                  </div>
+                  
+                  <p class="my-item-desc">{{ item.description }}</p>
+                </div>
+                
+                <div class="my-item-card-actions">
+                  <button class="btn btn-secondary-edit" (click)="openEditProductModal(item)">
+                    <span class="material-symbols-outlined">edit</span>
+                    Editar
+                  </button>
+                  <button class="btn btn-danger-delete" (click)="deleteProduct(item.id)">
+                    <span class="material-symbols-outlined">delete</span>
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <span class="material-symbols-outlined empty-state-icon">inventory</span>
+            <h3>Aún no has publicado objetos</h3>
+            <p>Comienza a compartir recursos con tus vecinos publicando tu primer artículo en Prestify.</p>
+            <button class="btn btn-primary" (click)="triggerGlobalPublishModal()">
+              <span class="material-symbols-outlined">add</span>
+              Publicar primer objeto
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>
+
+<!-- ================= PRODUCT EDIT MODAL ================= -->
+@if (showProductModal()) {
+<div class="modal-overlay" (click)="closeProductModal()">
+  <div class="modal-content animate-fade-up" (click)="$event.stopPropagation()" style="max-width: 600px;">
+    
+    <div class="modal-header">
+      <h2>Editar Publicación</h2>
+      <button class="btn btn-icon" (click)="closeProductModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form (ngSubmit)="saveProduct()">
+        <div class="form-group">
+          <label for="pTitle">Nombre del Objeto *</label>
+          <input type="text" id="pTitle" class="form-input" [(ngModel)]="productFormTitle" name="pTitle" required />
+        </div>
+
+        <div class="form-group">
+          <label for="pSku">Código SKU (Identificador)</label>
+          <input type="text" id="pSku" class="form-input font-mono" [(ngModel)]="productFormSku" name="pSku" readonly />
+          <span class="form-help-text">El identificador único del artículo no puede modificarse.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="pDesc">Descripción</label>
+          <textarea id="pDesc" class="form-textarea" [(ngModel)]="productFormDesc" name="pDesc" rows="3" placeholder="Describe el estado de conservación, accesorios incluidos..."></textarea>
+        </div>
+
+        <div class="form-grid-modal">
+          <div class="form-group">
+            <label for="pCategory">Categoría</label>
+            <select id="pCategory" class="form-select" [(ngModel)]="productFormCategory" name="pCategory">
+              <option value="Herramientas">Herramientas</option>
+              <option value="Salud">Salud / Ortopedia</option>
+              <option value="Deportes">Deportes / Camping</option>
+              <option value="Indumentaria">Indumentaria</option>
+              <option value="Electrónica">Electrónica</option>
+              <option value="Juegos">Juegos</option>
+              <option value="Libros">Libros</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="pCondition">Estado de Conservación</label>
+            <select id="pCondition" class="form-select" [(ngModel)]="productFormCondition" name="pCondition">
+              <option value="Nuevo">Nuevo</option>
+              <option value="Como nuevo">Como nuevo</option>
+              <option value="Bueno">Bueno</option>
+              <option value="Aceptable">Aceptable</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-modal">
+          <div class="form-group">
+            <label>Modalidad Comercial</label>
+            <select class="form-select" [(ngModel)]="productFormMode" name="pMode">
+              <option value="prestamo">Ofrecer en Préstamo</option>
+              <option value="venta">Ofrecer en Venta Directa</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Costo / Precio ($)</label>
+            <input type="number" step="any" class="form-input" [(ngModel)]="productFormPrice" name="pPrice" />
+          </div>
+        </div>
+
+        <!-- File Upload from PC with preview -->
+        <div class="form-group file-upload-group">
+          <label class="file-upload-label">
+            <span class="material-symbols-outlined upload-icon">upload_file</span>
+            Actualizar Foto de Portada
+          </label>
+          <input type="file" id="pPhotoFile" accept="image/*" (change)="onProductFileSelected($event)" class="form-input-file" />
+          
+          <span class="or-separator">- O URL externa de Imagen -</span>
+          <input type="url" class="form-input" [(ngModel)]="productFormPhoto" name="pPhoto" placeholder="https://..." />
+          
+          @if (productFormPhoto) {
+            <div class="photo-preview-container">
+              <img [src]="productFormPhoto" alt="Vista previa" />
+            </div>
+          }
+        </div>
+
+        <div class="modal-form-actions">
+          <button type="button" class="btn btn-cancel" (click)="closeProductModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}
