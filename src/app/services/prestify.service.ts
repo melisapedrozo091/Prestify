@@ -535,7 +535,17 @@ export class PrestifyService {
       const itemsData = window.localStorage.getItem(STORAGE_ITEMS_KEY);
       const transactionData = window.localStorage.getItem(STORAGE_HISTORY_KEY);
       const usersData = window.localStorage.getItem(STORAGE_USERS_KEY);
-      const sessionData = window.localStorage.getItem(STORAGE_SESSION_KEY);
+      // Session is stored in sessionStorage (tab-specific) so each tab can have a different logged-in user.
+      // Migration: if a session exists in the old localStorage, move it to sessionStorage for this tab.
+      let sessionData = window.sessionStorage.getItem(STORAGE_SESSION_KEY);
+      if (!sessionData) {
+        const legacySession = window.localStorage.getItem(STORAGE_SESSION_KEY);
+        if (legacySession) {
+          window.sessionStorage.setItem(STORAGE_SESSION_KEY, legacySession);
+          window.localStorage.removeItem(STORAGE_SESSION_KEY); // Clean up old key
+          sessionData = legacySession;
+        }
+      }
 
       // Load Items
       if (itemsData) {
@@ -713,7 +723,7 @@ export class PrestifyService {
             }
 
             if (updatedSession) {
-              this.saveToStorage(STORAGE_SESSION_KEY, session);
+              this.saveToSessionStorage(STORAGE_SESSION_KEY, session);
             }
             this._currentUser.set(session);
           }
@@ -732,9 +742,23 @@ export class PrestifyService {
     }
   }
 
+  /** Saves session data to sessionStorage (tab-isolated — each tab can have its own user) */
+  private saveToSessionStorage(key: string, data: any): void {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.setItem(key, JSON.stringify(data));
+    }
+  }
+
   private removeFromStorage(key: string): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.removeItem(key);
+    }
+  }
+
+  /** Removes session data from sessionStorage */
+  private removeFromSessionStorage(key: string): void {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.removeItem(key);
     }
   }
 
@@ -752,9 +776,10 @@ export class PrestifyService {
 
   private persistSession(): void {
     if (this._currentUser()) {
-      this.saveToStorage(STORAGE_SESSION_KEY, this._currentUser());
+      // Use sessionStorage so each browser tab can maintain its own independent session
+      this.saveToSessionStorage(STORAGE_SESSION_KEY, this._currentUser());
     } else {
-      this.removeFromStorage(STORAGE_SESSION_KEY);
+      this.removeFromSessionStorage(STORAGE_SESSION_KEY);
     }
   }
 
@@ -903,7 +928,7 @@ export class PrestifyService {
 
   public logout(): void {
     this._currentUser.set(null);
-    this.removeFromStorage(STORAGE_SESSION_KEY);
+    this.removeFromSessionStorage(STORAGE_SESSION_KEY);
   }
 
   public recoverPassword(email: string): { success: boolean; message?: string } {
