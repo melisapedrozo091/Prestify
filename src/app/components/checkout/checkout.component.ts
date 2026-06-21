@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PrestifyService, Item } from '../../services/prestify.service';
+import { PrestifyService, Item, Transaction } from '../../services/prestify.service';
 
 @Component({
   selector: 'app-checkout',
@@ -19,11 +19,7 @@ export class CheckoutComponent implements OnInit {
   public notes = '';
   public paymentMethod: 'efectivo' | 'mercadopago' = 'efectivo';
   
-  // Handover Checklist boxes (mandatory)
-  public checkLimpio = false;
-  public checkEstructura = false;
-  public checkMecanico = false;
-  public checkAccesorios = false;
+  // Handover Checklist boxes (not used for validation now, only Terms)
   public checkTerms = false;
 
   ngOnInit(): void {
@@ -50,8 +46,6 @@ export class CheckoutComponent implements OnInit {
   public get totalCost(): number {
     const item = this.prestifyService.checkoutItem();
     if (!item) return 0;
-    if (item.mode === 'venta') return item.price;
-    // Loan cost (either flat or per day. Let's make it flat or daily. Let's make it flat price, or display it clearly as total cost)
     return item.price; 
   }
 
@@ -62,18 +56,19 @@ export class CheckoutComponent implements OnInit {
     return seller?.mpAlias || item.owner.toLowerCase().replace(/[^a-z0-9]+/g, '.');
   }
 
+  public getSellerPhone(): string {
+    const item = this.prestifyService.checkoutItem();
+    if (!item) return '';
+    const seller = this.prestifyService.users().find(u => u.name.toLowerCase() === item.owner.toLowerCase());
+    return seller?.phone || 'No especificado';
+  }
+
   public handleConfirm(): void {
     const item = this.prestifyService.checkoutItem();
     if (!item) return;
 
     if (!this.name.trim()) {
       this.prestifyService.showToast('Por favor introduce tu nombre.', 'warning');
-      return;
-    }
-
-    // Verify checklist
-    if (!this.checkLimpio || !this.checkEstructura || !this.checkMecanico || !this.checkAccesorios) {
-      this.prestifyService.showToast('Es obligatorio verificar todos los puntos del Checklist de entrega.', 'warning');
       return;
     }
 
@@ -90,8 +85,10 @@ export class CheckoutComponent implements OnInit {
       'Accesorios completos'
     ];
 
+    let createdTx: Transaction | undefined;
+
     if (this.prestifyService.checkoutAction() === 'borrow') {
-      this.prestifyService.borrowItem(
+      createdTx = this.prestifyService.borrowItem(
         item.id,
         this.name,
         this.dueDate,
@@ -102,7 +99,7 @@ export class CheckoutComponent implements OnInit {
       );
       this.prestifyService.showToast(`Solicitud de préstamo registrada para "${item.title}". Pendiente de aprobación por el dueño.`, 'success');
     } else {
-      this.prestifyService.buyItem(
+      createdTx = this.prestifyService.buyItem(
         item.id,
         this.name,
         item.price,
@@ -110,6 +107,11 @@ export class CheckoutComponent implements OnInit {
         this.paymentMethod
       );
       this.prestifyService.showToast(`Solicitud de compra registrada para "${item.title}". Pendiente de aprobación por el dueño.`, 'success');
+    }
+
+    // If cash payment, download PDF ticket directly
+    if (createdTx && this.paymentMethod === 'efectivo') {
+      this.prestifyService.downloadTicket(createdTx);
     }
 
     this.prestifyService.closeCheckout();

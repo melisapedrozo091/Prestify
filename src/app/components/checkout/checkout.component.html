@@ -70,7 +70,7 @@
                   <span class="material-symbols-outlined">qr_code_2</span>
                   <div>
                     <strong>Mercado Pago (MP)</strong>
-                    <span>Escaneo de QR al entregar</span>
+                    <span>Transferencia inmediata por Alias</span>
                   </div>
                 </div>
               </label>
@@ -81,11 +81,11 @@
                 <span class="material-symbols-outlined" style="color: #009ee3; font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;">info</span>
                 <div style="flex-grow: 1; min-width: 0; font-size: 0.85rem; line-height: 1.4; color: var(--text-main);">
                   <p style="margin: 0 0 4px 0; font-weight: 700; color: #009ee3;">Pago por Mercado Pago</p>
-                  <p style="margin: 0 0 8px 0;">Deberás transferir el monto acordado al alias del vendedor. Una vez realizado el pago, envíale el comprobante por chat o WhatsApp para que apruebe la entrega.</p>
-                  <a [href]="'https://link.mercadopago.com.ar/' + getSellerAlias()" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #009ee3; font-weight: 700; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">open_in_new</span>
-                    Alias MP: {{ getSellerAlias() }}
-                  </a>
+                  <p style="margin: 0 0 8px 0;">Deberás transferir el monto acordado al alias del vendedor. Una vez realizado el pago, envíale el comprobante por WhatsApp/celular al teléfono <strong>{{ getSellerPhone() }}</strong> para que apruebe la entrega.</p>
+                  <div style="display: inline-flex; align-items: center; gap: 6px; color: #009ee3; font-weight: 700;">
+                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">qr_code</span>
+                    <span>Alias MP: <strong>{{ getSellerAlias() }}</strong></span>
+                  </div>
                 </div>
               </div>
             }
@@ -106,30 +106,35 @@
           </div>
         </div>
 
-        <!-- Mandatory Verification Checklist -->
+        <!-- Location / Pickup info -->
+        <div class="delivery-notice">
+          <span class="material-symbols-outlined notice-icon">location_on</span>
+          <p class="notice-text">
+            <strong>Punto de retiro:</strong> Se retira desde el punto de encuentro del vendedor o en el local comercial. Se acuerda directamente con el vendedor.
+          </p>
+        </div>
+
+        <!-- Informative Checklist -->
         <div class="verification-section">
           <p class="section-sub-title">Verificación de Estado del Insumo</p>
-          <div class="checklist-options">
-            <label class="checkbox-option">
-              <input type="checkbox" [(ngModel)]="checkLimpio" name="clean" required />
-              <span>Confirmar que el objeto está limpio y desinfectado.</span>
-            </label>
-
-            <label class="checkbox-option">
-              <input type="checkbox" [(ngModel)]="checkEstructura" name="structure" required />
-              <span>Verificar que no tenga daños estructurales o piezas rotas.</span>
-            </label>
-
-            <label class="checkbox-option">
-              <input type="checkbox" [(ngModel)]="checkMecanico" name="mech" required />
+          <ul class="info-checklist">
+            <li>
+              <span class="material-symbols-outlined check-bullet">check_circle</span>
+              <span>El objeto está limpio y desinfectado.</span>
+            </li>
+            <li>
+              <span class="material-symbols-outlined check-bullet">check_circle</span>
+              <span>Al recibirlo verificar que no tenga daños estructurales o piezas rotas.</span>
+            </li>
+            <li>
+              <span class="material-symbols-outlined check-bullet">check_circle</span>
               <span>Verificar el funcionamiento mecánico general.</span>
-            </label>
-
-            <label class="checkbox-option">
-              <input type="checkbox" [(ngModel)]="checkAccesorios" name="acc" required />
-              <span>Confirmar que incluye todos sus accesorios y cables.</span>
-            </label>
-          </div>
+            </li>
+            <li>
+              <span class="material-symbols-outlined check-bullet">check_circle</span>
+              <span>Confirmar que incluye todos sus accesorios y cables al vendedor.</span>
+            </li>
+          </ul>
         </div>
 
         <!-- Circular economy terms and conditions -->
@@ -142,7 +147,7 @@
 
         <div class="modal-footer" style="padding:1rem 0 0 0; border:none; display:flex; gap:1rem;">
           <button type="button" class="btn btn-secondary" style="flex:1;" (click)="handleCancel()">Cancelar</button>
-          <button type="submit" class="btn btn-primary" style="flex:1;" [disabled]="!checkLimpio || !checkEstructura || !checkMecanico || !checkAccesorios || !checkTerms">
+          <button type="submit" class="btn btn-primary" style="flex:1;" [disabled]="!checkTerms || !name.trim() || (prestifyService.checkoutAction() === 'borrow' && !dueDate)">
             Confirmar Solicitud
           </button>
         </div>

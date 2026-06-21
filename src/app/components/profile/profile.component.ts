@@ -27,6 +27,7 @@ export class ProfileComponent implements OnInit {
   public profileName = '';
   public profileType: 'vecino' | 'institucion' | 'empresa' = 'vecino';
   public profileMpAlias = '';
+  public profilePhone = '';
   public profilePassword = '';
 
   // Product Editing Modal & Form State
@@ -80,6 +81,7 @@ export class ProfileComponent implements OnInit {
       this.profileName = currentUser.name;
       this.profileType = currentUser.type;
       this.profileMpAlias = currentUser.mpAlias || '';
+      this.profilePhone = currentUser.phone || '';
 
       // Find password from full user array (passwords are omitted in session signal for security)
       const fullUser = this.prestifyService.users().find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
@@ -102,7 +104,8 @@ export class ProfileComponent implements OnInit {
     const updatedData: Partial<User> = {
       name: newName,
       type: this.profileType,
-      mpAlias: this.profileMpAlias
+      mpAlias: this.profileMpAlias,
+      phone: this.profilePhone
     };
 
     if (this.profilePassword) {
