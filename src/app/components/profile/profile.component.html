@@ -3,8 +3,29 @@
   <!-- PROFILE HEADER / BANNER -->
   <div class="profile-banner">
     <div class="profile-banner-left">
-      <div class="profile-avatar">
-        {{ prestifyService.currentUser()?.name?.charAt(0) }}
+      <!-- Avatar with photo upload -->
+      <div class="profile-avatar-wrapper">
+        <div class="profile-avatar" [class.has-photo]="prestifyService.currentUser()?.photoUrl">
+          @if (prestifyService.currentUser()?.photoUrl) {
+            <img [src]="prestifyService.currentUser()!.photoUrl" alt="Foto de perfil" class="profile-avatar-img" />
+          } @else {
+            {{ prestifyService.currentUser()?.name?.charAt(0) }}
+          }
+        </div>
+        <!-- Upload overlay button -->
+        <label class="avatar-upload-btn" title="Cambiar foto de perfil" [class.loading]="isUploadingPhoto()">
+          @if (isUploadingPhoto()) {
+            <span class="material-symbols-outlined" style="font-size:1.1rem; animation: spin 1s linear infinite;">autorenew</span>
+          } @else {
+            <span class="material-symbols-outlined" style="font-size:1.1rem;">photo_camera</span>
+          }
+          <input type="file" accept="image/*" (change)="onProfilePhotoSelected($event)" style="display:none;" />
+        </label>
+        @if (prestifyService.currentUser()?.photoUrl) {
+          <button class="avatar-remove-btn" (click)="removeProfilePhoto()" title="Quitar foto" type="button">
+            <span class="material-symbols-outlined" style="font-size:0.85rem;">close</span>
+          </button>
+        }
       </div>
       <div class="profile-meta-info">
         <h2>{{ prestifyService.currentUser()?.name }}</h2>

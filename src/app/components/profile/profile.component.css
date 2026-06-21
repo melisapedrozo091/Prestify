@@ -57,6 +57,83 @@
   font-weight: 800;
   box-shadow: var(--shadow-md);
   font-family: var(--font-heading);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-avatar.has-photo {
+  background: transparent;
+  padding: 0;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Avatar upload wrapper */
+.profile-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.avatar-upload-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.95);
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.avatar-upload-btn:hover {
+  background: var(--primary);
+  transform: scale(1.1);
+}
+
+.avatar-upload-btn.loading {
+  background: rgba(99, 102, 241, 0.7);
+  cursor: wait;
+}
+
+.avatar-remove-btn {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.9);
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  padding: 0;
+}
+
+.avatar-remove-btn:hover {
+  background: var(--danger);
+  transform: scale(1.1);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .profile-meta-info {

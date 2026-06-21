@@ -311,8 +311,13 @@ export class DashboardComponent implements OnInit {
   }
 
   public saveUser(): void {
-    if (!this.userFormName.trim() || !this.userFormEmail.trim() || !this.userFormPassword.trim()) {
+    const isCreate = this.userModalMode() === 'create';
+    if (!this.userFormName.trim() || !this.userFormEmail.trim()) {
       this.prestifyService.showToast('Por favor completa los campos obligatorios.', 'warning');
+      return;
+    }
+    if (isCreate && !this.userFormPassword.trim()) {
+      this.prestifyService.showToast('La contraseña es obligatoria para crear un usuario.', 'warning');
       return;
     }
 
@@ -321,7 +326,7 @@ export class DashboardComponent implements OnInit {
         name: this.userFormName,
         email: this.userFormEmail,
         password: this.userFormPassword,
-        role: 'usuario', 
+        role: 'usuario',
         type: this.userFormType,
         reputation: this.userFormReputation,
         reputationCount: 1,
@@ -335,9 +340,9 @@ export class DashboardComponent implements OnInit {
         this.prestifyService.showToast(result.error || 'Error al crear usuario.', 'warning');
       }
     } else {
+      // Admin edits: NEVER update the password — only the user can change their own password from their profile
       const result = this.prestifyService.updateUser(this.userFormEmail, {
         name: this.userFormName,
-        password: this.userFormPassword,
         type: this.userFormType,
         reputation: this.userFormReputation,
         mpAlias: this.userFormMpAlias

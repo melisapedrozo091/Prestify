@@ -41,6 +41,7 @@ export interface User {
   reputationCount: number;  // Number of ratings received
   mpAlias?: string;         // Mercado Pago payment alias
   phone?: string;           // Cell phone number
+  photoUrl?: string;        // Profile photo (base64 data URL or external URL)
 }
 
 export interface Transaction {

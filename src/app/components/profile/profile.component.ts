@@ -29,6 +29,8 @@ export class ProfileComponent implements OnInit {
   public profileMpAlias = '';
   public profilePhone = '';
   public profilePassword = '';
+  public profilePhotoUrl = '';          // Current photo preview (base64 or URL)
+  public readonly isUploadingPhoto = signal<boolean>(false);
 
   // Product Editing Modal & Form State
   public readonly showProductModal = signal<boolean>(false);
@@ -82,6 +84,7 @@ export class ProfileComponent implements OnInit {
       this.profileType = currentUser.type;
       this.profileMpAlias = currentUser.mpAlias || '';
       this.profilePhone = currentUser.phone || '';
+      this.profilePhotoUrl = currentUser.photoUrl || '';
 
       // Find password from full user array (passwords are omitted in session signal for security)
       const fullUser = this.prestifyService.users().find(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
@@ -105,7 +108,8 @@ export class ProfileComponent implements OnInit {
       name: newName,
       type: this.profileType,
       mpAlias: this.profileMpAlias,
-      phone: this.profilePhone
+      phone: this.profilePhone,
+      photoUrl: this.profilePhotoUrl || undefined
     };
 
     if (this.profilePassword) {
@@ -187,6 +191,44 @@ export class ProfileComponent implements OnInit {
         this.prestifyService.showToast('Foto cargada correctamente.', 'success');
       };
       reader.readAsDataURL(file);
+    }
+  }
+
+  /** Handles profile photo file selection — converts to base64 and saves immediately */
+  public onProfilePhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    if (file.size > 2 * 1024 * 1024) {
+      this.prestifyService.showToast('La foto no debe superar los 2 MB.', 'warning');
+      return;
+    }
+    this.isUploadingPhoto.set(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.profilePhotoUrl = reader.result as string;
+      this.isUploadingPhoto.set(false);
+      // Save immediately to user profile
+      const currentUser = this.prestifyService.currentUser();
+      if (currentUser) {
+        this.prestifyService.updateUser(currentUser.email, { photoUrl: this.profilePhotoUrl });
+        this.prestifyService.showToast('¡Foto de perfil actualizada!', 'success');
+      }
+    };
+    reader.onerror = () => {
+      this.isUploadingPhoto.set(false);
+      this.prestifyService.showToast('Error al cargar la imagen.', 'warning');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /** Removes the profile photo */
+  public removeProfilePhoto(): void {
+    this.profilePhotoUrl = '';
+    const currentUser = this.prestifyService.currentUser();
+    if (currentUser) {
+      this.prestifyService.updateUser(currentUser.email, { photoUrl: undefined });
+      this.prestifyService.showToast('Foto de perfil eliminada.', 'info');
     }
   }
 

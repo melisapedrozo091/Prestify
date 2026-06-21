@@ -94,8 +94,12 @@
     <div class="sidebar-footer">
       <a routerLink="/profile" style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; cursor: pointer;">
         <div
-          style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size:1.1rem; box-shadow: var(--shadow-sm);">
-          {{ prestifyService.currentUser()?.name?.charAt(0) }}
+          style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size:1.1rem; box-shadow: var(--shadow-sm); overflow: hidden; flex-shrink: 0;">
+          @if (prestifyService.currentUser()?.photoUrl) {
+            <img [src]="prestifyService.currentUser()!.photoUrl" alt="Foto de perfil" style="width:100%; height:100%; object-fit:cover;" />
+          } @else {
+            {{ prestifyService.currentUser()?.name?.charAt(0) }}
+          }
         </div>
         <div style="flex-grow:1; min-width: 0;">
           <p
