@@ -27,6 +27,17 @@ export class App implements OnInit {
 
   // App Theme State
   public readonly theme = signal<'light' | 'dark'>('dark');
+
+  // Mobile Sidebar toggle state
+  public readonly isSidebarOpen = signal<boolean>(false);
+
+  public toggleSidebar(): void {
+    this.isSidebarOpen.update(v => !v);
+  }
+
+  public closeSidebar(): void {
+    this.isSidebarOpen.set(false);
+  }
   
   // Auth Form Fields
   public readonly showLoginPassword = signal<boolean>(false);

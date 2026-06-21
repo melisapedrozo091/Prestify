@@ -33,8 +33,24 @@
 <!-- ================= PRIVATE AUTHENTICATED PANEL ================= -->
 @else {
 <div class="app-container">
+  <!-- Mobile Header Bar -->
+  <div class="mobile-top-bar">
+    <button class="btn btn-icon menu-toggle-btn" (click)="toggleSidebar()" title="Menú" style="color: var(--text-main); background: transparent; border: none;">
+      <span class="material-symbols-outlined" style="font-size: 1.8rem;">menu</span>
+    </button>
+    <a routerLink="/landing" class="mobile-logo" (click)="closeSidebar()">
+      <span class="material-symbols-outlined logo-icon" style="background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">swap_horizontal_circle</span>
+      <span class="logo-text" style="font-weight: 800; color: var(--text-main);">Prestify</span>
+      <span class="logo-dot" style="color: var(--secondary); margin-left: -4px; font-weight: 800;">.</span>
+    </a>
+    <div style="width: 32px;"></div> <!-- visual spacer -->
+  </div>
+
+  <!-- Sidebar Backdrop overlay for mobile menu closing -->
+  <div class="sidebar-backdrop" [class.active]="isSidebarOpen()" (click)="closeSidebar()"></div>
+
   <!-- Sidebar Navigation -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.active]="isSidebarOpen()">
     <div class="logo-container">
       <span class="material-symbols-outlined logo-icon">swap_horizontal_circle</span>
       <span class="logo-text">Prestify</span>
@@ -43,31 +59,31 @@
 
     <ul class="nav-links">
       <li class="nav-item">
-        <a routerLink="/landing" routerLinkActive="active" class="nav-link">
+        <a routerLink="/landing" routerLinkActive="active" class="nav-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">home</span>
           <span>Inicio</span>
         </a>
       </li>
       <li class="nav-item">
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">dashboard</span>
           <span>Mi Panel</span>
         </a>
       </li>
       <li class="nav-item">
-        <a routerLink="/catalog" routerLinkActive="active" class="nav-link">
+        <a routerLink="/catalog" routerLinkActive="active" class="nav-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">grid_view</span>
           <span>Explorar Objetos</span>
         </a>
       </li>
       <li class="nav-item">
-        <a routerLink="/history" routerLinkActive="active" class="nav-link">
+        <a routerLink="/history" routerLinkActive="active" class="nav-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">history</span>
           <span>Historial Transacciones</span>
         </a>
       </li>
       <li class="nav-item">
-        <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+        <a routerLink="/profile" routerLinkActive="active" class="nav-link" (click)="closeSidebar()">
           <span class="material-symbols-outlined">person</span>
           <span>Mi Perfil</span>
         </a>
