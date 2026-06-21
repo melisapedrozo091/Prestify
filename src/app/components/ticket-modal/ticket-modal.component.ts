@@ -28,6 +28,11 @@ export class TicketModalComponent {
     return this.prestifyService.getSellerAlias(tx);
   }
 
+  public getSellerPhone(tx: Transaction): string {
+    const seller = this.prestifyService.users().find(u => u.name.toLowerCase() === tx.owner.toLowerCase());
+    return seller?.phone || 'No especificado';
+  }
+
   public handleClose(): void {
     this.prestifyService.closeTicketModal();
   }
