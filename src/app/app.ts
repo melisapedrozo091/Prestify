@@ -59,7 +59,8 @@ export class App implements OnInit {
   public newItemPhoto = '';
   public newItemCondition: 'Nuevo' | 'Como nuevo' | 'Bueno' | 'Aceptable' = 'Bueno';
   public newItemMode: 'prestamo' | 'venta' = 'prestamo';
-  public newItemPrice = 0; 
+  public newItemPrice = 0;
+  public newItemStock = 1;  // Units available
   public newItemLat = -34.6037;
   public newItemLng = -58.3816;
 
@@ -245,6 +246,7 @@ export class App implements OnInit {
       condition: this.newItemCondition,
       mode: this.newItemMode,
       price: this.newItemPrice,
+      stock: this.newItemStock > 0 ? this.newItemStock : 1,
       lat: this.newItemLat,
       lng: this.newItemLng
     });
@@ -384,5 +386,6 @@ export class App implements OnInit {
     this.newItemCondition = 'Bueno';
     this.newItemMode = 'prestamo';
     this.newItemPrice = 0;
+    this.newItemStock = 1;
   }
 }

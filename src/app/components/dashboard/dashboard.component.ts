@@ -53,6 +53,7 @@ export class DashboardComponent implements OnInit {
   public productFormCondition: 'Nuevo' | 'Como nuevo' | 'Bueno' | 'Aceptable' = 'Bueno';
   public productFormMode: 'prestamo' | 'venta' = 'prestamo';
   public productFormPrice = 0;
+  public productFormStock = 1;
   public productFormLat = -34.6037;
   public productFormLng = -58.3816;
   public productFormSku = '';
@@ -384,6 +385,7 @@ export class DashboardComponent implements OnInit {
     this.productFormCondition = item.condition;
     this.productFormMode = item.mode;
     this.productFormPrice = item.price;
+    this.productFormStock = item.stock ?? 1;
     this.productFormLat = item.lat;
     this.productFormLng = item.lng;
     this.productFormSku = item.sku || '';
@@ -423,6 +425,7 @@ export class DashboardComponent implements OnInit {
       condition: this.productFormCondition,
       mode: this.productFormMode,
       price: this.productFormPrice,
+      stock: this.productFormStock > 0 ? this.productFormStock : 1,
       lat: this.productFormLat,
       lng: this.productFormLng,
       sku: this.productFormSku

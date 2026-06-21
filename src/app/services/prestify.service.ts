@@ -20,6 +20,7 @@ export interface Item {
   status: 'disponible' | 'prestado' | 'vendido';
   mode: 'prestamo' | 'venta';
   price: number; // 0 if free loan, >0 if paid loan or sale
+  stock?: number; // Number of units available (default 1)
   lat: number;   // Geolocation latitude
   lng: number;   // Geolocation longitude
   borrower?: string;

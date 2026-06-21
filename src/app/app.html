@@ -377,7 +377,7 @@
           }
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1rem;">
           <div class="form-group">
             <label>Modalidad Comercial</label>
             <select class="form-select" [(ngModel)]="newItemMode" name="mode">
@@ -390,6 +390,13 @@
             <label>Costo / Precio ($)</label>
             <input type="number" step="any" class="form-input" placeholder="0 si es gratis" [(ngModel)]="newItemPrice"
               name="price" />
+          </div>
+
+          <div class="form-group">
+            <label>Cantidad Disponible</label>
+            <input type="number" min="1" class="form-input" placeholder="1" [(ngModel)]="newItemStock"
+              name="stock" title="Número de unidades disponibles" />
+            <span style="font-size:0.72rem; color:var(--text-muted); margin-top:3px; display:block;">Unidades en stock</span>
           </div>
         </div>
 

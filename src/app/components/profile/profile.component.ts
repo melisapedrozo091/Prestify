@@ -43,6 +43,7 @@ export class ProfileComponent implements OnInit {
   public productFormCondition: 'Nuevo' | 'Como nuevo' | 'Bueno' | 'Aceptable' = 'Bueno';
   public productFormMode: 'prestamo' | 'venta' = 'prestamo';
   public productFormPrice = 0;
+  public productFormStock = 1;
   public productFormLat = -34.6037;
   public productFormLng = -58.3816;
   public productFormSku = '';
@@ -170,6 +171,7 @@ export class ProfileComponent implements OnInit {
     this.productFormCondition = item.condition;
     this.productFormMode = item.mode;
     this.productFormPrice = item.price;
+    this.productFormStock = item.stock ?? 1;
     this.productFormLat = item.lat;
     this.productFormLng = item.lng;
     this.productFormSku = item.sku || '';
@@ -247,6 +249,7 @@ export class ProfileComponent implements OnInit {
       condition: this.productFormCondition,
       mode: this.productFormMode,
       price: this.productFormPrice,
+      stock: this.productFormStock > 0 ? this.productFormStock : 1,
       lat: this.productFormLat,
       lng: this.productFormLng,
       sku: this.productFormSku
@@ -302,6 +305,7 @@ export class ProfileComponent implements OnInit {
     const conditionIndex = headers.indexOf('condition');
     const modeIndex = headers.indexOf('mode');
     const priceIndex = headers.indexOf('price');
+    const stockIndex = headers.indexOf('stock');
     const skuIndex = headers.indexOf('sku');
     const photoIndex = headers.indexOf('photourl');
     const latIndex = headers.indexOf('lat');
@@ -341,6 +345,9 @@ export class ProfileComponent implements OnInit {
       const priceVal = priceIndex !== -1 ? parseFloat(cells[priceIndex]) : 0;
       const price = isNaN(priceVal) ? 0 : priceVal;
 
+      const stockVal = stockIndex !== -1 ? parseInt(cells[stockIndex], 10) : 1;
+      const stock = (isNaN(stockVal) || stockVal < 1) ? 1 : stockVal;
+
       const sku = skuIndex !== -1 ? cells[skuIndex] || undefined : undefined;
       const photoUrl = photoIndex !== -1 ? cells[photoIndex] || 'assets/placeholder.jpg' : 'assets/placeholder.jpg';
 
@@ -357,6 +364,7 @@ export class ProfileComponent implements OnInit {
         condition,
         mode,
         price,
+        stock,
         owner: currentUser.name,
         photoUrl,
         lat,
@@ -378,7 +386,7 @@ export class ProfileComponent implements OnInit {
     const items = this.myPublishedItems();
     if (items.length === 0) return;
 
-    const headers = ['title', 'description', 'category', 'condition', 'mode', 'price', 'sku', 'photoUrl', 'lat', 'lng'];
+    const headers = ['title', 'description', 'category', 'condition', 'mode', 'price', 'stock', 'sku', 'photoUrl', 'lat', 'lng'];
     
     const rows = items.map(item => {
       return [
@@ -388,6 +396,7 @@ export class ProfileComponent implements OnInit {
         this.escapeCsvCell(item.condition),
         this.escapeCsvCell(item.mode),
         item.price,
+        item.stock ?? 1,
         this.escapeCsvCell(item.sku || ''),
         this.escapeCsvCell(item.photoUrl),
         item.lat,
