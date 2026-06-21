@@ -644,6 +644,14 @@ export class PrestifyService {
                 newUser.mpAlias = seedUser?.mpAlias || nameStr.toLowerCase().trim().replace(/[^a-z0-9]+/g, '.');
                 updated = true;
               }
+              if (!newUser.phone) {
+                const nameStr = newUser.name || 'usuario';
+                const seedUser = SEED_USERS.find(su => su.name.toLowerCase() === nameStr.toLowerCase());
+                if (seedUser?.phone) {
+                  newUser.phone = seedUser.phone;
+                  updated = true;
+                }
+              }
               
               if (updated) {
                 migratedUsers = true;
@@ -663,7 +671,6 @@ export class PrestifyService {
           console.error('Error parsing stored users:', err);
           this._users.set(SEED_USERS);
         }
-
 
       } else {
         this._users.set(SEED_USERS);
@@ -690,6 +697,20 @@ export class PrestifyService {
               session.mpAlias = seedUser?.mpAlias || session.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '.');
               updatedSession = true;
             }
+
+            // Sync session phone and mpAlias from the persistent user record
+            const matchingUser = this._users().find(u => u.email.toLowerCase() === session.email.toLowerCase());
+            if (matchingUser) {
+              if (matchingUser.phone && session.phone !== matchingUser.phone) {
+                session.phone = matchingUser.phone;
+                updatedSession = true;
+              }
+              if (matchingUser.mpAlias && session.mpAlias !== matchingUser.mpAlias) {
+                session.mpAlias = matchingUser.mpAlias;
+                updatedSession = true;
+              }
+            }
+
             if (updatedSession) {
               this.saveToStorage(STORAGE_SESSION_KEY, session);
             }
@@ -777,15 +798,8 @@ export class PrestifyService {
     this.persistUsers();
 
     // Log in automatically after registration
-    this._currentUser.set({
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      type: newUser.type,
-      reputation: newUser.reputation,
-      reputationCount: newUser.reputationCount,
-      mpAlias: newUser.mpAlias
-    });
+    const { password: _, ...sessionUser } = newUser;
+    this._currentUser.set(sessionUser);
     this.persistSession();
 
     return { success: true };
@@ -837,15 +851,8 @@ export class PrestifyService {
     if (current && current.email.toLowerCase() === emailLower) {
       const updatedUser = this._users().find(u => u.email.toLowerCase() === emailLower);
       if (updatedUser) {
-        this._currentUser.set({
-          name: updatedUser.name,
-          email: updatedUser.email,
-          role: updatedUser.role,
-          type: updatedUser.type,
-          reputation: updatedUser.reputation,
-          reputationCount: updatedUser.reputationCount,
-          mpAlias: updatedUser.mpAlias
-        });
+        const { password: _, ...sessUser } = updatedUser;
+        this._currentUser.set(sessUser);
         this.persistSession();
       }
     }
@@ -885,15 +892,8 @@ export class PrestifyService {
     }
 
     // Set current user (excluding password)
-    this._currentUser.set({
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      type: user.type,
-      reputation: user.reputation,
-      reputationCount: user.reputationCount,
-      mpAlias: user.mpAlias
-    });
+    const { password: _, ...sessionUser } = user;
+    this._currentUser.set(sessionUser);
     this.persistSession();
 
     return { success: true };
@@ -940,14 +940,8 @@ export class PrestifyService {
     if (current && current.name.toLowerCase() === username.toLowerCase()) {
       const updatedUser = this._users().find(u => u.name.toLowerCase() === current.name.toLowerCase());
       if (updatedUser) {
-        this._currentUser.set({
-          name: updatedUser.name,
-          email: updatedUser.email,
-          role: updatedUser.role,
-          type: updatedUser.type,
-          reputation: updatedUser.reputation,
-          reputationCount: updatedUser.reputationCount
-        });
+        const { password: _, ...sessUser } = updatedUser;
+        this._currentUser.set(sessUser);
         this.persistSession();
       }
     }

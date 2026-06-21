@@ -89,6 +89,17 @@
                 </div>
               </div>
             }
+
+            @if (paymentMethod === 'efectivo') {
+              <div class="cash-instructions-box animate-fade-up" style="background-color: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); padding: 1rem; border-radius: var(--radius-md); margin-top: 1rem; display: flex; gap: 0.75rem; align-items: flex-start;">
+                <span class="material-symbols-outlined" style="color: #4ade80; font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;">payments</span>
+                <div style="flex-grow: 1; min-width: 0; font-size: 0.85rem; line-height: 1.4; color: var(--text-main);">
+                  <p style="margin: 0 0 4px 0; font-weight: 700; color: #4ade80;">Pago en Efectivo</p>
+                  <p style="margin: 0 0 4px 0;">El pago se realizará en mano al momento de retirar el objeto.</p>
+                  <p style="margin: 0;">Podés comunicarte con el vendedor por WhatsApp/celular al teléfono <strong>{{ getSellerPhone() }}</strong> para coordinar el retiro y avisar sobre tu solicitud.</p>
+                </div>
+              </div>
+            }
           </div>
         }
 
@@ -110,7 +121,7 @@
         <div class="delivery-notice">
           <span class="material-symbols-outlined notice-icon">location_on</span>
           <p class="notice-text">
-            <strong>Punto de retiro:</strong> Se retira desde el punto de encuentro del vendedor o en el local comercial. Se acuerda directamente con el vendedor.
+            <strong>Punto de retiro:</strong> Se retira desde el punto de encuentro del vendedor o en el local comercial. Se acuerda directamente con el vendedor (Teléfono de contacto: <strong>{{ getSellerPhone() }}</strong>).
           </p>
         </div>
 
