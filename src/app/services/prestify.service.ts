@@ -1420,38 +1420,8 @@ export class PrestifyService {
     doc.text('¡Gracias por apoyar el consumo local y colaborativo!', 105, 230, { align: 'center' });
     doc.text('Ayúdanos a cuidar y retornar los bienes a la comunidad.', 105, 236, { align: 'center' });
     
-    if (tx.paymentMethod === 'mercadopago' && tx.price > 0 && typeof window !== 'undefined') {
-      // Load and embed the QR Code image
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctxImg = canvas.getContext('2d');
-        if (ctxImg) {
-          ctxImg.drawImage(img, 0, 0);
-          const dataURL = canvas.toDataURL('image/png');
-          
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(10);
-          doc.setTextColor(15, 23, 42);
-          doc.text('Escanear para pagar:', 140, 156);
-          doc.addImage(dataURL, 'PNG', 140, 160, 30, 30);
-        }
-        doc.save(`Comprobante_${tx.ticketNumber}.pdf`);
-        this.showToast('¡Comprobante en formato PDF descargado con éxito!', 'success');
-      };
-      img.onerror = (err) => {
-        console.error('Failed to load QR image for PDF, exporting without QR', err);
-        doc.save(`Comprobante_${tx.ticketNumber}.pdf`);
-        this.showToast('¡Comprobante en formato PDF descargado con éxito!', 'success');
-      };
-      img.src = this.getQrCodeUrl(tx);
-    } else {
-      doc.save(`Comprobante_${tx.ticketNumber}.pdf`);
-      this.showToast('¡Comprobante en formato PDF descargado con éxito!', 'success');
-    }
+    doc.save(`Comprobante_${tx.ticketNumber}.pdf`);
+    this.showToast('¡Comprobante en formato PDF descargado con éxito!', 'success');
   }
 
   public downloadPaymentReport(monthStr: string, limitToUser?: string): void {
