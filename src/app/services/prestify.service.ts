@@ -66,6 +66,7 @@ export interface Transaction {
   durationDays?: number;
   notes?: string;
   itemRated?: boolean;
+  deletedAt?: string;           // Soft-delete timestamp — record is preserved for audit
 }
 
 const STORAGE_ITEMS_KEY = 'prestify_items_circular';
@@ -353,12 +354,16 @@ export class PrestifyService {
   // Internal signals representing state
   private readonly _items = signal<Item[]>([]);
   private readonly _transactions = signal<Transaction[]>([]);
+
+  /** All transactions including soft-deleted ones — for admin audit trail */
+  public readonly allTransactions = computed(() => this._transactions());
   private readonly _users = signal<User[]>([]);
   private readonly _currentUser = signal<User | null>(null);
 
   // Read-only signals
   public readonly items = computed(() => this._items());
-  public readonly transactions = computed(() => this._transactions());
+  /** Active transactions — excludes soft-deleted records */
+  public readonly transactions = computed(() => this._transactions().filter(t => !t.deletedAt));
   public readonly users = computed(() => this._users());
   public readonly currentUser = computed(() => this._currentUser());
 
@@ -585,11 +590,13 @@ export class PrestifyService {
         this.saveToStorage(STORAGE_ITEMS_KEY, SEED_ITEMS);
       }
  
-      // Load Transactions
+      // Load Transactions — NOTE: We NEVER override user-created transaction prices.
+      // Only safe title/label migrations are allowed.
       if (transactionData) {
         let loadedTxs = JSON.parse(transactionData);
         let migratedTx = false;
         loadedTxs = loadedTxs.map((tx: any) => {
+          // Safe migration: fix a renamed item title (no data loss)
           if (tx.itemId === '2' && tx.itemTitle === 'Escalera Telescópica de Aluminio (4.4m)') {
             migratedTx = true;
             return {
@@ -597,13 +604,7 @@ export class PrestifyService {
               itemTitle: 'Taladro Percutor Inalámbrico Dewalt 20V'
             };
           }
-          
-          // Update transaction prices to match new realistic seed prices
-          const matchingTxSeed = SEED_TRANSACTIONS.find(st => st.id === tx.id);
-          if (matchingTxSeed && tx.price !== matchingTxSeed.price) {
-            tx.price = matchingTxSeed.price;
-            migratedTx = true;
-          }
+          // IMPORTANT: Never override stored transaction prices — user transactions are immutable.
           return tx;
         });
         this._transactions.set(loadedTxs);
@@ -1625,15 +1626,20 @@ export class PrestifyService {
     return { success: true };
   }
 
-  // Admin delete transaction
+  // Admin soft-delete transaction — record is PRESERVED in storage for audit purposes.
+  // The item's status is restored to 'disponible' but the transaction history is retained.
   public deleteTransaction(txId: string): { success: boolean; error?: string } {
     const tx = this._transactions().find(t => t.id === txId);
     if (!tx) {
       return { success: false, error: 'Transacción no encontrada.' };
     }
+    if (tx.deletedAt) {
+      return { success: false, error: 'La transacción ya fue eliminada.' };
+    }
 
+    // Restore item status to available if it was affected by this transaction
     this._items.update(items => items.map(item => {
-      if (item.id === tx.itemId) {
+      if (item.id === tx.itemId && (tx.approvalStatus === 'aprobado')) {
         return {
           ...item,
           status: 'disponible',
@@ -1646,7 +1652,11 @@ export class PrestifyService {
     }));
     this.persistItems();
 
-    this._transactions.update(txs => txs.filter(t => t.id !== txId));
+    // Soft-delete: mark with timestamp but DO NOT remove from array
+    const deletedAt = new Date().toISOString();
+    this._transactions.update(txs => txs.map(t =>
+      t.id === txId ? { ...t, deletedAt } : t
+    ));
     this.persistTransactions();
     return { success: true };
   }

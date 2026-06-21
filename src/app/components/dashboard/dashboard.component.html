@@ -222,8 +222,14 @@
           </button>
         </div>
 
-        @if (prestifyService.transactions().length > 0) {
+        @if (adminVisibleTransactions().length > 0) {
         <div class="history-table-container" style="overflow-x: auto;">
+        <div style="margin-bottom: 1rem; display: flex; justify-content: flex-end;">
+            <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 12px; display: inline-flex; align-items: center; gap: 0.4rem;" (click)="showDeletedTx.set(!showDeletedTx())">
+              <span class="material-symbols-outlined" style="font-size: 1rem;">{{ showDeletedTx() ? 'visibility_off' : 'history' }}</span>
+              {{ showDeletedTx() ? 'Ocultar Anuladas' : 'Mostrar Anuladas' }}
+            </button>
+          </div>
           <table class="history-table">
             <thead>
               <tr>
@@ -233,19 +239,22 @@
                 <th>Dueño (Remitente)</th>
                 <th>Solicitante (Adquirente)</th>
                 <th>Aprobación</th>
+                <th>Estado</th>
                 <th>Monto</th>
-                <th>Pago Presencial</th>
-                <th>Acción</th>
-                <th style="text-align: right; width: 120px;">Acciones Admin</th>
+                <th>Pago</th>
+                <th style="text-align: right; width: 140px;">Acciones Admin</th>
               </tr>
             </thead>
             <tbody>
-              @for (tx of prestifyService.transactions(); track tx.id) {
-              <tr>
+              @for (tx of adminVisibleTransactions(); track tx.id) {
+              <tr [style.opacity]="tx.deletedAt ? '0.55' : '1'" [style.background]="tx.deletedAt ? 'rgba(239,68,68,0.04)' : ''">
                 <td class="font-mono" style="font-size:0.8rem;">
                   <a href="javascript:void(0)" (click)="openTicket(tx)" style="color: var(--primary); font-weight: 700; text-decoration: none;" title="Ver Comprobante">
                     {{ tx.ticketNumber }}
                   </a>
+                  @if (tx.deletedAt) {
+                    <span class="badge" style="color: var(--danger); background: rgba(239,68,68,0.08); font-size: 0.65rem; margin-left: 4px; display: inline-block;">ANULADA</span>
+                  }
                 </td>
                 <td><strong>{{ tx.itemTitle }}</strong></td>
                 <td>
@@ -260,6 +269,13 @@
                     [style.color]="tx.approvalStatus === 'aprobado' ? 'var(--success)' : (tx.approvalStatus === 'pendiente' ? 'var(--warning)' : 'var(--danger)')"
                     [style.backgroundColor]="tx.approvalStatus === 'aprobado' ? 'rgba(16,185,129,0.08)' : (tx.approvalStatus === 'pendiente' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)')">
                     {{ tx.approvalStatus }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge"
+                    [style.color]="tx.status === 'Activo' || tx.status === 'Vendido' ? 'var(--success)' : (tx.status === 'Pendiente' ? 'var(--warning)' : 'var(--text-muted)')"
+                    [style.backgroundColor]="tx.status === 'Activo' || tx.status === 'Vendido' ? 'rgba(16,185,129,0.08)' : (tx.status === 'Pendiente' ? 'rgba(245,158,11,0.08)' : 'var(--bg-input)')">
+                    {{ tx.status }}
                   </span>
                 </td>
                 <td style="font-weight: 700;">{{ prestifyService.formatPrice(tx.price) }}</td>
@@ -279,24 +295,27 @@
                     <span style="color:var(--text-muted); font-size:0.8rem;">Gratuito</span>
                   }
                 </td>
-                <td>
-                  @if (tx.price > 0 && tx.status === 'Pago Pendiente' && tx.approvalStatus === 'aprobado') {
-                  <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; width: 100%; text-align: center;"
-                    (click)="handleConfirmPayment(tx.id)">
-                    Confirmar Pago
-                  </button>
-                  } @else {
-                  <span style="color:var(--text-muted); font-size: 0.75rem;">Verificado</span>
-                  }
-                </td>
                 <td style="text-align: right;">
-                  <div style="display:inline-flex; gap:0.5rem; justify-content: flex-end;">
-                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" (click)="openEditTxModal(tx)" title="Editar Transacción">
+                  <div style="display:inline-flex; gap:0.35rem; justify-content: flex-end; flex-wrap: wrap; align-items: center;">
+                    @if (tx.price > 0 && tx.status === 'Pago Pendiente' && tx.approvalStatus === 'aprobado' && !tx.deletedAt) {
+                      <button class="btn btn-primary" style="padding: 3px 8px; font-size: 0.72rem; box-shadow:none;"
+                        (click)="handleConfirmPayment(tx.id)">
+                        Confirmar Pago
+                      </button>
+                    }
+                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size:0.8rem;" (click)="openEditTxModal(tx)" title="Editar Transacción" [disabled]="!!tx.deletedAt">
                       <span class="material-symbols-outlined" style="font-size:1.1rem;">edit</span>
                     </button>
-                    <button class="btn btn-danger" style="padding: 4px 8px; font-size:0.8rem;" (click)="deleteTx(tx.id)" title="Eliminar Transacción">
-                      <span class="material-symbols-outlined" style="font-size:1.1rem;">delete</span>
-                    </button>
+                    @if (!tx.deletedAt) {
+                      <button class="btn btn-danger" style="padding: 4px 8px; font-size:0.8rem;" (click)="deleteTx(tx.id)" title="Anular Transacción (soft-delete)">
+                        <span class="material-symbols-outlined" style="font-size:1.1rem;">block</span>
+                      </button>
+                    } @else {
+                      <span style="font-size:0.7rem; color: var(--danger); opacity: 0.7; display: flex; align-items: center; gap: 2px;">
+                        <span class="material-symbols-outlined" style="font-size:1rem;">block</span>
+                        Anulada
+                      </span>
+                    }
                   </div>
                 </td>
               </tr>
@@ -669,6 +688,78 @@
           <h3>No tienes objetos en posesión física</h3>
           <p>¿Necesitas alguna herramienta o insumo ortopédico? Explora el catálogo.</p>
           <button class="btn btn-primary" (click)="navigateToCatalog()">Ver Catálogo</button>
+        </div>
+      }
+      </section>
+
+    <!-- SECTION 4: FULL TRANSACTION HISTORY (Immutable audit trail) -->
+    <section class="active-loans-section" style="margin-top: 3rem;">
+      <h2 class="section-title">
+        <span class="material-symbols-outlined" style="color:var(--primary);">history</span>
+        Historial Completo de Transacciones
+        <span class="count">{{ myFullHistory().length }}</span>
+      </h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Registro permanente de todas tus operaciones. Los datos se conservan incluso si el estado de los objetos cambia.
+      </p>
+
+      @if (myFullHistory().length > 0) {
+        <div class="history-table-container" style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Comprobante</th>
+                <th>Artículo</th>
+                <th>Rol</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Monto</th>
+                <th>Pago</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tx of myFullHistory(); track tx.id) {
+              <tr [style.opacity]="tx.deletedAt ? '0.5' : '1'">
+                <td class="font-mono" style="font-size:0.8rem;">
+                  @if (!tx.deletedAt) {
+                    <a href="javascript:void(0)" (click)="openTicket(tx)" style="color: var(--primary); font-weight: 700; text-decoration: none;">{{ tx.ticketNumber }}</a>
+                  } @else {
+                    <span style="color: var(--text-muted); font-weight: 700;">{{ tx.ticketNumber }}</span>
+                    <span class="badge" style="color: var(--danger); background: rgba(239,68,68,0.08); font-size: 0.65rem; margin-left: 4px;">ANULADA</span>
+                  }
+                </td>
+                <td><strong>{{ tx.itemTitle }}</strong></td>
+                <td>
+                  @if (tx.owner.toLowerCase() === prestifyService.currentUser()?.name?.toLowerCase()) {
+                    <span class="badge" style="color: var(--primary); background: rgba(99,102,241,0.1);">Vendedor/Prestador</span>
+                  } @else {
+                    <span class="badge" style="color: var(--success); background: rgba(16,185,129,0.1);">Comprador/Tomador</span>
+                  }
+                </td>
+                <td>
+                  <span class="badge" style="background-color: var(--bg-input); font-weight:700; text-transform:capitalize;">
+                    {{ tx.type === 'prestamo' ? 'Préstamo' : 'Venta' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge"
+                    [style.color]="tx.approvalStatus === 'aprobado' ? 'var(--success)' : (tx.approvalStatus === 'pendiente' ? 'var(--warning)' : 'var(--danger)')"
+                    [style.backgroundColor]="tx.approvalStatus === 'aprobado' ? 'rgba(16,185,129,0.08)' : (tx.approvalStatus === 'pendiente' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)')">
+                    {{ tx.status }}
+                  </span>
+                </td>
+                <td style="font-weight: 700;">{{ prestifyService.formatPrice(tx.price, 'Gratuito') }}</td>
+                <td style="text-transform: capitalize;">{{ tx.paymentMethod === 'mercadopago' ? 'Mercado Pago' : 'Efectivo' }}</td>
+                <td class="history-date">{{ tx.dateStarted }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty-state" style="padding: 2rem 1rem;">
+          <p style="margin: 0; font-size:0.9rem; color:var(--text-muted);">No tienes transacciones registradas todavía.</p>
         </div>
       }
     </section>

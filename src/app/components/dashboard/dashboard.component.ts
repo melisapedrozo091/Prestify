@@ -18,6 +18,17 @@ export class DashboardComponent implements OnInit {
   // Active Admin Sub-tab
   public readonly adminTab = signal<'users' | 'catalog' | 'transactions'>('users');
 
+  // Toggle to show/hide soft-deleted transactions in admin view
+  public readonly showDeletedTx = signal<boolean>(false);
+
+  // Transactions visible in the admin table (respects showDeletedTx toggle)
+  public readonly adminVisibleTransactions = computed(() => {
+    if (this.showDeletedTx()) {
+      return this.prestifyService.allTransactions();
+    }
+    return this.prestifyService.transactions();
+  });
+
   // User ABM Modal & Form State
   public readonly showUserModal = signal<boolean>(false);
   public readonly userModalMode = signal<'create' | 'edit'>('create');
@@ -213,6 +224,20 @@ export class DashboardComponent implements OnInit {
       tx.owner.toLowerCase() === currentUser.name.toLowerCase() &&
       tx.approvalStatus === 'pendiente'
     );
+  });
+
+  // Full transaction history for the current user (all statuses, including completed/rejected)
+  public readonly myFullHistory = computed(() => {
+    const currentUser = this.prestifyService.currentUser();
+    if (!currentUser) return [];
+    // Use allTransactions so soft-deleted records are also visible in personal history
+    return this.prestifyService.allTransactions()
+      .filter(tx =>
+        tx.borrowerOrBuyer.toLowerCase() === currentUser.name.toLowerCase() ||
+        tx.owner.toLowerCase() === currentUser.name.toLowerCase()
+      )
+      // Sort newest first
+      .sort((a, b) => b.dateStarted.localeCompare(a.dateStarted));
   });
 
   public getItemById(itemId: string): Item | undefined {
@@ -458,15 +483,19 @@ export class DashboardComponent implements OnInit {
   }
 
   public deleteTx(txId: string): void {
-    const tx = this.prestifyService.transactions().find(t => t.id === txId);
+    const tx = this.prestifyService.allTransactions().find(t => t.id === txId);
     if (!tx) return;
+    if (tx.deletedAt) {
+      this.prestifyService.showToast('Esta transacción ya fue anulada.', 'info');
+      return;
+    }
 
-    if (confirm(`¿Estás seguro de que quieres eliminar la transacción "${tx.ticketNumber}"? Esto restaurará el estado del artículo.`)) {
+    if (confirm(`¿Anular la transacción "${tx.ticketNumber}"? El registro se conservará con marca de eliminado para auditoría.`)) {
       const result = this.prestifyService.deleteTransaction(txId);
       if (result.success) {
-        this.prestifyService.showToast(`Transacción "${tx.ticketNumber}" eliminada y estado de objeto restablecido.`, 'info');
+        this.prestifyService.showToast(`Transacción "${tx.ticketNumber}" anulada. El historial queda preservado.`, 'info');
       } else {
-        this.prestifyService.showToast(result.error || 'Error al eliminar transacción.', 'warning');
+        this.prestifyService.showToast(result.error || 'Error al anular transacción.', 'warning');
       }
     }
   }
