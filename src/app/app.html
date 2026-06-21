@@ -86,20 +86,29 @@
             style="margin:0; font-size:0.875rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
             {{ prestifyService.currentUser()?.name }}
           </p>
-          <span class="badge profile-banner-role"
-            style="font-size:0.6rem; padding: 0.1rem 0.5rem; letter-spacing:0; text-transform:capitalize; margin-top:2px;">
-            {{ prestifyService.currentUser()?.type }}
-          </span>
+          @if (prestifyService.currentUser()?.role === 'admin') {
+            <span class="badge profile-banner-role"
+              style="font-size:0.6rem; padding: 0.1rem 0.5rem; letter-spacing:0; text-transform:capitalize; margin-top:2px; background-color: var(--danger); border-color: rgba(239, 68, 68, 0.4);">
+              ADMIN
+            </span>
+          } @else {
+            <span class="badge profile-banner-role"
+              style="font-size:0.6rem; padding: 0.1rem 0.5rem; letter-spacing:0; text-transform:capitalize; margin-top:2px;">
+              {{ prestifyService.currentUser()?.type }}
+            </span>
+          }
         </div>
       </a>
 
-      <div
-        style="display:flex; align-items:center; gap:4px; margin-bottom: 1.25rem; font-size:0.8rem; font-weight:700;">
-        <span class="material-symbols-outlined" style="color:var(--warning); font-size:1.1rem;">star</span>
-        <span>Reputación: <strong>{{ prestifyService.currentUser()?.reputation }} / 5</strong></span>
-        <span style="color:var(--text-muted); font-weight:400;">({{ prestifyService.currentUser()?.reputationCount }}
-          calif.)</span>
-      </div>
+      @if (prestifyService.currentUser()?.role !== 'admin') {
+        <div
+          style="display:flex; align-items:center; gap:4px; margin-bottom: 1.25rem; font-size:0.8rem; font-weight:700;">
+          <span class="material-symbols-outlined" style="color:var(--warning); font-size:1.1rem;">star</span>
+          <span>Reputación: <strong>{{ prestifyService.currentUser()?.reputation }} / 5</strong></span>
+          <span style="color:var(--text-muted); font-weight:400;">({{ prestifyService.currentUser()?.reputationCount }}
+            calif.)</span>
+        </div>
+      }
 
       <button class="theme-toggle-btn" (click)="toggleTheme()" style="margin-bottom: 0.5rem;">
         <div class="theme-toggle-info">

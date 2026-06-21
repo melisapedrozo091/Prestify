@@ -9,14 +9,20 @@
       <div class="profile-meta-info">
         <h2>{{ prestifyService.currentUser()?.name }}</h2>
         <div class="profile-meta-badges">
-          <span class="badge profile-banner-role">{{ prestifyService.currentUser()?.type }}</span>
+          @if (prestifyService.currentUser()?.role === 'admin') {
+            <span class="badge profile-banner-role" style="background-color: var(--danger); border-color: rgba(239, 68, 68, 0.4);">ADMIN</span>
+          } @else {
+            <span class="badge profile-banner-role">{{ prestifyService.currentUser()?.type }}</span>
+          }
           <span class="badge profile-banner-role font-mono">{{ prestifyService.currentUser()?.email }}</span>
         </div>
-        <div class="profile-rating-info">
-          <span class="material-symbols-outlined star-icon">star</span>
-          <span class="rating-text">Reputación: <strong>{{ prestifyService.currentUser()?.reputation }} / 5</strong></span>
-          <span class="rating-count">({{ prestifyService.currentUser()?.reputationCount }} calif.)</span>
-        </div>
+        @if (prestifyService.currentUser()?.role !== 'admin') {
+          <div class="profile-rating-info">
+            <span class="material-symbols-outlined star-icon">star</span>
+            <span class="rating-text">Reputación: <strong>{{ prestifyService.currentUser()?.reputation }} / 5</strong></span>
+            <span class="rating-count">({{ prestifyService.currentUser()?.reputationCount }} calif.)</span>
+          </div>
+        }
       </div>
     </div>
     
