@@ -153,15 +153,27 @@
     <!-- TAB 2: MIS OBJETOS -->
     @if (activeTab() === 'items') {
       <div class="profile-card animate-fade-up">
-        <div class="profile-card-header">
+        <div class="profile-card-header" style="flex-wrap: wrap; gap: 1rem;">
           <div>
             <h3>Mis Publicaciones</h3>
             <p class="profile-card-subtitle">Administra los bienes y recursos que ofreces a la comunidad.</p>
           </div>
-          <button class="btn btn-primary" (click)="triggerGlobalPublishModal()">
-            <span class="material-symbols-outlined">add</span>
-            Publicar Nuevo Objeto
-          </button>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <button class="btn btn-secondary" (click)="csvInput.click()" style="display: flex; align-items: center; gap: 4px; padding: 0.5rem 0.75rem; font-size: 0.85rem; background-color: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main);">
+              <span class="material-symbols-outlined" style="font-size: 1.2rem;">upload_file</span>
+              Importar CSV
+            </button>
+            <button class="btn btn-secondary" (click)="exportToCsv()" style="display: flex; align-items: center; gap: 4px; padding: 0.5rem 0.75rem; font-size: 0.85rem; background-color: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main);" [disabled]="myPublishedItems().length === 0">
+              <span class="material-symbols-outlined" style="font-size: 1.2rem;">download</span>
+              Exportar CSV
+            </button>
+            <input type="file" #csvInput (change)="onCsvFileSelected($event)" accept=".csv" style="display: none;" />
+
+            <button class="btn btn-primary" (click)="triggerGlobalPublishModal()">
+              <span class="material-symbols-outlined">add</span>
+              Publicar Nuevo Objeto
+            </button>
+          </div>
         </div>
 
         @if (myPublishedItems().length > 0) {

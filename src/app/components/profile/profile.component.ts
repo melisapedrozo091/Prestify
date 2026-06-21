@@ -227,4 +227,174 @@ export class ProfileComponent implements OnInit {
       this.prestifyService.showToast('Artículo eliminado con éxito.', 'info');
     }
   }
+
+  public onCsvFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const csvContent = reader.result as string;
+        this.importItemsFromCsv(csvContent);
+        input.value = ''; // Reset input
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  public importItemsFromCsv(content: string): void {
+    const currentUser = this.prestifyService.currentUser();
+    if (!currentUser) return;
+
+    const lines = content.split(/\r?\n/);
+    if (lines.length <= 1) {
+      this.prestifyService.showToast('El archivo CSV está vacío o no contiene datos.', 'warning');
+      return;
+    }
+
+    const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+    
+    const titleIndex = headers.indexOf('title');
+    const descIndex = headers.indexOf('description');
+    const categoryIndex = headers.indexOf('category');
+    const conditionIndex = headers.indexOf('condition');
+    const modeIndex = headers.indexOf('mode');
+    const priceIndex = headers.indexOf('price');
+    const skuIndex = headers.indexOf('sku');
+    const photoIndex = headers.indexOf('photourl');
+    const latIndex = headers.indexOf('lat');
+    const lngIndex = headers.indexOf('lng');
+
+    if (titleIndex === -1) {
+      this.prestifyService.showToast('El CSV debe contener al menos una columna "title".', 'warning');
+      return;
+    }
+
+    let importCount = 0;
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+
+      const cells = this.parseCsvLine(line);
+
+      const title = cells[titleIndex];
+      if (!title) continue;
+
+      const description = descIndex !== -1 ? cells[descIndex] || '' : '';
+      
+      let category = (categoryIndex !== -1 ? cells[categoryIndex] : 'Otros') as any;
+      const validCategories = ['Electrónica', 'Deportes', 'Herramientas', 'Juegos', 'Salud', 'Indumentaria', 'Libros', 'Otros'];
+      const matchedCat = validCategories.find(c => c.toLowerCase() === String(category).toLowerCase().trim());
+      category = matchedCat || 'Otros';
+
+      let condition = (conditionIndex !== -1 ? cells[conditionIndex] : 'Bueno') as any;
+      const validConditions = ['Nuevo', 'Como nuevo', 'Bueno', 'Aceptable'];
+      const matchedCond = validConditions.find(c => c.toLowerCase() === String(condition).toLowerCase().trim());
+      condition = matchedCond || 'Bueno';
+
+      let mode = (modeIndex !== -1 ? cells[modeIndex] : 'prestamo') as any;
+      mode = (String(mode).toLowerCase().trim() === 'venta') ? 'venta' : 'prestamo';
+
+      const priceVal = priceIndex !== -1 ? parseFloat(cells[priceIndex]) : 0;
+      const price = isNaN(priceVal) ? 0 : priceVal;
+
+      const sku = skuIndex !== -1 ? cells[skuIndex] || undefined : undefined;
+      const photoUrl = photoIndex !== -1 ? cells[photoIndex] || 'assets/placeholder.jpg' : 'assets/placeholder.jpg';
+
+      const latVal = latIndex !== -1 ? parseFloat(cells[latIndex]) : -34.6037;
+      const lat = isNaN(latVal) ? -34.6037 : latVal;
+
+      const lngVal = lngIndex !== -1 ? parseFloat(cells[lngIndex]) : -58.3816;
+      const lng = isNaN(lngVal) ? -58.3816 : lngVal;
+
+      this.prestifyService.addItem({
+        title,
+        description,
+        category,
+        condition,
+        mode,
+        price,
+        owner: currentUser.name,
+        photoUrl,
+        lat,
+        lng,
+        sku
+      });
+      importCount++;
+    }
+
+    if (importCount > 0) {
+      this.prestifyService.showToast(`¡Se importaron ${importCount} objetos con éxito!`, 'success');
+      this.loadUserProfile();
+    } else {
+      this.prestifyService.showToast('No se pudieron importar objetos del CSV.', 'warning');
+    }
+  }
+
+  public exportToCsv(): void {
+    const items = this.myPublishedItems();
+    if (items.length === 0) return;
+
+    const headers = ['title', 'description', 'category', 'condition', 'mode', 'price', 'sku', 'photoUrl', 'lat', 'lng'];
+    
+    const rows = items.map(item => {
+      return [
+        this.escapeCsvCell(item.title),
+        this.escapeCsvCell(item.description),
+        this.escapeCsvCell(item.category),
+        this.escapeCsvCell(item.condition),
+        this.escapeCsvCell(item.mode),
+        item.price,
+        this.escapeCsvCell(item.sku || ''),
+        this.escapeCsvCell(item.photoUrl),
+        item.lat,
+        item.lng
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Mis_Objetos_SKU_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    this.prestifyService.showToast('¡CSV de objetos exportado con éxito!', 'success');
+  }
+
+  private parseCsvLine(line: string): string[] {
+    const result: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current.trim().replace(/^["']|["']$/g, ''));
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim().replace(/^["']|["']$/g, ''));
+    return result;
+  }
+
+  private escapeCsvCell(val: string): string {
+    if (!val) return '';
+    const clean = val.replace(/"/g, '""');
+    if (clean.includes(',') || clean.includes('\n') || clean.includes('"')) {
+      return `"${clean}"`;
+    }
+    return clean;
+  }
 }
+
+
