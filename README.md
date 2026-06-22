@@ -5,7 +5,7 @@ Prestify es una aplicación web desarrollada en **Angular** diseñada para la ge
 
 ## 🚀 MI PROYECTO ANGULAR
 El proyecto se encuentra desplegado y listo para ser evaluado en producción a través de Netlify:
-🔗 **[https://prestify20.netlify.app/landing](https://prestify20.netlify.app/landing)**
+🔗 **[https://prestify20.netlify.app](https://prestify20.netlify.app/landing)**
 
 ---
 
