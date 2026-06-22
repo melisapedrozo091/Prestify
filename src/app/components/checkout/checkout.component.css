@@ -246,6 +246,58 @@
   margin-top: 2px;
 }
 
+/* Quantity Selector */
+.qty-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.qty-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.qty-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  background-color: rgba(99, 102, 241, 0.08);
+  color: var(--primary);
+}
+
+.qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.qty-btn .material-symbols-outlined {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.qty-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 2rem;
+  text-align: center;
+}
+
+.qty-stock-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 /* Mobile responsiveness and layout wrapping */
 @media (max-width: 600px) {
   .modal-content {

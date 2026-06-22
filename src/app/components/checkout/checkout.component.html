@@ -33,6 +33,24 @@
           <input type="text" id="checkoutName" class="form-input" [(ngModel)]="name" name="cName" required placeholder="Tu nombre completo" />
         </div>
 
+        <!-- Quantity Selector -->
+        <div class="form-group">
+          <label>Cantidad de unidades</label>
+          <div class="qty-selector">
+            <button type="button" class="qty-btn" (click)="decreaseQty()" [disabled]="quantity <= 1">
+              <span class="material-symbols-outlined">remove</span>
+            </button>
+            <span class="qty-value">{{ quantity }}</span>
+            <button type="button" class="qty-btn" (click)="increaseQty()" [disabled]="quantity >= availableStock">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+            <span class="qty-stock-hint">de {{ availableStock }} disponible{{ availableStock !== 1 ? 's' : '' }}</span>
+          </div>
+          @if (availableStock > 1) {
+            <span class="field-hint">Podés solicitar hasta <strong>{{ availableStock }}</strong> unidades en esta transacción.</span>
+          }
+        </div>
+
         @if (prestifyService.checkoutAction() === 'borrow') {
           <div class="form-group">
             <label for="checkoutDueDate">Fecha de Devolución Estimada *</label>
@@ -109,8 +127,18 @@
             <span style="color:var(--text-muted); font-size:0.85rem;">Modalidad Comercial:</span>
             <strong style="text-transform: capitalize;">{{ prestifyService.checkoutItem()?.mode === 'prestamo' ? 'Alquiler / Préstamo' : 'Venta' }}</strong>
           </div>
+          @if (quantity > 1) {
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.25rem;">
+              <span style="color:var(--text-muted); font-size:0.85rem;">Precio unitario:</span>
+              <span>{{ prestifyService.formatPrice(unitPrice, 'Gratuito') }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.25rem;">
+              <span style="color:var(--text-muted); font-size:0.85rem;">Cantidad:</span>
+              <span>x{{ quantity }}</span>
+            </div>
+          }
           <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px dashed var(--border-color); padding-top:0.75rem; margin-top:0.5rem;">
-            <span style="font-weight:700; color:var(--text-main);">Costo de la Transacción:</span>
+            <span style="font-weight:700; color:var(--text-main);">Costo Total:</span>
             <strong style="color:var(--primary); font-size:1.25rem;">
               {{ prestifyService.formatPrice(totalCost, 'Gratuito') }}
             </strong>

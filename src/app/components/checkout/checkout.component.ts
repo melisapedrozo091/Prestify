@@ -18,6 +18,7 @@ export class CheckoutComponent implements OnInit {
   public dueDate = '';
   public notes = '';
   public paymentMethod: 'efectivo' | 'mercadopago' = 'efectivo';
+  public quantity = 1;
   
   // Handover Checklist boxes (not used for validation now, only Terms)
   public checkTerms = false;
@@ -43,10 +44,24 @@ export class CheckoutComponent implements OnInit {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   }
 
+  public get availableStock(): number {
+    return this.prestifyService.checkoutItem()?.stock ?? 1;
+  }
+
+  public get unitPrice(): number {
+    return this.prestifyService.checkoutItem()?.price ?? 0;
+  }
+
   public get totalCost(): number {
-    const item = this.prestifyService.checkoutItem();
-    if (!item) return 0;
-    return item.price; 
+    return this.unitPrice * this.quantity;
+  }
+
+  public decreaseQty(): void {
+    if (this.quantity > 1) this.quantity--;
+  }
+
+  public increaseQty(): void {
+    if (this.quantity < this.availableStock) this.quantity++;
   }
 
   public getSellerAlias(): string {
@@ -95,18 +110,20 @@ export class CheckoutComponent implements OnInit {
         item.price,
         verificationLog,
         this.notes,
-        this.paymentMethod
+        this.paymentMethod,
+        this.quantity
       );
-      this.prestifyService.showToast(`Solicitud de préstamo registrada para "${item.title}". Pendiente de aprobación por el dueño.`, 'success');
+      this.prestifyService.showToast(`Solicitud de préstamo registrada para "${item.title}" (x${this.quantity}). Pendiente de aprobación por el dueño.`, 'success');
     } else {
       createdTx = this.prestifyService.buyItem(
         item.id,
         this.name,
         item.price,
         verificationLog,
-        this.paymentMethod
+        this.paymentMethod,
+        this.quantity
       );
-      this.prestifyService.showToast(`Solicitud de compra registrada para "${item.title}". Pendiente de aprobación por el dueño.`, 'success');
+      this.prestifyService.showToast(`Solicitud de compra registrada para "${item.title}" (x${this.quantity}). Pendiente de aprobación por el dueño.`, 'success');
     }
 
     // If cash payment, download PDF ticket directly

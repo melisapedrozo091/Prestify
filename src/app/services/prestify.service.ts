@@ -58,6 +58,7 @@ export interface Transaction {
   dateEndedOrDue: string;
   returnDate?: string;
   price: number;
+  quantity: number;             // Number of units requested in this transaction
   status: 'Activo' | 'Caducado' | 'Pago Pendiente' | 'Vendido' | 'Devuelto' | 'Pendiente' | 'Rechazado';
   handoverChecklist: string[]; // State verification at handover
   returnChecklist?: string[];   // State verification at return
@@ -320,6 +321,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
     dateStarted: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     dateEndedOrDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     price: 79000.00,
+    quantity: 1,
     status: 'Caducado',
     handoverChecklist: ['Limpio y desinfectado', 'Sin daños estructurales', 'Funcionamiento mecánico verificado'],
     sku: 'SKU-HERR-8812',
@@ -340,6 +342,7 @@ const SEED_TRANSACTIONS: Transaction[] = [
     dateEndedOrDue: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     returnDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     price: 245000.00,
+    quantity: 1,
     status: 'Vendido',
     handoverChecklist: ['Limpio y desinfectado', 'Sin roturas ni costuras dañadas'],
     ratingGiven: 5,
@@ -1024,10 +1027,15 @@ export class PrestifyService {
     price: number, 
     checklist: string[], 
     notes?: string,
-    paymentMethod?: 'efectivo' | 'mercadopago'
+    paymentMethod?: 'efectivo' | 'mercadopago',
+    quantity: number = 1
   ): Transaction | undefined {
     const item = this._items().find(i => i.id === itemId);
-    if (!item || (item.stock ?? 1) <= 0) return undefined;
+    const availableStock = item?.stock ?? 1;
+    if (!item || availableStock <= 0) return undefined;
+
+    // Clamp quantity to available stock
+    const qty = Math.min(Math.max(1, quantity), availableStock);
 
     // Create a random ticket number
     const ticketNumber = 'TK-' + Math.floor(100000 + Math.random() * 900000);
@@ -1039,7 +1047,7 @@ export class PrestifyService {
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     const durationDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
 
-    // Create pending Transaction
+    // Create pending Transaction (price = unit price × quantity)
     const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       itemId,
@@ -1050,7 +1058,8 @@ export class PrestifyService {
       owner: item.owner,
       dateStarted: new Date().toISOString().split('T')[0],
       dateEndedOrDue: dueDate,
-      price,
+      price: price * qty,
+      quantity: qty,
       status: 'Pendiente',
       handoverChecklist: checklist,
       ticketNumber,
@@ -1072,16 +1081,21 @@ export class PrestifyService {
     buyer: string, 
     price: number, 
     checklist: string[],
-    paymentMethod?: 'efectivo' | 'mercadopago'
+    paymentMethod?: 'efectivo' | 'mercadopago',
+    quantity: number = 1
   ): Transaction | undefined {
     const item = this._items().find(i => i.id === itemId);
-    if (!item || (item.stock ?? 1) <= 0) return undefined;
+    const availableStock = item?.stock ?? 1;
+    if (!item || availableStock <= 0) return undefined;
+
+    // Clamp quantity to available stock
+    const qty = Math.min(Math.max(1, quantity), availableStock);
 
     // Create a random ticket number
     const ticketNumber = 'TK-' + Math.floor(100000 + Math.random() * 900000);
     const itemSku = item.sku || `SKU-${item.category.substring(0,4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Create pending Transaction
+    // Create pending Transaction (price = unit price × quantity)
     const newTx: Transaction = {
       id: Math.random().toString(36).substr(2, 9),
       itemId,
@@ -1092,7 +1106,8 @@ export class PrestifyService {
       owner: item.owner,
       dateStarted: new Date().toISOString().split('T')[0],
       dateEndedOrDue: new Date().toISOString().split('T')[0],
-      price,
+      price: price * qty,
+      quantity: qty,
       status: 'Pendiente',
       handoverChecklist: checklist,
       ticketNumber,
@@ -1115,7 +1130,8 @@ export class PrestifyService {
     this._items.update(items => items.map(item => {
       if (item.id === tx.itemId) {
         const currentStock = item.stock ?? 1;
-        const newStock = Math.max(0, currentStock - 1);
+        const deducted = tx.quantity ?? 1;
+        const newStock = Math.max(0, currentStock - deducted);
         if (tx.type === 'prestamo') {
           return {
             ...item,
