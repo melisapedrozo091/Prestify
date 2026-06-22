@@ -210,3 +210,57 @@
     gap: 3rem;
   }
 }
+
+/* Celulares pequeños */
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 1.25rem 1rem;
+    gap: 1.25rem;
+  }
+
+  .hero-title {
+    font-size: 1.65rem !important;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .hero-tagline {
+    font-size: 0.72rem;
+  }
+
+  .hero-actions-row {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .hero-actions-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Ocultar la card de ilustración en pantallas muy pequeñas para ganar espacio */
+  .hero-image-wrapper {
+    display: none;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .feature-card {
+    padding: 1.5rem;
+  }
+
+  .features-section-title {
+    font-size: 1.5rem;
+  }
+
+  .landing-container {
+    padding: 1rem 0.75rem;
+    gap: 2rem;
+  }
+}
+

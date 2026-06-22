@@ -334,3 +334,54 @@
     align-items: stretch;
   }
 }
+
+/* Celulares pequeños */
+@media (max-width: 480px) {
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .metric-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .metric-icon-wrapper {
+    width: 44px;
+    height: 44px;
+  }
+
+  .metric-value {
+    font-size: 1.25rem;
+  }
+
+  .history-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .history-table {
+    min-width: 540px;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .active-loan-img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .active-loan-details h4 {
+    font-size: 0.9rem;
+  }
+
+  .active-loan-details p {
+    font-size: 0.78rem;
+  }
+}
+

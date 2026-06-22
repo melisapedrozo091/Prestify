@@ -1474,3 +1474,208 @@
     justify-content: center;
   }
 }
+
+/* =============================================
+   MOBILE — Celulares pequeños (≤480px)
+   ============================================= */
+@media (max-width: 480px) {
+
+  /* --- Navbar pública --- */
+  .public-navbar {
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .public-navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .public-navbar-actions {
+    gap: 0.35rem;
+  }
+
+  .public-navbar-actions a,
+  .public-navbar-actions button {
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* --- Landing hero --- */
+  .hero-section {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 1.75rem !important;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .hero-actions-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .hero-actions-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-illustration-card {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  /* --- Features grid en landing --- */
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- Landing container --- */
+  .landing-container {
+    padding: 1rem 0.75rem;
+    gap: 2.5rem;
+  }
+
+  /* --- Mapa (altura reducida en mobile) --- */
+  div[id="catalog-map"],
+  div[id="landing-map"] {
+    height: 250px !important;
+    min-height: 200px;
+  }
+
+  /* --- Grilla del catálogo: 1 col en mobile --- */
+  .items-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* --- Filtros del catálogo --- */
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .category-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+  }
+
+  .category-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* --- Detalle de producto --- */
+  .item-detail-container {
+    padding: 1rem;
+  }
+
+  .detail-title {
+    font-size: 1.35rem !important;
+  }
+
+  /* --- Tablas del dashboard — scroll horizontal --- */
+  .history-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .history-table {
+    min-width: 560px;
+  }
+
+  /* --- Métricas del dashboard en 2 cols --- */
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .metric-card {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .metric-value {
+    font-size: 1.35rem;
+  }
+
+  /* --- Banner de dashboard/perfil --- */
+  .profile-banner {
+    padding: 1.25rem;
+  }
+
+  .profile-banner-info h2 {
+    font-size: 1.2rem;
+  }
+
+  /* --- Modales — full screen en mobile --- */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 1rem 1rem 0.75rem !important;
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-card);
+    z-index: 1;
+  }
+
+  .modal-body {
+    padding: 1rem !important;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1rem 1.25rem !important;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: sticky;
+    bottom: 0;
+    background-color: var(--bg-card);
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
+
+  /* --- Sidebar del app (dashboard) --- */
+  .sidebar {
+    width: 100% !important;
+  }
+
+  /* --- Content padding --- */
+  .main-content {
+    padding: 1rem 0.75rem;
+  }
+
+  /* --- Content header --- */
+  .content-header h1 {
+    font-size: 1.35rem;
+  }
+
+  /* --- Formularios --- */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid-modal {
+    grid-template-columns: 1fr;
+  }
+}
+
