@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ElementRef, ViewChild, inject, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { PrestifyService } from '../../services/prestify.service';
 
@@ -11,6 +11,16 @@ import { PrestifyService } from '../../services/prestify.service';
 export class LandingComponent implements AfterViewInit, OnDestroy {
   public readonly prestifyService = inject(PrestifyService);
   private readonly router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      // Re-initialize map markers when items change in the service database
+      const items = this.prestifyService.items();
+      if (this.mapInstance) {
+        this.initMapDeferred();
+      }
+    });
+  }
 
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
   private mapInstance: any = null;
@@ -88,6 +98,12 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
           marker.bindPopup(popupContent);
         }
       });
+
+      setTimeout(() => {
+        if (this.mapInstance) {
+          this.mapInstance.invalidateSize();
+        }
+      }, 200);
     } catch (e) {
       console.error('Error initializing Leaflet map on landing:', e);
     }
